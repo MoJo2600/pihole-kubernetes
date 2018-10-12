@@ -1,0 +1,8 @@
+apiVersion: v1
+data:
+  02-custom.conf: |
+    address=/foo.bar/192.168.178.10
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: pihole-custom-dnsmasq
