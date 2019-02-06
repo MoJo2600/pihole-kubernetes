@@ -5,6 +5,8 @@ metadata:
   labels:
     app: pihole
   name: pihole-udp
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole
 spec:
   externalTrafficPolicy: Cluster
   ports:

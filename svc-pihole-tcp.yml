@@ -4,7 +4,9 @@ metadata:
   creationTimestamp: null
   labels:
     app: pihole
-  name: pihole
+  name: pihole-tcp
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole
 spec:
   externalTrafficPolicy: Cluster
   ports:
