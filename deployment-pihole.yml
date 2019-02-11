@@ -26,7 +26,12 @@ spec:
       - env:
         - name: ServerIP
           value: 192.168.178.61
-        image: pihole/pihole:latest
+        - name: WEBPASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: pihole-webpassword
+        image: pihole/pihole:4.1_amd64
         imagePullPolicy: IfNotPresent
         name: pihole
         ports:
@@ -45,7 +50,7 @@ spec:
         - containerPort: 67
           name: client-udp
           protocol: UDP
-        resources: {}
+       resources: {}
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         volumeMounts:

@@ -1,0 +1,21 @@
+apiVersion: v1
+data:
+  config: |
+    address-pools:
+    - addresses:
+      - 192.168.178.60-192.168.178.80
+      name: default
+      protocol: layer2
+    - addresses:
+      - 192.168.178.245-192.168.178.254
+      name: network-services
+      protocol: layer2
+kind: ConfigMap
+metadata:
+  labels:
+    app: metallb
+    chart: metallb-0.8.3
+    heritage: Tiller
+    release: metallb
+  name: metallb
+  namespace: kube-system

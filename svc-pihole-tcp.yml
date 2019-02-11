@@ -1,27 +1,26 @@
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
+  annotations:
+    metallb.universe.tf/address-pool: network-services
+    metallb.universe.tf/allow-shared-ip: pihole-svc
   labels:
     app: pihole
   name: pihole-tcp
-  annotations:
-    metallb.universe.tf/allow-shared-ip: pihole
+  namespace: home
 spec:
-  externalTrafficPolicy: Cluster
+  externalTrafficPolicy: Local
+  loadBalancerIP: 192.168.178.254
   ports:
   - name: pihole-http
-    nodePort: 31173
     port: 80
     protocol: TCP
     targetPort: pihole-http
   - name: pihole-https
-    nodePort: 32320
     port: 443
     protocol: TCP
     targetPort: pihole-https
   - name: dns
-    nodePort: 31795
     port: 53
     protocol: TCP
     targetPort: dns
