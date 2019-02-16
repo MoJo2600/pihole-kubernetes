@@ -1,0 +1,94 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "pihole.fullname" . }}
+  labels:
+    app: {{ template "pihole.name" . }}
+    chart: {{ template "pihole.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: {{ template "pihole.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "pihole.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - env:
+          - name: ServerIP
+            value: {{ .Values.serverIP }}
+          - name: WEBPASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: {{ template "pihole.fullname" . }}-password         
+          name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+          - containerPort: 80
+            name: http
+            protocol: TCP
+          - containerPort: 53
+            name: dns
+            protocol: TCP
+          - containerPort: 53
+            name: dns-udp
+            protocol: UDP
+          - containerPort: 443
+            name: https
+            protocol: TCP
+          - containerPort: 67
+            name: client-udp
+            protocol: UDP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          volumeMounts:
+          - mountPath: /etc/pihole
+            name: config
+          - mountPath: /etc/dnsmasq.d/02-custom.conf
+            name: custom-dnsmasq
+            subPath: 02-custom.conf
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+      volumes:
+      - name: config
+        {{- if .Values.persistentVolumeClaim.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ template "pihole.fullname" . }}
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      - configMap:
+          defaultMode: 420
+          name: {{ template "pihole.fullname" . }}-custom-dnsmasq
+        name: custom-dnsmasq

@@ -1,0 +1,77 @@
+# Default values for pihole.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: "pihole/pihole"
+  tag: 4.2.1_amd64
+  pullPolicy: IfNotPresent
+
+serviceTCP:
+  type: LoadBalancer
+  loadBalancerIP: {}
+    # a fixed LoadBalancer IP
+  annotations: {}
+    # metallb.universe.tf/address-pool: network-services
+    # metallb.universe.tf/allow-shared-ip: pihole-svc
+
+serviceUDP:
+  type: LoadBalancer
+  loadBalancerIP: {}
+    # a fixed LoadBalancer IP
+  annotations: {}
+    # metallb.universe.tf/address-pool: network-services
+    # metallb.universe.tf/allow-shared-ip: pihole-svc
+
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+persistentVolumeClaim:
+  # set to true to use pvc
+  enabled: false
+  # set to true to use you own pvc
+  existingClaim: false
+  annotations: {}
+
+  accessModes:
+    - ReadWriteOnce
+  size: "500Mi"
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClass: "-"
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+adminPassword: "admin"
+
+# Use BLOCKINGMODE NULL by default
+serverIP: 0.0.0.0
+
+dnsmasq:
+  customDnsEntries: {}
+  # Here you can add custom dns entries to override the 
+  # dns resolution with. All lines will be added to the
+  # pihole dnsmasq configuration.
+  # The format should be like:
+  # - address=/foo.bar/192.168.178.10
+  # - address=/bar.foo/192.168.178.11

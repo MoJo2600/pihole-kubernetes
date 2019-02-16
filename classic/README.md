@@ -46,4 +46,4 @@ It is possible to create a dedicated metallb pool and then use the option to [re
 When you set the ```spec.externalTrafficPolicy``` in the services to ```Local``` instead of ```Cluster``` the clients ip address is forwarded to the pihole pod.
 
 Something like this should appear on the dashboard
-![screenshot](docs/screenshot.png) 
+![screenshot](../docs/screenshot.png) 
