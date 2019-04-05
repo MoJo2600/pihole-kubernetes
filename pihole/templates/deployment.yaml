@@ -24,15 +24,18 @@ spec:
         app: {{ template "pihole.name" . }}
         release: {{ .Release.Name }}
     spec:
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+        - 127.0.0.1
+        - 8.8.8.8 
       containers:
         - env:
-          - name: ServerIP
-            value: {{ .Values.serverIP }}
           - name: WEBPASSWORD
             valueFrom:
               secretKeyRef:
                 key: password
-                name: {{ template "pihole.fullname" . }}-password         
+                name: {{ template "pihole.fullname" . }}-password
           name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -56,16 +59,27 @@ spec:
             httpGet:
               path: /
               port: http
+              initialDelaySeconds: 120
           readinessProbe:
             httpGet:
               path: /
               port: http
+              initialDelaySeconds: 120
           volumeMounts:
           - mountPath: /etc/pihole
             name: config
           - mountPath: /etc/dnsmasq.d/02-custom.conf
             name: custom-dnsmasq
             subPath: 02-custom.conf
+          - mountPath: /etc/pihole/adlists.list
+            name: adlists
+            subPath: adlists.list
+          - mountPath: /etc/pihole/blacklist.txt
+            name: blacklist
+            subPath: blacklist.txt
+          - mountPath: /etc/pihole/whitelist.txt
+            name: whitelist
+            subPath: whitelist.txt
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
@@ -92,3 +106,15 @@ spec:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-custom-dnsmasq
         name: custom-dnsmasq
+      - configMap:
+          defaultMode: 420
+          name: {{ template "pihole.fullname" . }}-adlists
+        name: adlists
+      - configMap:
+          defaultMode: 420
+          name: {{ template "pihole.fullname" . }}-whitelist
+        name: whitelist
+      - configMap:
+          defaultMode: 420
+          name: {{ template "pihole.fullname" . }}-blacklist
+        name: blacklist
