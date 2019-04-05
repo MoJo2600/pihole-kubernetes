@@ -1,0 +1,294 @@
+# Default values for pihole.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: "pihole/pihole"
+  tag: 4.2.2-1_amd64
+  pullPolicy: IfNotPresent
+
+serviceTCP:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  loadBalancerIP: {}
+    # a fixed LoadBalancer IP
+  annotations: {}
+    # metallb.universe.tf/address-pool: network-services
+    # metallb.universe.tf/allow-shared-ip: pihole-svc
+
+serviceUDP:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  loadBalancerIP: {}
+    # a fixed LoadBalancer IP
+  annotations: {}
+    # metallb.universe.tf/address-pool: network-services
+    # metallb.universe.tf/allow-shared-ip: pihole-svc
+
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+persistentVolumeClaim:
+  # set to true to use pvc
+  enabled: false
+  # set to true to use you own pvc
+  existingClaim: false
+  annotations: {}
+
+  accessModes:
+    - ReadWriteOnce
+  size: "500Mi"
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClass: "-"
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+adminPassword: "admin"
+
+dnsmasq:
+  customDnsEntries: {}
+  # Here you can add custom dns entries to override the 
+  # dns resolution with. All lines will be added to the
+  # pihole dnsmasq configuration.
+  # The format should be like:
+  # - address=/foo.bar/192.168.178.10
+  # - address=/bar.foo/192.168.178.11
+
+adlists:
+  # If you want to provide blocklists, add them here.
+  # Provided list is the ticked list from https://v.firebog.net/hosts/lists.php?type=tick
+  - https://hosts-file.net/grm.txt
+  - https://reddestdream.github.io/Projects/MinimalHosts/etc/MinimalHostsBlocker/minimalhosts
+  - https://raw.githubusercontent.com/StevenBlack/hosts/master/data/KADhosts/hosts
+  - https://raw.githubusercontent.com/StevenBlack/hosts/master/data/add.Spam/hosts
+  - https://v.firebog.net/hosts/static/w3kbl.txt
+  - https://adaway.org/hosts.txt
+  - https://v.firebog.net/hosts/AdguardDNS.txt
+#  - https://raw.githubusercontent.com/anudeepND/blacklist/master/adservers.txt
+  - https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt
+  - https://hosts-file.net/ad_servers.txt
+  - https://v.firebog.net/hosts/Easylist.txt
+  - https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts;showintro=0
+  - https://raw.githubusercontent.com/StevenBlack/hosts/master/data/UncheckyAds/hosts
+  - https://www.squidblacklist.org/downloads/dg-ads.acl
+  - https://v.firebog.net/hosts/Easyprivacy.txt
+  - https://v.firebog.net/hosts/Prigent-Ads.txt
+  - https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-blocklist.txt
+  - https://raw.githubusercontent.com/StevenBlack/hosts/master/data/add.2o7Net/hosts
+  - https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt
+  - https://s3.amazonaws.com/lists.disconnect.me/simple_malvertising.txt
+  - https://mirror1.malwaredomains.com/files/justdomains
+  - https://hosts-file.net/exp.txt
+#  - https://hosts-file.net/emd.txt
+#  - https://hosts-file.net/psh.txt
+#  - https://mirror.cedia.org.ec/malwaredomains/immortal_domains.txt
+#  - https://www.malwaredomainlist.com/hostslist/hosts.txt
+#  - https://bitbucket.org/ethanr/dns-blacklists/raw/8575c9f96e5b4a1308f2f12394abd86d0927a4a0/bad_lists/Mandiant_APT1_Report_Appendix_D.txt
+#  - https://v.firebog.net/hosts/Prigent-Malware.txt
+#  - https://v.firebog.net/hosts/Prigent-Phishing.txt
+#  - https://phishing.army/download/phishing_army_blocklist_extended.txt
+#  - https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-malware.txt
+#  - https://ransomwaretracker.abuse.ch/downloads/RW_DOMBL.txt
+#  - https://ransomwaretracker.abuse.ch/downloads/CW_C2_DOMBL.txt
+#  - https://ransomwaretracker.abuse.ch/downloads/LY_C2_DOMBL.txt
+#  - https://ransomwaretracker.abuse.ch/downloads/TC_C2_DOMBL.txt
+#  - https://ransomwaretracker.abuse.ch/downloads/TL_C2_DOMBL.txt
+#  - https://zeustracker.abuse.ch/blocklist.php?download=domainblocklist
+#  - https://v.firebog.net/hosts/Shalla-mal.txt
+#  - https://raw.githubusercontent.com/StevenBlack/hosts/master/data/add.Risk/hosts
+#  - https://www.squidblacklist.org/downloads/dg-malicious.acl
+#  - https://zerodot1.gitlab.io/CoinBlockerLists/hosts
+
+whitelist:
+  # If you want to provide whitelisted domains, add them here.
+  # All domains taken from the pihole Commonly Whitelisted Domains - See: https://discourse.pi-hole.net/t/commonly-whitelisted-domains/212
+  - clients4.google.com
+  - clients2.google.com
+  - s.youtube.com
+  - video-stats.l.google.com
+  - android.clients.google.com
+  - googleapis.l.google.com
+  - www.msftncsi.com
+  - outlook.office365.com
+  - products.office.com
+  - c.s-microsoft.com
+  - i.s-microsoft.com
+  - login.live.com
+  - login.microsoftonline.com
+  - g.live.com
+  - dl.delivery.mp.microsoft.com
+  - geo-prod.do.dsp.mp.microsoft.com
+  - displaycatalog.mp.microsoft.com
+  - clientconfig.passport.net
+  - v10.events.data.microsoft.com
+  - v20.events.data.microsoft.com
+  - client-s.gateway.messenger.live.com
+  - xbox.ipv6.microsoft.com
+  - device.auth.xboxlive.com
+  - www.msftncsi.com
+  - title.mgt.xboxlive.com
+  - xsts.auth.xboxlive.com
+  - title.auth.xboxlive.com
+  - ctldl.windowsupdate.com
+  - attestation.xboxlive.com
+  - xboxexperiencesprod.experimentation.xboxlive.com
+  - xflight.xboxlive.com
+  - cert.mgt.xboxlive.com
+  - xkms.xboxlive.com
+  - def-vef.xboxlive.com
+  - notify.xboxlive.com
+  - help.ui.xboxlive.com
+  - licensing.xboxlive.com
+  - eds.xboxlive.com
+  - www.xboxlive.com
+  - v10.vortex-win.data.microsoft.com
+  - settings-win.data.microsoft.com
+  - s.gateway.messenger.live.com
+  - client-s.gateway.messenger.live.com
+  - ui.skype.com
+  - pricelist.skype.com
+  - apps.skype.com
+  - m.hotmail.com
+  - sa.symcb.com
+  - s{1..5}.symcb.com
+  - officeclient.microsoft.com
+  - www.google-analytics.com
+  - ssl.google-analytics.com
+  - spclient.wg.spotify.com
+  - apresolve.spotify.com
+  - weeklyad.target.com
+  - m.weeklyad.target.com
+  - weeklyad.target.com.edgesuite.net
+  - upload.facebook.com
+  - creative.ak.fbcdn.net
+  - external-lhr0-1.xx.fbcdn.net
+  - external-lhr1-1.xx.fbcdn.net
+  - external-lhr10-1.xx.fbcdn.net
+  - external-lhr2-1.xx.fbcdn.net
+  - external-lhr3-1.xx.fbcdn.net
+  - external-lhr4-1.xx.fbcdn.net
+  - external-lhr5-1.xx.fbcdn.net
+  - external-lhr6-1.xx.fbcdn.net
+  - external-lhr7-1.xx.fbcdn.net
+  - external-lhr8-1.xx.fbcdn.net
+  - external-lhr9-1.xx.fbcdn.net
+  - fbcdn-creative-a.akamaihd.net
+  - scontent-lhr3-1.xx.fbcdn.net
+  - scontent.xx.fbcdn.net
+  - scontent.fgdl5-1.fna.fbcdn.net
+  - graph.facebook.com
+  - b-graph.facebook.com
+  - connect.facebook.com
+  - cdn.fbsbx.com
+  - api.facebook.com
+  - edge-mqtt.facebook.com
+  - mqtt.c10r.facebook.com
+  - portal.fb.com
+  - star.c10r.facebook.com
+  - star-mini.c10r.facebook.com
+  - b-api.facebook.com
+  - fb.me
+  - directvnow.com
+  - directvapplications.hb.omtrdc.net
+  - s.zkcdn.net
+  - js.maxmind.com
+  - ec-ns.sascdn.com
+  - plex.tv
+  - tvdb2.plex.tv
+  - pubsub.plex.bz
+  - proxy.plex.bz
+  - proxy02.pop.ord.plex.bz
+  - cpms.spop10.ams.plex.bz
+  - meta-db-worker02.pop.ric.plex.bz
+  - meta.plex.bz
+  - tvthemes.plexapp.com.cdn.cloudflare.net
+  - tvthemes.plexapp.com
+  - 106c06cd218b007d-b1e8a1331f68446599e96a4b46a050f5.ams.plex.services
+  - meta.plex.tv
+  - cpms35.spop10.ams.plex.bz
+  - proxy.plex.tv
+  - metrics.plex.tv
+  - pubsub.plex.tv
+  - status.plex.tv
+  - www.plex.tv
+  - node.plexapp.com
+  - nine.plugins.plexapp.com
+  - staging.plex.tv
+  - app.plex.tv
+  - o1.email.plex.tv
+  - o2.sg0.plex.tv
+  - dashboard.plex.tv
+  - gravatar.com
+  - thetvdb.com
+  - themoviedb.com
+  - services.sonarr.tv
+  - skyhook.sonarr.tv
+  - download.sonarr.tv
+  - apt.sonarr.tv
+  - forums.sonarr.tv
+  - placehold.it
+  - placeholdit.imgix.net
+  - dl.dropboxusercontent.com
+  - ns1.dropbox.com
+  - ns2.dropbox.com
+  - widget-cdn.rpxnow.com
+  - s.marketwatch.com
+  - itunes.apple.com
+  - s.mzstatic.com
+  - imagesak.secureserver.net
+  - dl.google.com
+  - appleid.apple.com
+  - fpdownload.adobe.com
+  - entitlement.auth.adobe.com
+  - livepassdl.conviva.com
+  - gfwsl.geforce.com
+  - delivery.vidible.tv
+  - img.vidible.tv
+  - videos.vidible.tv
+  - edge.api.brightcove.com
+  - cdn.vidible.tv
+  - dev.virtualearth.net
+  - ecn.dev.virtualearth.net
+  - t0.ssl.ak.dynamic.tiles.virtualearth.net
+  - t0.ssl.ak.tiles.virtualearth.net
+  - android.clients.google.com
+  - appspot-preview.l.google.com
+  - connectivitycheck.android.com
+  - android.clients.google.com
+  - clients3.google.com
+  - connectivitycheck.gstatic.com
+  - msftncsi.com
+  - www.msftncsi.com
+  - ipv6.msftncsi.com
+  - captive.apple.com
+  - gsp1.apple.com
+  - www.apple.com
+  - www.appleiphonecell.com
+  - prod.telemetry.ros.rockstargames.com
+  - chevrolet.com
+  - tracking.epicgames.com
+
+blacklist:
+  # If you want to have special domains blacklisted, add them here
+  #- *.blackist.com
