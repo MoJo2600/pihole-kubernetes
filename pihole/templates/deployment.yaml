@@ -55,16 +55,16 @@ spec:
           - containerPort: 67
             name: client-udp
             protocol: UDP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-              initialDelaySeconds: 120
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-              initialDelaySeconds: 120
+            #          livenessProbe:
+            #            httpGet:
+            #              path: /
+            #              port: http
+            #              initialDelaySeconds: 120
+            #          readinessProbe:
+            #            httpGet:
+            #              path: /
+            #              port: http
+            #              initialDelaySeconds: 120
           volumeMounts:
           - mountPath: /etc/pihole
             name: config
@@ -112,15 +112,22 @@ spec:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-custom-dnsmasq
         name: custom-dnsmasq
+      {{ if .Values.adlists }}
       - configMap:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-adlists
         name: adlists
+      {{ end }}
+      {{ if .Values.whitelist }}
       - configMap:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-whitelist
         name: whitelist
+      {{ end }}
+      {{ if .Values.blacklist }}
       - configMap:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-blacklist
         name: blacklist
+      {{ end }}
+
