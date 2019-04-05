@@ -1,3 +1,4 @@
+{{ if .Values.adlists }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -12,3 +13,4 @@ data:
   {{- range .Values.adlists }}
     {{ . }}
   {{- end }}
+{{ end }}

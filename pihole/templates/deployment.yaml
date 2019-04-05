@@ -71,15 +71,21 @@ spec:
           - mountPath: /etc/dnsmasq.d/02-custom.conf
             name: custom-dnsmasq
             subPath: 02-custom.conf
+          {{ if .Values.adlists }}
           - mountPath: /etc/pihole/adlists.list
             name: adlists
             subPath: adlists.list
+          {{ end }}          
+          {{ if .Values.blacklist }}
           - mountPath: /etc/pihole/blacklist.txt
             name: blacklist
             subPath: blacklist.txt
+          {{ end }}
+          {{ if .Values.whitelist }}
           - mountPath: /etc/pihole/whitelist.txt
             name: whitelist
             subPath: whitelist.txt
+          {{ end }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
