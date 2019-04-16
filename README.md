@@ -10,7 +10,7 @@ This repository provides you with everything necessary to deploy pihole on your 
 
 ## TL;DR;
 
-Clone the repository and create a calues.yaml with your configuration. Mine for usage with metallb looks like this:
+Clone the repository and create a values.yaml with your configuration. Mine for usage with metallb looks like this:
 
 ```console
 dnsmasq:
