@@ -55,22 +55,27 @@ spec:
           - containerPort: 67
             name: client-udp
             protocol: UDP
-            #          livenessProbe:
-            #            httpGet:
-            #              path: /
-            #              port: http
-            #              initialDelaySeconds: 120
-            #          readinessProbe:
-            #            httpGet:
-            #              path: /
-            #              port: http
-            #              initialDelaySeconds: 120
+            livenessProbe:
+              httpGet:
+                path: /admin.index.php
+                port: http
+              initialDelaySeconds: 60
+              periodSeconds: 5
+            readinessProbe:
+              httpGet:
+                path: /admin.index.php
+                port: http
+              initialDelaySeconds: 25
+              periodSeconds: 5
           volumeMounts:
           - mountPath: /etc/pihole
             name: config
           - mountPath: /etc/dnsmasq.d/02-custom.conf
             name: custom-dnsmasq
             subPath: 02-custom.conf
+          - mountPath: /etc/addn-hosts
+            name: custom-dnsmasq
+            subPath: addn-hosts
           {{ if .Values.adlists }}
           - mountPath: /etc/pihole/adlists.list
             name: adlists

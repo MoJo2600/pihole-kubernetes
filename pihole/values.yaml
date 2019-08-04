@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: "pihole/pihole"
-  tag: 4.2.2-1_amd64
+  tag: 4.3.1-4_amd64 
   pullPolicy: IfNotPresent
 
 serviceTCP:
@@ -75,15 +75,21 @@ dnsmasq:
   # - address=/foo.bar/192.168.178.10
   # - address=/bar.foo/192.168.178.11
 
-#adlists:       
+  additionalHostsEntries: {}
+  # Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like
+  # - 192.168.0.3     host4
+  # - 192.168.0.4     host5
+
+
+adlists: {}
   # If you want to provide blocklists, add them here.
   # - https://hosts-file.net/grm.txt
   # - https://reddestdream.github.io/Projects/MinimalHosts/etc/MinimalHostsBlocker/minimalhosts
 
-#whitelist:
+whitelist: {}
   # If you want to provide whitelisted domains, add them here.
   # - clients4.google.com
 
-#blacklist:
+blacklist: {}
   # If you want to have special domains blacklisted, add them here
   #- *.blackist.com

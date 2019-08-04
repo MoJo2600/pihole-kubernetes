@@ -9,6 +9,12 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
   02-custom.conf: |
+    addn-hosts=/etc/addn-hosts
   {{- range .Values.dnsmasq.customDnsEntries }}
     {{ . }}
   {{- end }}
+  addn-hosts: |
+  {{- range .Values.dnsmasq.additionalHostsEntries }}
+    {{ . }}
+  {{- end }}
+ 
