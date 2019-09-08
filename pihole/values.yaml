@@ -66,6 +66,10 @@ affinity: {}
 
 adminPassword: "admin"
 
+# default upstream DNS servers to use
+DNS1: "8.8.8.8"
+DNS2: "8.8.4.4"
+
 dnsmasq:
   customDnsEntries: {}
   # Here you can add custom dns entries to override the 
