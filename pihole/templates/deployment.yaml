@@ -36,11 +36,10 @@ spec:
               secretKeyRef:
                 key: password
                 name: {{ template "pihole.fullname" . }}-password
-        {{- with .Values.extraEnvVars }}
-        {{- range $key, $value := . }}
-          - name: {{ default "none" $key }}
-            value: {{ default "none" $value }}
-        {{- end }}
+          {{- range $key, $value := .Values.extraEnvVars }}
+          - name: {{ $key | quote }}
+            value: {{ $value | quote }}
+          {{- end }}
           name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
