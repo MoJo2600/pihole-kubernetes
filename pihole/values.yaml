@@ -66,6 +66,10 @@ affinity: {}
 
 adminPassword: "admin"
 
+# extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use
+extraEnvVars: {}
+  # TZ: UTC
+
 dnsmasq:
   customDnsEntries: {}
   # Here you can add custom dns entries to override the 
