@@ -66,6 +66,10 @@ affinity: {}
 
 adminPassword: "admin"
 
+# extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use
+extraEnvVars: {}
+  # TZ: UTC
+
 # default upstream DNS servers to use
 DNS1: "8.8.8.8"
 DNS2: "8.8.4.4"

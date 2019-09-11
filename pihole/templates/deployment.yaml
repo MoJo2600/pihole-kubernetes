@@ -36,6 +36,10 @@ spec:
               secretKeyRef:
                 key: password
                 name: {{ template "pihole.fullname" . }}-password
+          {{- range $key, $value := .Values.extraEnvVars }}
+          - name: {{ $key | quote }}
+            value: {{ $value | quote }}
+          {{- end }}
           {{ if .Values.DNS1 }}
           - name: 'DNS1'
             value: {{ .Values.DNS1 }}
