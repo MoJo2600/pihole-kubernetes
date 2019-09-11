@@ -36,6 +36,14 @@ spec:
               secretKeyRef:
                 key: password
                 name: {{ template "pihole.fullname" . }}-password
+          {{ if .Values.DNS1 }}
+          - name: 'DNS1'
+            value: {{ .Values.DNS1 }}
+          {{ end }}
+          {{ if .Values.DNS2 }}
+          - name: 'DNS2'
+            value: {{ .Values.DNS2 }}
+          {{ end }}
           name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
