@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: "pihole/pihole"
-  tag: 4.3.1-4
+  tag: 4.3.2-1
   pullPolicy: IfNotPresent
 
 serviceTCP:
@@ -74,6 +74,14 @@ extraEnvVars: {}
 DNS1: "8.8.8.8"
 DNS2: "8.8.4.4"
 
+doh:
+  # set to true to enabled DNS over HTTPs via cloudflared
+  enabled: false
+  name: "cloudflared"
+  repository: "crazymax/cloudflared"
+  tag: latest
+  pullPolicy: IfNotPresent
+
 dnsmasq:
   customDnsEntries: {}
   # Here you can add custom dns entries to override the 
@@ -101,3 +109,7 @@ whitelist: {}
 blacklist: {}
   # If you want to have special domains blacklisted, add them here
   #- *.blackist.com
+
+regex: {}
+  # Add regular expression blacklist items
+  #- (^|\.)facebook\.com$
