@@ -30,7 +30,22 @@ spec:
         - 127.0.0.1
         - 8.8.8.8 
       containers:
-        - env:
+        {{- if .Values.doh.enabled }}
+        - name: cloudflared
+          image: "{{ .Values.doh.repository }}:{{ .Values.doh.tag }}"
+          imagePullPolicy: {{ .Values.doh.pullPolicy }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          resources:
+            limits:
+              memory: 128Mi
+          ports:
+            - containerPort: 5053
+              name: cloudflared-udp
+              protocol: UDP
+        {{- end }}
+        - name: {{ .Chart.Name }}
+          env:
           - name: WEBPASSWORD
             valueFrom:
               secretKeyRef:
@@ -40,6 +55,12 @@ spec:
           - name: {{ $key | quote }}
             value: {{ $value | quote }}
           {{- end }}
+          {{- if .Values.doh.enabled }}
+          - name: 'DNS1'
+            value: "127.0.0.1#5053"
+          - name: 'DNS2'
+            value: "127.0.0.1#5053"
+          {{- else }}
           {{ if .Values.DNS1 }}
           - name: 'DNS1'
             value: {{ .Values.DNS1 }}
@@ -48,7 +69,7 @@ spec:
           - name: 'DNS2'
             value: {{ .Values.DNS2 }}
           {{ end }}
-          name: {{ .Chart.Name }}
+         {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -92,11 +113,16 @@ spec:
           - mountPath: /etc/pihole/adlists.list
             name: adlists
             subPath: adlists.list
-          {{ end }}          
+          {{ end }}
           {{ if .Values.blacklist }}
           - mountPath: /etc/pihole/blacklist.txt
             name: blacklist
             subPath: blacklist.txt
+          {{ end }}
+          {{ if .Values.regex }}
+          - mountPath: /etc/pihole/regex.list
+            name: regex
+            subPath: regex.list
           {{ end }}
           {{ if .Values.whitelist }}
           - mountPath: /etc/pihole/whitelist.txt
@@ -147,4 +173,11 @@ spec:
           name: {{ template "pihole.fullname" . }}-blacklist
         name: blacklist
       {{ end }}
+      {{ if .Values.regex }}
+      - configMap:
+          defaultMode: 420
+          name: {{ template "pihole.fullname" . }}-regex
+        name: regex
+      {{ end }}
+
 
