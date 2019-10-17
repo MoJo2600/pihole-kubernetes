@@ -41,6 +41,14 @@ $ helm upgrade -i pihole ./pihole -f values.yaml
 
 You should now have a running pihole instance. You should be able to open the web UI under the url [http://192.168.178.252/admin](http://192.168.178.252/admin) and use the default password 'admin'.
 
+## Package new release
+```shell
+$ helm package pihole/ -d docs
+$ helm repo index docs
+$ git add docs
+$ git commit
+```
+
 ## Changelog
 
 ### 0.1
