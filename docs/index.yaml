@@ -1,0 +1,16 @@
+apiVersion: v1
+entries:
+  pihole:
+  - apiVersion: v1
+    appVersion: 4.3.2-1
+    created: "2019-10-18T00:06:52.02158154+02:00"
+    description: Installs pihole in kubernetes
+    digest: 5ea958fc0b2cef50ba463000e3c9fd5c5a12db5a5b1f94b38284fadefc655131
+    maintainers:
+    - email: christian.erhardt@mojo2k.de
+      name: Christian Erhardt
+    name: pihole
+    urls:
+    - pihole-0.1.2.tgz
+    version: 0.1.2
+generated: "2019-10-18T00:06:52.021122172+02:00"
