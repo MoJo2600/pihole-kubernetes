@@ -11,6 +11,6 @@ entries:
       name: Christian Erhardt
     name: pihole
     urls:
-    - pihole-0.1.2.tgz
+    - https://github.com/MoJo2600/pihole-kubernetes/releases/download/0.1.2/pihole-0.1.2.tgz
     version: 0.1.2
 generated: "2019-10-18T00:06:52.021122172+02:00"
