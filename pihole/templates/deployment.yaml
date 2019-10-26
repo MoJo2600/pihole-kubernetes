@@ -88,13 +88,13 @@ spec:
           - containerPort: 67
             name: client-udp
             protocol: UDP
-            livenessProbe:
+          livenessProbe:
               httpGet:
                 path: /admin.index.php
                 port: http
               initialDelaySeconds: 60
               periodSeconds: 5
-            readinessProbe:
+          readinessProbe:
               httpGet:
                 path: /admin.index.php
                 port: http
