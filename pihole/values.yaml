@@ -27,6 +27,8 @@ serviceUDP:
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
+ingress:
+  host: pihole.local
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
