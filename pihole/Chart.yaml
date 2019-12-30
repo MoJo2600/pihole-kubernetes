@@ -3,7 +3,7 @@ appVersion: "4.3.2-1"
 description: Installs pihole in kubernetes
 home: https://pi-hole.net/
 name: pihole
-version: 1.0.0
+version: 1.1.0
 sources:
   - https://github.com/pi-hole
   - https://github.com/pi-hole/docker-pi-hole
