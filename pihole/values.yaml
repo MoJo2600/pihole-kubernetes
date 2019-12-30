@@ -27,6 +27,18 @@ serviceUDP:
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
+# Probes configuration
+probes:
+  liveness:
+    enabled: true
+    initialDelaySeconds: 60
+    failureThreshold: 10
+    timeoutSeconds: 5
+  readiness:
+    enabled: true
+    initialDelaySeconds: 60
+    failureThreshold: 3
+    timeoutSeconds: 5
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
