@@ -88,18 +88,24 @@ spec:
           - containerPort: 67
             name: client-udp
             protocol: UDP
+          {{- if .Values.probes.liveness.enabled }}
           livenessProbe:
-              httpGet:
-                path: /admin.index.php
-                port: http
-              initialDelaySeconds: 60
-              periodSeconds: 5
+            httpGet:
+              path: /admin.index.php
+              port: http
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+          {{- end }}
+          {{- if .Values.probes.readiness.enabled }}
           readinessProbe:
-              httpGet:
-                path: /admin.index.php
-                port: http
-              initialDelaySeconds: 25
-              periodSeconds: 5
+            httpGet:
+              path: /admin.index.php
+              port: http
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+          {{- end }}
           volumeMounts:
           - mountPath: /etc/pihole
             name: config
