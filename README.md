@@ -35,8 +35,8 @@ serviceUDP:
 Then deploy everything with helm
 
 ```console
-$ cd pihole-kubernetes
-$ helm upgrade -i pihole ./pihole -f values.yaml
+helm repo add mojo2600 https://mojo2600.github.io/pihole-kubernetes/
+helm upgrade -i pihole mojo2600/pihole -f values.yaml
 ```
 
 You should now have a running pihole instance. You should be able to open the web UI under the url [http://192.168.178.252/admin](http://192.168.178.252/admin) and use the default password 'admin'.
