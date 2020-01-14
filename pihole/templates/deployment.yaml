@@ -38,7 +38,7 @@ spec:
           terminationMessagePolicy: File
           resources:
             limits:
-              memory: 128Mi
+              memory: 256Mi
           ports:
             - containerPort: 5053
               name: cloudflared-udp
