@@ -3,12 +3,12 @@ appVersion: "4.3.2-1"
 description: Installs pihole in kubernetes
 home: https://github.com/MoJo2600/pihole-kubernetes/tree/master/pihole
 name: pihole
-version: 1.2.0
+version: 1.2.1
 sources:
   - https://pi-hole.net/
   - https://github.com/pi-hole
   - https://github.com/pi-hole/docker-pi-hole
 icon: https://i2.wp.com/pi-hole.net/wp-content/uploads/2016/12/Vortex-R.png
 maintainers:
-  - name: Christian Erhardt
+  - name: MoJo2600
     email: christian.erhardt@mojo2k.de

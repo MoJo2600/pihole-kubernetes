@@ -10,7 +10,7 @@ image:
   pullPolicy: IfNotPresent
 
 serviceTCP:
-  type: LoadBalancer
+  type: NodePort
   externalTrafficPolicy: Local
   loadBalancerIP: {}
     # a fixed LoadBalancer IP
@@ -19,7 +19,7 @@ serviceTCP:
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
 serviceUDP:
-  type: LoadBalancer
+  type: NodePort
   externalTrafficPolicy: Local
   loadBalancerIP: {}
     # a fixed LoadBalancer IP
@@ -109,7 +109,7 @@ doh:
 
 dnsmasq:
   customDnsEntries: {}
-  # Here you can add custom dns entries to override the 
+  # Here you can add custom dns entries to override the
   # dns resolution with. All lines will be added to the
   # pihole dnsmasq configuration.
   # The format should be like:
@@ -133,8 +133,8 @@ whitelist: {}
 
 blacklist: {}
   # If you want to have special domains blacklisted, add them here
-  #- *.blackist.com
+  # - *.blackist.com
 
 regex: {}
   # Add regular expression blacklist items
-  #- (^|\.)facebook\.com$
+  # - (^|\.)facebook\.com$
