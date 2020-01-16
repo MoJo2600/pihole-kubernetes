@@ -5,7 +5,7 @@ The [Pi-hole®](https://pi-hole.net/) is a DNS sinkhole that protects your devic
 This repository provides you with everything necessary to deploy pihole on your kubernetes cluster. I'm running an on premise kubernetes cluster and i'm using [MetalLB](https://metallb.universe.tf) 0.7.2 for loadbalancing and [glusterfs](https://github.com/gluster/gluster-kubernetes) for storage.
 
 ## Repository structure
-* The folder `pihole` contains a helm chart to install pi-hole on kubernetes. Please see the [README](pihole/README.md) for more details
+* The folder `charts/pihole` contains a helm chart to install pi-hole on kubernetes. Please see the [README](charts/pihole/README.md) for more details
 * The folder `classic` contains kubernetes files to install pi-hole on kubernetes
 
 ## TL;DR;
@@ -41,15 +41,12 @@ helm upgrade -i pihole mojo2600/pihole -f values.yaml
 
 You should now have a running pihole instance. You should be able to open the web UI under the url [http://192.168.178.252/admin](http://192.168.178.252/admin) and use the default password 'admin'.
 
-## Package new release
-```shell
-$ helm package pihole/ -d docs
-$ helm repo index docs
-$ git add docs
-$ git commit
-```
-
 ## Changelog
+
+### 1.2.1
+
+* auto package pihole chart and release to this repo
+* charft is now published on [helm hub](https://hub.helm.sh/)
 
 ### 0.1
 
@@ -63,6 +60,7 @@ $ git commit
 
 MetalLB 0.7.3 has a bug, where the service is not announced anymore, when the pod changes (e.g. update of a deployment). My workaround is to restart the `metallb-speaker-*` pods.
 
-### MetalLB 0.8.1
+### MetalLB 0.8.1+
 
-I did not test pihole-kubernetes with version 0.8.1. Please let me know if it works.
+pihole seems to work without issue in MetalLB 0.8.1+
+
