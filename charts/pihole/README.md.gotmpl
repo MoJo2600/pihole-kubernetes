@@ -1,0 +1,84 @@
+{{ template "chart.header" . }}
+{{ template "chart.description" . }}
+
+{{ template "chart.versionLine" . }}
+
+{{ template "chart.sourceLinkLine" . }}
+
+{{ template "chart.requirementsSection" . }}
+
+## Installation
+
+### Add Helm repository
+
+```shell
+helm repo add mojo2600 https://mojo2600.github.io/pihole-kubernetes/
+helm repo update
+```
+
+### Configure the chart
+
+The following items can be set via `--set` flag during installation or configured by editing the `values.yaml` directly.
+
+#### Configure the way how to expose pihole service:
+
+- **Ingress**: The ingress controller must be installed in the Kubernetes cluster.
+- **ClusterIP**: Exposes the service on a cluster-internal IP. Choosing this value makes the service only reachable from within the cluster.
+- **LoadBalancer**: Exposes the service externally using a cloud provider’s load balancer.
+
+## My settings in values.yaml
+
+```console
+dnsmasq:
+  customDnsEntries:
+    - address=/nas/192.168.178.10
+
+persistentVolumeClaim:
+  enabled: true
+
+serviceTCP:
+  loadBalancerIP: 192.168.178.252
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+
+serviceUDP:
+  loadBalancerIP: 192.168.178.252
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+
+```
+
+
+## Uninstallation
+
+To uninstall/delete the `my-release` deployment:
+
+```bash
+helm delete --purge my-release
+```
+
+## Configuration
+
+The following table lists the configurable parameters of the pihole chart and the default values.
+
+{{ template "chart.valuesSection" . }}
+
+## Remarks
+
+### MetalLB 0.7.3
+
+MetalLB 0.7.3 has a bug, where the service is not announced anymore, when the pod changes (e.g. update of a deployment). My workaround is to restart the `metallb-speaker-*` pods.
+
+### MetalLB 0.8.1+
+
+pihole seems to work without issue in MetalLB 0.8.1+
+
+## Credits
+
+[Pi-hole®](https://pi-hole.net/)
+
+## Contributing
+
+Feel free to contribute by making a [pull request](https://github.com/MoJo2600/pihole-kubernetes/pull/new/master).
+
+Please read the official [Contribution Guide](https://github.com/helm/charts/blob/master/CONTRIBUTING.md) from Helm for more information on how you can contribute to this Chart.
