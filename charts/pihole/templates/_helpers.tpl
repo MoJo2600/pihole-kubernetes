@@ -30,3 +30,10 @@ Create chart name and version as used by the chart label.
 {{- define "pihole.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{/*
+Default password secret name.
+*/}}
+{{- define "pihole.password-secret" -}}
+{{- printf "%s-%s" (include "pihole.fullname" .) "password" | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
