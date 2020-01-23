@@ -2,7 +2,7 @@ pihole
 ======
 Installs pihole in kubernetes
 
-Current chart version is `1.2.1`
+Current chart version is `1.3.0`
 
 Source code can be found [here](https://github.com/MoJo2600/pihole-kubernetes/tree/master/pihole)
 
@@ -77,6 +77,8 @@ The following table lists the configurable parameters of the pihole chart and th
 | DNS2 | string | `"8.8.4.4"` |  |
 | adlists | object | `{}` |  |
 | adminPassword | string | `"admin"` |  |
+| admin.existingSecret | string | `""` |  |
+| admin.passwordKey | string | `"password"` |  |
 | affinity | object | `{}` |  |
 | blacklist | object | `{}` |  |
 | dnsmasq.additionalHostsEntries | object | `{}` |  |
