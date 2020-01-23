@@ -123,7 +123,7 @@ dnsmasq:
   # - address=/foo.bar/192.168.178.10
   # - address=/bar.foo/192.168.178.11
 
-  additionalHostsEntries: {}
+  additionalHostsEntries: []
   # Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like
   # - 192.168.0.3     host4
   # - 192.168.0.4     host5

@@ -81,8 +81,8 @@ The following table lists the configurable parameters of the pihole chart and th
 | admin.passwordKey | string | `"password"` |  |
 | affinity | object | `{}` |  |
 | blacklist | object | `{}` |  |
-| dnsmasq.additionalHostsEntries | object | `{}` |  |
-| dnsmasq.customDnsEntries | object | `[]` |  |
+| dnsmasq.additionalHostsEntries | array | `[]` |  |
+| dnsmasq.customDnsEntries | array | `[]` |  |
 | doh.enabled | bool | `false` |  |
 | doh.name | string | `"cloudflared"` |  |
 | doh.pullPolicy | string | `"IfNotPresent"` |  |
