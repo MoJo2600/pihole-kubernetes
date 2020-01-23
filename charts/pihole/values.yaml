@@ -12,7 +12,7 @@ image:
 serviceTCP:
   type: NodePort
   externalTrafficPolicy: Local
-  loadBalancerIP: {}
+  loadBalancerIP: ""
     # a fixed LoadBalancer IP
   annotations: {}
     # metallb.universe.tf/address-pool: network-services
@@ -21,7 +21,7 @@ serviceTCP:
 serviceUDP:
   type: NodePort
   externalTrafficPolicy: Local
-  loadBalancerIP: {}
+  loadBalancerIP: ""
     # a fixed LoadBalancer IP
   annotations: {}
     # metallb.universe.tf/address-pool: network-services
@@ -115,7 +115,7 @@ doh:
   pullPolicy: IfNotPresent
 
 dnsmasq:
-  customDnsEntries: {}
+  customDnsEntries: []
   # Here you can add custom dns entries to override the
   # dns resolution with. All lines will be added to the
   # pihole dnsmasq configuration.

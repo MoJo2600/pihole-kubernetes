@@ -2,7 +2,7 @@ pihole
 ======
 Installs pihole in kubernetes
 
-Current chart version is `1.3.0`
+Current chart version is `1.3.1`
 
 Source code can be found [here](https://github.com/MoJo2600/pihole-kubernetes/tree/master/pihole)
 
@@ -82,7 +82,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | affinity | object | `{}` |  |
 | blacklist | object | `{}` |  |
 | dnsmasq.additionalHostsEntries | object | `{}` |  |
-| dnsmasq.customDnsEntries | object | `{}` |  |
+| dnsmasq.customDnsEntries | object | `[]` |  |
 | doh.enabled | bool | `false` |  |
 | doh.name | string | `"cloudflared"` |  |
 | doh.pullPolicy | string | `"IfNotPresent"` |  |
@@ -113,11 +113,11 @@ The following table lists the configurable parameters of the pihole chart and th
 | resources | object | `{}` |  |
 | serviceTCP.annotations | object | `{}` |  |
 | serviceTCP.externalTrafficPolicy | string | `"Local"` |  |
-| serviceTCP.loadBalancerIP | object | `{}` |  |
+| serviceTCP.loadBalancerIP | string | `""` |  |
 | serviceTCP.type | string | `"NodePort"` |  |
 | serviceUDP.annotations | object | `{}` |  |
 | serviceUDP.externalTrafficPolicy | string | `"Local"` |  |
-| serviceUDP.loadBalancerIP | object | `{}` |  |
+| serviceUDP.loadBalancerIP | string | `""` |  |
 | serviceUDP.type | string | `"NodePort"` |  |
 | tolerations | list | `[]` |  |
 | whitelist | object | `{}` |  |
