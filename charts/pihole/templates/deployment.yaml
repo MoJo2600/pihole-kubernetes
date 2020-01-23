@@ -49,8 +49,8 @@ spec:
           - name: WEBPASSWORD
             valueFrom:
               secretKeyRef:
-                key: password
-                name: {{ template "pihole.fullname" . }}-password
+                key: {{ .Values.admin.passwordKey | default "password" }}
+                name: {{ .Values.admin.existingSecret | default (include "pihole.password-secret" .) }}
           {{- range $key, $value := .Values.extraEnvVars }}
           - name: {{ $key | quote }}
             value: {{ $value | quote }}
@@ -61,14 +61,14 @@ spec:
           - name: 'DNS2'
             value: "127.0.0.1#5053"
           {{- else }}
-          {{ if .Values.DNS1 }}
+          {{- if .Values.DNS1 }}
           - name: 'DNS1'
             value: {{ .Values.DNS1 }}
-          {{ end }}
-          {{ if .Values.DNS2 }}
+          {{- end }}
+          {{- if .Values.DNS2 }}
           - name: 'DNS2'
             value: {{ .Values.DNS2 }}
-          {{ end }}
+          {{- end }}
          {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -115,26 +115,26 @@ spec:
           - mountPath: /etc/addn-hosts
             name: custom-dnsmasq
             subPath: addn-hosts
-          {{ if .Values.adlists }}
+          {{- if .Values.adlists }}
           - mountPath: /etc/pihole/adlists.list
             name: adlists
             subPath: adlists.list
-          {{ end }}
-          {{ if .Values.blacklist }}
+          {{- end }}
+          {{- if .Values.blacklist }}
           - mountPath: /etc/pihole/blacklist.txt
             name: blacklist
             subPath: blacklist.txt
-          {{ end }}
-          {{ if .Values.regex }}
+          {{- end }}
+          {{- if .Values.regex }}
           - mountPath: /etc/pihole/regex.list
             name: regex
             subPath: regex.list
-          {{ end }}
-          {{ if .Values.whitelist }}
+          {{- end }}
+          {{- if .Values.whitelist }}
           - mountPath: /etc/pihole/whitelist.txt
             name: whitelist
             subPath: whitelist.txt
-          {{ end }}
+          {{- end }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
@@ -161,29 +161,29 @@ spec:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-custom-dnsmasq
         name: custom-dnsmasq
-      {{ if .Values.adlists }}
+      {{- if .Values.adlists }}
       - configMap:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-adlists
         name: adlists
-      {{ end }}
-      {{ if .Values.whitelist }}
+      {{- end }}
+      {{- if .Values.whitelist }}
       - configMap:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-whitelist
         name: whitelist
-      {{ end }}
-      {{ if .Values.blacklist }}
+      {{- end }}
+      {{- if .Values.blacklist }}
       - configMap:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-blacklist
         name: blacklist
-      {{ end }}
-      {{ if .Values.regex }}
+      {{- end }}
+      {{- if .Values.regex }}
       - configMap:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-regex
         name: regex
-      {{ end }}
+      {{- end }}
 
 
