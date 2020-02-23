@@ -40,11 +40,13 @@ serviceTCP:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
+  type: LoadBalancer
 
 serviceUDP:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
+  type: LoadBalancer
 
 ```
 
