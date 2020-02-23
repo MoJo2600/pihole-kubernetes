@@ -41,21 +41,16 @@ serviceTCP:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
+  type: LoadBalancer
 
 serviceUDP:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
+  type: LoadBalancer
 
 ```
 
-### Install the chart
-
-Install the pihole helm chart with a release name `my-release`:
-
-```bash
-helm install --name my-release mojo2600/pihole
-```
 
 ## Uninstallation
 
@@ -76,13 +71,13 @@ The following table lists the configurable parameters of the pihole chart and th
 | DNS1 | string | `"8.8.8.8"` |  |
 | DNS2 | string | `"8.8.4.4"` |  |
 | adlists | object | `{}` |  |
-| adminPassword | string | `"admin"` |  |
 | admin.existingSecret | string | `""` |  |
 | admin.passwordKey | string | `"password"` |  |
+| adminPassword | string | `"admin"` |  |
 | affinity | object | `{}` |  |
 | blacklist | object | `{}` |  |
-| dnsmasq.additionalHostsEntries | array | `[]` |  |
-| dnsmasq.customDnsEntries | array | `[]` |  |
+| dnsmasq.additionalHostsEntries | list | `[]` |  |
+| dnsmasq.customDnsEntries | list | `[]` |  |
 | doh.enabled | bool | `false` |  |
 | doh.name | string | `"cloudflared"` |  |
 | doh.pullPolicy | string | `"IfNotPresent"` |  |
