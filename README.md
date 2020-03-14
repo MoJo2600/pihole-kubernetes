@@ -2,6 +2,8 @@
 
 [Helm](https://helm.sh) repo for different charts which can be installed on [Kubernetes](https://kubernetes.io)
 
+Further documentation including chart keys, types, and default values is at https://hub.helm.sh/charts/mojo2600/pihole
+
 ### Add Helm repository
 
 To install the [cetic](https://cetic.be) repo just run:
@@ -18,3 +20,4 @@ helm repo update
   ```bash
   helm install --name your-release mojo2600/pihole
   ```
+  
