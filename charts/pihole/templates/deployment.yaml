@@ -28,7 +28,8 @@ spec:
       dnsConfig:
         nameservers:
         - 127.0.0.1
-        - 8.8.8.8 
+        - 8.8.8.8
+      hostNetwork: {{ .Values.hostNetwork }}
       containers:
         {{- if .Values.doh.enabled }}
         - name: cloudflared
@@ -46,6 +47,8 @@ spec:
         {{- end }}
         - name: {{ .Chart.Name }}
           env:
+          - name: 'WEB_PORT'
+            value: "{{ .Values.webHttp }}"
           - name: WEBPASSWORD
             valueFrom:
               secretKeyRef:
@@ -72,8 +75,10 @@ spec:
          {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            privileged: {{ .Values.privileged }}
           ports:
-          - containerPort: 80
+          - containerPort: {{ .Values.webHttp }}
             name: http
             protocol: TCP
           - containerPort: 53
@@ -82,7 +87,7 @@ spec:
           - containerPort: 53
             name: dns-udp
             protocol: UDP
-          - containerPort: 443
+          - containerPort:  {{ .Values.webHttps }}
             name: https
             protocol: TCP
           - containerPort: 67
@@ -185,5 +190,3 @@ spec:
           name: {{ template "pihole.fullname" . }}-regex
         name: regex
       {{- end }}
-
-

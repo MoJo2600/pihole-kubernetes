@@ -145,3 +145,9 @@ blacklist: {}
 regex: {}
   # Add regular expression blacklist items
   # - (^|\.)facebook\.com$
+
+
+webHttp: "80"
+webHttps: "443"
+hostNetwork: "false"
+privileged: "false"
