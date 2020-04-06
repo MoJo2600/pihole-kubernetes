@@ -49,6 +49,8 @@ spec:
           env:
           - name: 'WEB_PORT'
             value: "{{ .Values.webHttp }}"
+          - name: VIRTUAL_HOST
+            value: {{ .Values.virtualHost }}
           - name: WEBPASSWORD
             valueFrom:
               secretKeyRef:

@@ -27,6 +27,8 @@ serviceUDP:
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
+virtualHost: pi.hole
+
 ingress:
   enabled: false
   annotations: {}
@@ -34,10 +36,12 @@ ingress:
     # kubernetes.io/tls-acme: "true"
   path: /
   hosts:
+    # virtualHost (default value is pi.hole) will be appended to the hosts
     - chart-example.local
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
+  #     #- virtualHost (default value is pi.hole) will be appended to the hosts
   #      - chart-example.local
 
 # Probes configuration
