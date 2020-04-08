@@ -16,7 +16,9 @@ spec:
   {{- if .Values.serviceUDP.loadBalancerIP }}
   loadBalancerIP: {{ .Values.serviceUDP.loadBalancerIP }}
   {{- end }}
+  {{- if or (eq .Values.serviceUDP.type "NodePort") (eq .Values.serviceUDP.type "LoadBalancer") }}
   externalTrafficPolicy: Local
+  {{- end }}
   ports:
     - port: 53
       targetPort: dns-udp
