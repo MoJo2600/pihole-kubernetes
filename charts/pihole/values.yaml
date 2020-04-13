@@ -119,6 +119,13 @@ doh:
   pullPolicy: IfNotPresent
 
 dnsmasq:
+  upstreamServers: []
+  # Here you can add upstream dns servers with. All lines will be added to the
+  # pihole dnsmasq configuration.
+  # The format should be like:
+  # - server=/foo.bar/192.168.178.10
+  # - server=/bar.foo/192.168.178.11
+
   customDnsEntries: []
   # Here you can add custom dns entries to override the
   # dns resolution with. All lines will be added to the

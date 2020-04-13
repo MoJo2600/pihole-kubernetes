@@ -10,6 +10,9 @@ metadata:
 data:
   02-custom.conf: |
     addn-hosts=/etc/addn-hosts
+  {{- range .Values.dnsmasq.upstreamServers }}
+    {{ . }}
+  {{- end }}
   {{- range .Values.dnsmasq.customDnsEntries }}
     {{ . }}
   {{- end }}
