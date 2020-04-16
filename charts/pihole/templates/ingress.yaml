@@ -19,7 +19,7 @@ spec:
   tls:
   {{- range .Values.ingress.tls }}
     - hosts:
-      {{- range append .hosts .Values.virtualHost }}
+      {{- range append .hosts $.Values.virtualHost }}
         - {{ . | quote }}
       {{- end }}
       secretName: {{ .secretName }}
