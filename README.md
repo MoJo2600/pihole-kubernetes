@@ -6,7 +6,7 @@ Further documentation including chart keys, types, and default values is at http
 
 ### Add Helm repository
 
-To install the [cetic](https://cetic.be) repo just run:
+To install the repo just run:
 
 ```bash
 helm repo add mojo2600 https://mojo2600.github.io/pihole-kubernetes/
