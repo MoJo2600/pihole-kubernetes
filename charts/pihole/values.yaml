@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: "pihole/pihole"
-  tag: v4.4
+  tag: v5.0
   pullPolicy: IfNotPresent
 
 serviceTCP:
