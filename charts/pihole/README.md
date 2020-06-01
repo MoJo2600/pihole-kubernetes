@@ -84,6 +84,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.repository | string | `"crazymax/cloudflared"` |  |
 | doh.tag | string | `"latest"` |  |
 | extraEnvVars | object | `{}` |  |
+| extraEnvVarsSecret | object | `{}` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"pihole/pihole"` |  |
 | image.tag | string | `"4.3.2-1"` |  |
