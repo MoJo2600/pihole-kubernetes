@@ -66,6 +66,13 @@ spec:
           - name: {{ $key | quote }}
             value: {{ $value | quote }}
           {{- end }}
+          {{- range $key, $value := .Values.extraEnvVarsSecret }}
+          - name: {{ $key | quote }}
+            valueFrom:
+              secretKeyRef:
+                key: {{ $value.key | quote }}
+                name: {{ $value.name | quote }}
+          {{- end }}
           {{- if .Values.doh.enabled }}
           - name: 'DNS1'
             value: "127.0.0.1#5053"

@@ -106,6 +106,12 @@ admin:
 extraEnvVars: {}
   # TZ: UTC
 
+# extraEnvVarsSecret is a list of secrets to load in as environment variables.
+extraEnvVarsSecret: {}
+  # env_var:
+  #   name: secret-name
+  #   key: secret-key
+
 # default upstream DNS servers to use
 DNS1: "8.8.8.8"
 DNS2: "8.8.4.4"
