@@ -18,6 +18,7 @@ spec:
 {{- if .Values.ingress.tls }}
   tls:
 {{ toYaml .Values.ingress.tls | indent 4 }}
+{{- end }}
   rules:
   {{- range .Values.ingress.hosts }}
     - host: {{ . | quote }}
