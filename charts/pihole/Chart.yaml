@@ -3,7 +3,7 @@ appVersion: "5.0"
 description: Installs pihole in kubernetes
 home: https://github.com/MoJo2600/pihole-kubernetes/tree/master/charts/pihole
 name: pihole
-version: 1.7.8
+version: 1.7.9
 sources:
   - https://pi-hole.net/
   - https://github.com/pi-hole
