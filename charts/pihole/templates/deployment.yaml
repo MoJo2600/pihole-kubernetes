@@ -20,6 +20,12 @@ spec:
       release: {{ .Release.Name }}
   template:
     metadata:
+      annotations:
+        checksum.config.adlists: {{ include (print $.Template.BasePath "/configmap-adlists.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.blacklist: {{ include (print $.Template.BasePath "/configmap-blacklist.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.regex: {{ include (print $.Template.BasePath "/configmap-regex.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.whitelist: {{ include (print $.Template.BasePath "/configmap-whitelist.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.dnsmasqConfig: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum | trunc 63 }}
       labels:
         app: {{ template "pihole.name" . }}
         release: {{ .Release.Name }}
@@ -28,7 +34,8 @@ spec:
       dnsConfig:
         nameservers:
         - 127.0.0.1
-        - 8.8.8.8 
+        - 8.8.8.8
+      hostNetwork: {{ .Values.hostNetwork }}
       containers:
         {{- if .Values.doh.enabled }}
         - name: cloudflared
@@ -46,14 +53,25 @@ spec:
         {{- end }}
         - name: {{ .Chart.Name }}
           env:
+          - name: 'WEB_PORT'
+            value: "{{ .Values.webHttp }}"
+          - name: VIRTUAL_HOST
+            value: {{ .Values.virtualHost }}
           - name: WEBPASSWORD
             valueFrom:
               secretKeyRef:
-                key: password
-                name: {{ template "pihole.fullname" . }}-password
+                key: {{ .Values.admin.passwordKey | default "password" }}
+                name: {{ .Values.admin.existingSecret | default (include "pihole.password-secret" .) }}
           {{- range $key, $value := .Values.extraEnvVars }}
           - name: {{ $key | quote }}
             value: {{ $value | quote }}
+          {{- end }}
+          {{- range $key, $value := .Values.extraEnvVarsSecret }}
+          - name: {{ $key | quote }}
+            valueFrom:
+              secretKeyRef:
+                key: {{ $value.key | quote }}
+                name: {{ $value.name | quote }}
           {{- end }}
           {{- if .Values.doh.enabled }}
           - name: 'DNS1'
@@ -61,19 +79,21 @@ spec:
           - name: 'DNS2'
             value: "127.0.0.1#5053"
           {{- else }}
-          {{ if .Values.DNS1 }}
+          {{- if .Values.DNS1 }}
           - name: 'DNS1'
             value: {{ .Values.DNS1 }}
-          {{ end }}
-          {{ if .Values.DNS2 }}
+          {{- end }}
+          {{- if .Values.DNS2 }}
           - name: 'DNS2'
             value: {{ .Values.DNS2 }}
-          {{ end }}
+          {{- end }}
          {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            privileged: {{ .Values.privileged }}
           ports:
-          - containerPort: 80
+          - containerPort: {{ .Values.webHttp }}
             name: http
             protocol: TCP
           - containerPort: 53
@@ -82,24 +102,30 @@ spec:
           - containerPort: 53
             name: dns-udp
             protocol: UDP
-          - containerPort: 443
+          - containerPort:  {{ .Values.webHttps }}
             name: https
             protocol: TCP
           - containerPort: 67
             name: client-udp
             protocol: UDP
+          {{- if .Values.probes.liveness.enabled }}
           livenessProbe:
-              httpGet:
-                path: /admin.index.php
-                port: http
-              initialDelaySeconds: 60
-              periodSeconds: 5
+            httpGet:
+              path: /admin.index.php
+              port: http
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+          {{- end }}
+          {{- if .Values.probes.readiness.enabled }}
           readinessProbe:
-              httpGet:
-                path: /admin.index.php
-                port: http
-              initialDelaySeconds: 25
-              periodSeconds: 5
+            httpGet:
+              path: /admin.index.php
+              port: http
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+          {{- end }}
           volumeMounts:
           - mountPath: /etc/pihole
             name: config
@@ -109,26 +135,26 @@ spec:
           - mountPath: /etc/addn-hosts
             name: custom-dnsmasq
             subPath: addn-hosts
-          {{ if .Values.adlists }}
+          {{- if .Values.adlists }}
           - mountPath: /etc/pihole/adlists.list
             name: adlists
             subPath: adlists.list
-          {{ end }}
-          {{ if .Values.blacklist }}
+          {{- end }}
+          {{- if .Values.blacklist }}
           - mountPath: /etc/pihole/blacklist.txt
             name: blacklist
             subPath: blacklist.txt
-          {{ end }}
-          {{ if .Values.regex }}
+          {{- end }}
+          {{- if .Values.regex }}
           - mountPath: /etc/pihole/regex.list
             name: regex
             subPath: regex.list
-          {{ end }}
-          {{ if .Values.whitelist }}
+          {{- end }}
+          {{- if .Values.whitelist }}
           - mountPath: /etc/pihole/whitelist.txt
             name: whitelist
             subPath: whitelist.txt
-          {{ end }}
+          {{- end }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
@@ -147,7 +173,7 @@ spec:
       - name: config
         {{- if .Values.persistentVolumeClaim.enabled }}
         persistentVolumeClaim:
-          claimName: {{ template "pihole.fullname" . }}
+          claimName: {{ if .Values.persistentVolumeClaim.existingClaim }}{{ .Values.persistentVolumeClaim.existingClaim }}{{- else }}{{ template "pihole.fullname" . }}{{- end }}
         {{- else }}
         emptyDir: {}
         {{- end }}
@@ -155,29 +181,27 @@ spec:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-custom-dnsmasq
         name: custom-dnsmasq
-      {{ if .Values.adlists }}
+      {{- if .Values.adlists }}
       - configMap:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-adlists
         name: adlists
-      {{ end }}
-      {{ if .Values.whitelist }}
+      {{- end }}
+      {{- if .Values.whitelist }}
       - configMap:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-whitelist
         name: whitelist
-      {{ end }}
-      {{ if .Values.blacklist }}
+      {{- end }}
+      {{- if .Values.blacklist }}
       - configMap:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-blacklist
         name: blacklist
-      {{ end }}
-      {{ if .Values.regex }}
+      {{- end }}
+      {{- if .Values.regex }}
       - configMap:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-regex
         name: regex
-      {{ end }}
-
-
+      {{- end }}

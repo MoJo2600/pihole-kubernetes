@@ -1,4 +1,4 @@
-{{ if .Values.blacklist }}
+{{ if .Values.regex }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
