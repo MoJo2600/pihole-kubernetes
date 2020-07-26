@@ -123,6 +123,9 @@ doh:
   repository: "crazymax/cloudflared"
   tag: latest
   pullPolicy: IfNotPresent
+  envVars: {}
+    # Here you can pass environment variables to the DoH container, for example:
+    # TUNNEL_DNS_UPSTREAM: "https://1.1.1.2/dns-query,https://1.0.0.2/dns-query"
 
 dnsmasq:
   upstreamServers: []
