@@ -155,6 +155,9 @@ spec:
           volumeMounts:
           - mountPath: /etc/pihole
             name: config
+            {{- if .Values.persistentVolumeClaim.subPath }}
+            subPath: {{ .Values.persistentVolumeClaim.subPath }}
+            {{- end }}
           - mountPath: /etc/dnsmasq.d/02-custom.conf
             name: custom-dnsmasq
             subPath: 02-custom.conf
