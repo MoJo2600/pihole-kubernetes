@@ -30,6 +30,18 @@ spec:
         app: {{ template "pihole.name" . }}
         release: {{ .Release.Name }}
     spec:
+      {{- if .Values.antiaff.enabled }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: release
+                operator: In
+                values:
+                - {{ .Values.antiaff.avoidRelease }}
+            topologyKey: "kubernetes.io/hostname"
+      {{- end }}
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
