@@ -62,6 +62,13 @@ spec:
             - containerPort: 5053
               name: cloudflared-udp
               protocol: UDP
+          {{- if .Values.doh.envVars }}
+          env:
+            {{- range $key, $value := .Values.doh.envVars }}
+          - name: {{ $key | quote }}
+            value: {{ $value | quote }}
+            {{- end }}
+          {{- end }}
           livenessProbe:
             exec:
               command:
