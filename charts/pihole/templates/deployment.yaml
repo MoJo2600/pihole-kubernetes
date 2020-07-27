@@ -30,6 +30,18 @@ spec:
         app: {{ template "pihole.name" . }}
         release: {{ .Release.Name }}
     spec:
+      {{- if .Values.antiaff.enabled }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: release
+                operator: In
+                values:
+                - {{ .Values.antiaff.avoidRelease }}
+            topologyKey: "kubernetes.io/hostname"
+      {{- end }}
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
@@ -50,6 +62,20 @@ spec:
             - containerPort: 5053
               name: cloudflared-udp
               protocol: UDP
+          {{- if .Values.doh.envVars }}
+          env:
+            {{- range $key, $value := .Values.doh.envVars }}
+          - name: {{ $key | quote }}
+            value: {{ $value | quote }}
+            {{- end }}
+          {{- end }}
+          livenessProbe:
+            exec:
+              command:
+              - "/usr/bin/nc"
+              - "-uzvw3"
+              - "localhost"
+              - "5053"
         {{- end }}
         - name: {{ .Chart.Name }}
           env:
