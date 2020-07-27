@@ -116,6 +116,13 @@ extraEnvVarsSecret: {}
 DNS1: "8.8.8.8"
 DNS2: "8.8.4.4"
 
+antiaff:
+  # set to true to enable antiaffinity (example: 2 pihole DNS in the same cluster)
+  enabled: false
+  # Here you can set the pihole release (you set in `helm install <releasename> ...`)
+  # you want to avoid
+  avoidRelease: pihole1
+
 doh:
   # set to true to enabled DNS over HTTPs via cloudflared
   enabled: false
