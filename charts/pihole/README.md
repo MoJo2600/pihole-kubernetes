@@ -89,7 +89,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | extraEnvVarsSecret | object | `{}` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"pihole/pihole"` |  |
-| image.tag | string | `"4.3.2-1"` |  |
+| image.tag | string | `"5.1.1"` |  |
 | ingress.annotations | object | `{}` |  |
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts[0] | string | `"chart-example.local"` |  |
