@@ -17,16 +17,10 @@ metadata:
 spec:
 {{- if .Values.ingress.tls }}
   tls:
-  {{- range .Values.ingress.tls }}
-    - hosts:
-      {{- range append .hosts $.Values.virtualHost }}
-        - {{ . | quote }}
-      {{- end }}
-      secretName: {{ .secretName }}
-  {{- end }}
+{{ toYaml .Values.ingress.tls | indent 4 }}
 {{- end }}
   rules:
-  {{- range append .Values.ingress.hosts .Values.virtualHost }}
+  {{- range .Values.ingress.hosts }}
     - host: {{ . | quote }}
       http:
         paths:
