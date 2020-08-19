@@ -183,3 +183,10 @@ webHttp: "80"
 webHttps: "443"
 hostNetwork: "false"
 privileged: "false"
+
+customVolumes:
+  enabled: false
+  config: {}
+    # any volume type can be used here
+    # hostPath:
+    #   path: "/mnt/data"
