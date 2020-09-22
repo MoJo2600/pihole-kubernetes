@@ -33,14 +33,21 @@ spec:
       {{- if .Values.antiaff.enabled }}
       affinity:
         podAntiAffinity:
+        {{- if .Values.antiaff.strict }}
           requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: release
-                operator: In
-                values:
-                - {{ .Values.antiaff.avoidRelease }}
-            topologyKey: "kubernetes.io/hostname"
+            - labelSelector:
+        {{- else }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:  
+              labelSelector:
+        {{- end }}
+                matchExpressions:
+                - key: release
+                  operator: In
+                  values:
+                  - {{ .Values.antiaff.avoidRelease }}
+              topologyKey: "kubernetes.io/hostname"
       {{- end }}
       dnsPolicy: "None"
       dnsConfig:
