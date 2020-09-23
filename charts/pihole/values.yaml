@@ -127,6 +127,8 @@ antiaff:
   # Here you can set the pihole release (you set in `helm install <releasename> ...`)
   # you want to avoid
   avoidRelease: pihole1
+  # Here you can choose between preferred or required
+  strict: true
 
 doh:
   # set to true to enabled DNS over HTTPs via cloudflared
