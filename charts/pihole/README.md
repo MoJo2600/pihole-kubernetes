@@ -101,6 +101,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | persistentVolumeClaim.enabled | bool | `false` |  |
 | persistentVolumeClaim.existingClaim | bool | `false` |  |
 | persistentVolumeClaim.size | string | `"500Mi"` |  |
+| persistentVolumeClaim.storageClass | string | `""` |  |
 | probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5}` | Configure the healthcheck for the ingress controller |
 | probes.readiness.enabled | bool | `true` |  |
 | probes.readiness.failureThreshold | int | `3` |  |
