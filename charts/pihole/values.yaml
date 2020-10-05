@@ -18,6 +18,9 @@ service:
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
+dhcpSupportEnabled:
+  ipv4: true
+  ipv6: true
 
 virtualHost: pi.hole
 

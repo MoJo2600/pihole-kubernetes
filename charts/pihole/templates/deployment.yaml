@@ -138,9 +138,16 @@ spec:
           - containerPort:  {{ .Values.webHttps }}
             name: https
             protocol: TCP
+          {{- if .Values.dhcpSupportEnabled.ipv4 }}
           - containerPort: 67
-            name: client-udp
+            name: dhcp-udp
             protocol: UDP
+          {{- end }}
+          {{- if .Values.dhcpSupportEnabled.ipv6 }}
+          - containerPort: 547
+            name: dhcpv6-udp
+            protocol: UDP
+          {{- end }}
           {{- if .Values.probes.liveness.enabled }}
           livenessProbe:
             httpGet:

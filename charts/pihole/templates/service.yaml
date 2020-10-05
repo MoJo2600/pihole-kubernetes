@@ -41,14 +41,18 @@ spec:
       name: dns-udp
 
       # DHCP
+    {{- if .Values.dhcpSupportEnabled.ipv4 }}
     - port: 67
-      targetPort: client-udp
+      targetPort: dhcp-udp
       protocol: UDP
-      name: client-udp
+      name: dhcp-udp
+    {{- end }}
+    {{- if .Values.dhcpSupportEnabled.ipv6 }}
     - port: 547
-      targetPort: client-udp
+      targetPort: dhcpv6-udp
       protocol: UDP
-      name: client-udp
+      name: dhcpv6-udp
+    {{- end }}
   selector:
     app: {{ template "pihole.name" . }}
     release: {{ .Release.Name }}
