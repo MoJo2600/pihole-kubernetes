@@ -38,13 +38,7 @@ dnsmasq:
 persistentVolumeClaim:
   enabled: true
 
-serviceTCP:
-  loadBalancerIP: 192.168.178.252
-  annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
-  type: LoadBalancer
-
-serviceUDP:
+service:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
@@ -109,14 +103,10 @@ The following table lists the configurable parameters of the pihole chart and th
 | regex | object | `{}` |  |
 | replicaCount | int | `1` |  |
 | resources | object | `{}` |  |
-| serviceTCP.annotations | object | `{}` |  |
-| serviceTCP.externalTrafficPolicy | string | `"Local"` |  |
-| serviceTCP.loadBalancerIP | string | `""` |  |
-| serviceTCP.type | string | `"NodePort"` |  |
-| serviceUDP.annotations | object | `{}` |  |
-| serviceUDP.externalTrafficPolicy | string | `"Local"` |  |
-| serviceUDP.loadBalancerIP | string | `""` |  |
-| serviceUDP.type | string | `"NodePort"` |  |
+| service.annotations | object | `{}` |  |
+| service.externalTrafficPolicy | string | `"Local"` |  |
+| service.loadBalancerIP | string | `""` |  |
+| service.type | string | `"NodePort"` |  |
 | tolerations | list | `[]` |  |
 | whitelist | object | `{}` |  |
 

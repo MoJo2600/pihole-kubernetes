@@ -5,15 +5,8 @@ dnsmasq:
 persistentVolumeClaim:
   enabled: true
 
-serviceTCP:
+service:
   loadBalancerIP: 192.168.178.253
   annotations:
     metallb.universe.tf/address-pool: network-services
     metallb.universe.tf/allow-shared-ip: pihole-svc
-
-serviceUDP:
-  loadBalancerIP: 192.168.178.253
-  annotations:
-    metallb.universe.tf/address-pool: network-services
-    metallb.universe.tf/allow-shared-ip: pihole-svc
-

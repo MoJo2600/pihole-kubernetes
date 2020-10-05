@@ -7,17 +7,17 @@ metadata:
     chart: {{ template "pihole.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-{{- if .Values.serviceTCP.annotations }}
+{{- if .Values.service.annotations }}
   annotations:
-{{ toYaml .Values.serviceTCP.annotations | indent 4 }}
+{{ toYaml .Values.service.annotations | indent 4 }}
 {{- end }}
 spec:
-  type: {{ .Values.serviceTCP.type }}
-  {{- if .Values.serviceTCP.loadBalancerIP }}
-  loadBalancerIP: {{ .Values.serviceTCP.loadBalancerIP }}
+  type: {{ .Values.service.type }}
+  {{- if .Values.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.service.loadBalancerIP }}
   {{- end }}
-  {{- if or (eq .Values.serviceTCP.type "NodePort") (eq .Values.serviceTCP.type "LoadBalancer") }}
-  externalTrafficPolicy: {{ .Values.serviceTCP.externalTrafficPolicy }}
+  {{- if or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer") }}
+  externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
   {{- end }}
   ports:
       # HTTP(S)
