@@ -78,7 +78,7 @@ autoscaling:
   # Set a limit on the number of replica's
   minReplicas: 1
   maxReplicas: 10
-  # The autoscaler will scale until every pod has this target level of CPU utilization (of the resources 
+  # The autoscaler will scale until every pod has this target level of CPU utilization (of the resources
   # limits, see above).
   # Documentation: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
   targetCPUUtilizationPercentage: 80
