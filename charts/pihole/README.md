@@ -76,6 +76,10 @@ The following table lists the configurable parameters of the pihole chart and th
 | admin.passwordKey | string | `"password"` |  |
 | adminPassword | string | `"admin"` |  |
 | affinity | object | `{}` |  |
+| autoscaling | bool | `false` | Enable or disable Horizontal Pod Autoscaler |
+| autoscaling.minReplicas | int | 1 | Minimum number of replica's |
+| autoscaling.maxReplicas | int | 10 | Maximum number of replica's |
+| autoscaling.targetCPUUtilizationPercentage | int | 80 | Target average CPU utilization per pod. |
 | blacklist | object | `{}` |  |
 | dnsmasq.additionalHostsEntries | list | `[]` |  |
 | dnsmasq.customDnsEntries | list | `[]` |  |

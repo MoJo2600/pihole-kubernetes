@@ -70,6 +70,19 @@ resources: {}
   #  cpu: 100m
   #  memory: 128Mi
 
+autoscaling:
+  # Enable or disable the Horizontal Pod Autoscaler.
+  # This feature requires the metrics-server to be installed!
+  # See https://github.com/kubernetes-sigs/metrics-server
+  enabled: false
+  # Set a limit on the number of replica's
+  minReplicas: 1
+  maxReplicas: 10
+  # The autoscaler will scale until every pod has this target level of CPU utilization.
+  # Documentation: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+  targetCPUUtilizationPercentage: 80
+
+
 persistentVolumeClaim:
   # set to true to use pvc
   enabled: false
