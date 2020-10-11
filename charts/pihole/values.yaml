@@ -13,8 +13,8 @@ serviceTCPDNS:
   type: NodePort
   externalTrafficPolicy: Local
   loadBalancerIP: ""
-  port: 53
-  protocol: TCP
+  - port: 53
+    protocol: TCP
     # a fixed LoadBalancer IP
   annotations: {}
     # metallb.universe.tf/address-pool: network-services
@@ -24,10 +24,10 @@ serviceTCP:
   type: ClusterIP
   # externalTrafficPolicy: Local
   # loadBalancerIP: ""
-  port: 80
-  protocol: TCP
-  port: 443
-  protocol: TCP
+  - port: 80
+    protocol: TCP
+  - port: 443
+    protocol: TCP
     # a fixed LoadBalancer IP
   annotations: {}
     # metallb.universe.tf/address-pool: network-services
