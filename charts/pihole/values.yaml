@@ -10,7 +10,7 @@ image:
   pullPolicy: IfNotPresent
 
 serviceTCPDNS:
-  type: LoadBalancer
+  type: NodePort
   externalTrafficPolicy: Local
   loadBalancerIP: ""
   port: 53
@@ -34,7 +34,7 @@ serviceTCP:
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
 serviceUDP:
-  type: LoadBalancer
+  type: NodePort
   externalTrafficPolicy: Local
   loadBalancerIP: ""
   port: 53
@@ -54,7 +54,7 @@ ingress:
   path: /
   hosts:
     # virtualHost (default value is pi.hole) will be appended to the hosts
-    - pi.hole
+    - chart-example.local
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
