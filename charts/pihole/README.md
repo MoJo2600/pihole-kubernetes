@@ -67,58 +67,66 @@ The following table lists the configurable parameters of the pihole chart and th
 
 ## Chart Values
 
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| DNS1 | string | `"8.8.8.8"` |  |
-| DNS2 | string | `"8.8.4.4"` |  |
-| adlists | object | `{}` |  |
-| admin.existingSecret | string | `""` |  |
-| admin.passwordKey | string | `"password"` |  |
-| adminPassword | string | `"admin"` |  |
-| affinity | object | `{}` |  |
-| blacklist | object | `{}` |  |
-| dnsmasq.additionalHostsEntries | list | `[]` |  |
-| dnsmasq.customDnsEntries | list | `[]` |  |
-| doh.enabled | bool | `false` |  |
-| doh.name | string | `"cloudflared"` |  |
-| doh.pullPolicy | string | `"IfNotPresent"` |  |
-| doh.repository | string | `"crazymax/cloudflared"` |  |
-| doh.tag | string | `"latest"` |  |
-| doh.envVars | object | `{}` |  |
-| extraEnvVars | object | `{}` |  |
-| extraEnvVarsSecret | object | `{}` |  |
-| image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"pihole/pihole"` |  |
-| image.tag | string | `"5.1.1"` |  |
-| ingress.annotations | object | `{}` |  |
-| ingress.enabled | bool | `false` |  |
-| ingress.hosts[0] | string | `"chart-example.local"` |  |
-| ingress.path | string | `"/"` |  |
-| ingress.tls | list | `[]` |  |
-| nodeSelector | object | `{}` |  |
-| persistentVolumeClaim.accessModes[0] | string | `"ReadWriteOnce"` |  |
-| persistentVolumeClaim.annotations | object | `{}` |  |
-| persistentVolumeClaim.enabled | bool | `false` |  |
-| persistentVolumeClaim.existingClaim | bool | `false` |  |
-| persistentVolumeClaim.size | string | `"500Mi"` |  |
-| probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5}` | Configure the healthcheck for the ingress controller |
-| probes.readiness.enabled | bool | `true` |  |
-| probes.readiness.failureThreshold | int | `3` |  |
-| probes.readiness.initialDelaySeconds | int | `60` |  |
-| probes.readiness.timeoutSeconds | int | `5` |  |
-| regex | object | `{}` |  |
-| replicaCount | int | `1` |  |
-| resources | object | `{}` |  |
-| serviceTCP.annotations | object | `{}` |  |
-| serviceTCP.externalTrafficPolicy | string | `"Local"` |  |
-| serviceTCP.loadBalancerIP | string | `""` |  |
-| serviceTCP.type | string | `"NodePort"` |  |
-| serviceUDP.annotations | object | `{}` |  |
-| serviceUDP.externalTrafficPolicy | string | `"Local"` |  |
-| serviceUDP.loadBalancerIP | string | `""` |  |
-| serviceUDP.type | string | `"NodePort"` |  |
-| tolerations | list | `[]` |  |
-| whitelist | object | `{}` |  |
+| Key                                  | Type   | Default                                                                              | Description                                          |
+|--------------------------------------|--------|--------------------------------------------------------------------------------------|------------------------------------------------------|
+| DNS1                                 | string | `"8.8.8.8"`                                                                          |                                                      |
+| DNS2                                 | string | `"8.8.4.4"`                                                                          |                                                      |
+| adlists                              | object | `{}`                                                                                 |                                                      |
+| admin.existingSecret                 | string | `""`                                                                                 |                                                      |
+| admin.passwordKey                    | string | `"password"`                                                                         |                                                      |
+| adminPassword                        | string | `"admin"`                                                                            |                                                      |
+| affinity                             | object | `{}`                                                                                 |                                                      |
+| blacklist                            | object | `{}`                                                                                 |                                                      |
+| dnsmasq.additionalHostsEntries       | list   | `[]`                                                                                 |                                                      |
+| dnsmasq.customDnsEntries             | list   | `[]`                                                                                 |                                                      |
+| doh.enabled                          | bool   | `false`                                                                              |                                                      |
+| doh.name                             | string | `"cloudflared"`                                                                      |                                                      |
+| doh.pullPolicy                       | string | `"IfNotPresent"`                                                                     |                                                      |
+| doh.repository                       | string | `"crazymax/cloudflared"`                                                             |                                                      |
+| doh.tag                              | string | `"latest"`                                                                           |                                                      |
+| doh.envVars                          | object | `{}`                                                                                 |                                                      |
+| extraEnvVars                         | object | `{}`                                                                                 |                                                      |
+| extraEnvVarsSecret                   | object | `{}`                                                                                 |                                                      |
+| image.pullPolicy                     | string | `"IfNotPresent"`                                                                     |                                                      |
+| image.repository                     | string | `"pihole/pihole"`                                                                    |                                                      |
+| image.tag                            | string | `"5.1.1"`                                                                            |                                                      |
+| ingress.annotations                  | object | `{}`                                                                                 |                                                      |
+| ingress.enabled                      | bool   | `false`                                                                              |                                                      |
+| ingress.hosts[0]                     | string | `"chart-example.local"`                                                              |                                                      |
+| ingress.path                         | string | `"/"`                                                                                |                                                      |
+| ingress.tls                          | list   | `[]`                                                                                 |                                                      |
+| nodeSelector                         | object | `{}`                                                                                 |                                                      |
+| persistentVolumeClaim.accessModes[0] | string | `"ReadWriteOnce"`                                                                    |                                                      |
+| persistentVolumeClaim.annotations    | object | `{}`                                                                                 |                                                      |
+| persistentVolumeClaim.enabled        | bool   | `false`                                                                              |                                                      |
+| persistentVolumeClaim.existingClaim  | bool   | `false`                                                                              |                                                      |
+| persistentVolumeClaim.size           | string | `"500Mi"`                                                                            |                                                      |
+| probes.liveness                      | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5}` | Configure the healthcheck for the ingress controller |
+| probes.readiness.enabled             | bool   | `true`                                                                               |                                                      |
+| probes.readiness.failureThreshold    | int    | `3`                                                                                  |                                                      |
+| probes.readiness.initialDelaySeconds | int    | `60`                                                                                 |                                                      |
+| probes.readiness.timeoutSeconds      | int    | `5`                                                                                  |                                                      |
+| regex                                | object | `{}`                                                                                 |                                                      |
+| replicaCount                         | int    | `1`                                                                                  |                                                      |
+| resources                            | object | `{}`                                                                                 |                                                      |
+| serviceTCP.annotations               | object | `{}`                                                                                 |                                                      |
+| serviceTCP.externalTrafficPolicy     | string | `"Local"`                                                                            |                                                      |
+| serviceTCP.loadBalancerIP            | string | `""`                                                                                 |                                                      |
+| serviceTCP.type                      | string | `"NodePort"`                                                                         |                                                      |
+| serviceUDP.annotations               | object | `{}`                                                                                 |                                                      |
+| serviceUDP.externalTrafficPolicy     | string | `"Local"`                                                                            |                                                      |
+| serviceUDP.loadBalancerIP            | string | `""`                                                                                 |                                                      |
+| serviceUDP.type                      | string | `"NodePort"`                                                                         |                                                      |
+| tolerations                          | list   | `[]`                                                                                 |                                                      |
+| whitelist                            | object | `{}`                                                                                 |                                                      |
+| monitoring.serviceMonitor.enabled    | bool   | `false`                                                                              |                                                      |
+| monitoring.sidecar.enabled           | bool   | `false`                                                                              |                                                      |
+| monitoring.sidecar.port              | bool   | `9617`                                                                               |                                                      |
+| monitoring.sidecar.image.repository  | string | `ekofr/pihole-exporter`                                                              |                                                      |
+| monitoring.sidecar.image.tag         | bool   | `0.0.9`                                                                              |                                                      |
+| monitoring.sidecar.image.pullPolicy  | bool   | `IfNotPresent`                                                                       |                                                      |
+| monitoring.sidecar.resources         | object | `{}`                                                                                 |                                                      |
+
 
 ## HowTo
 

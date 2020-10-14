@@ -192,3 +192,20 @@ customVolumes:
     # any volume type can be used here
     # hostPath:
     #   path: "/mnt/data"
+
+monitoring:
+  serviceMonitor:
+    enabled: false
+  sidecar:
+    enabled: false
+    port: 9617
+    image:
+      repository: ekofr/pihole-exporter
+      tag: 0.0.9
+      pullPolicy: IfNotPresent
+    resources:
+      limits:
+        memory: 128Mi
+      # requests:
+      #  cpu: 100m
+      #  memory: 128Mi
