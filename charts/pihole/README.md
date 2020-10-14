@@ -30,7 +30,7 @@ The following items can be set via `--set` flag during installation or configure
 
 ## My settings in values.yaml
 
-```console
+```yaml
 dnsmasq:
   customDnsEntries:
     - address=/nas/192.168.178.10
@@ -126,7 +126,10 @@ The following table lists the configurable parameters of the pihole chart and th
 
 You need a central storage, available to all pods like NFS.
 
-# values for Pi-Hole HA for nginx ingress example
+#### values for Pi-Hole HA for nginx ingress example
+
+
+```yaml
 replicaCount: 2
 
 persistentVolumeClaim:
@@ -149,8 +152,13 @@ ingress:
     nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
     nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
 This should also work with Treafik, which is the default on K3S but I didn't test this:
+```
 
-# values for Pi-Hole HA for traefik ingress example
+
+#### values for Pi-Hole HA for traefik ingress example
+
+
+```yaml
 replicaCount: 2
 
 persistentVolumeClaim:
@@ -172,8 +180,11 @@ serviceTCP:
   annotations:
     traefik.ingress.kubernetes.io/affinity: "true"
     traefik.ingress.kubernetes.io/session-cookie-name: "sticky"
+```
+
 Additionally you can force kubernetes to schedule the pods on different hosts:
 
+```yaml
 antiaff:
   enabled: true
   # Here you can set the pihole release (you set in `helm install <releasename> ...`)
@@ -181,7 +192,7 @@ antiaff:
   avoidRelease: pihole1
   # Here you can choose between preferred or required
   strict: true
-
+```
 
 ## Remarks
 
