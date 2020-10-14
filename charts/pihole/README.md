@@ -120,6 +120,69 @@ The following table lists the configurable parameters of the pihole chart and th
 | tolerations | list | `[]` |  |
 | whitelist | object | `{}` |  |
 
+## HowTo
+
+### Pi-Hole in HA mode (multi-pod) (Thanks @brnl)
+
+You need a central storage, available to all pods like NFS.
+
+# values for Pi-Hole HA for nginx ingress example
+replicaCount: 2
+
+persistentVolumeClaim:
+  enabled: true
+  accessModes:
+    - ReadWriteMany
+  storageClass: nfs-client
+
+ingress:
+  enabled: true
+  hosts:
+    # Set your favorite hostname. It must resolve to the ingress IP-address. You could add this in PiHole itself
+    # once you use it as your DNS-server. Until then, please add it to your hosts file.
+    - pihole.local
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/affinity-mode: "persistent"
+    nginx.ingress.kubernetes.io/session-cookie-name: "route"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+This should also work with Treafik, which is the default on K3S but I didn't test this:
+
+# values for Pi-Hole HA for traefik ingress example
+replicaCount: 2
+
+persistentVolumeClaim:
+  enabled: true
+  accessModes:
+    - ReadWriteMany
+  storageClass: nfs-client
+
+ingress:
+  enabled: true
+  hosts:
+    # Set your favorite hostname. It must resolve to the ingress IP-address. You could add this in PiHole itself
+    # once you use it as your DNS-server. Until then, please add it to your hosts file.
+    - pihole.local
+  annotations:
+    kubernetes.io/ingress.class: traefik
+
+serviceTCP:
+  annotations:
+    traefik.ingress.kubernetes.io/affinity: "true"
+    traefik.ingress.kubernetes.io/session-cookie-name: "sticky"
+Additionally you can force kubernetes to schedule the pods on different hosts:
+
+antiaff:
+  enabled: true
+  # Here you can set the pihole release (you set in `helm install <releasename> ...`)
+  # you want to avoid
+  avoidRelease: pihole1
+  # Here you can choose between preferred or required
+  strict: true
+
+
 ## Remarks
 
 ### MetalLB 0.7.3
