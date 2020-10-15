@@ -194,7 +194,7 @@ customVolumes:
     #   path: "/mnt/data"
 
 monitoring:
-  serviceMonitor:
+  podMonitor:
     enabled: false
   sidecar:
     enabled: false

@@ -2,5 +2,5 @@ monitoring:
   enabled: true
   labels:
     testExtraLabel: fofa
-  serviceMonitor:
+  podMonitor:
     enabled: false

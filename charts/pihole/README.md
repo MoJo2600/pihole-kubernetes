@@ -119,9 +119,9 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceUDP.type                      | string | `"NodePort"`                                                                         |                                                      |
 | tolerations                          | list   | `[]`                                                                                 |                                                      |
 | whitelist                            | object | `{}`                                                                                 |                                                      |
-| monitoring.serviceMonitor.enabled    | bool   | `false`                                                                              |                                                      |
+| monitoring.podMonitor.enabled        | bool   | `false`                                                                              |                                                      |
 | monitoring.sidecar.enabled           | bool   | `false`                                                                              |                                                      |
-| monitoring.sidecar.port              | bool   | `9617`                                                                               |                                                      |
+| monitoring.sidecar.port              | int    | `9617`                                                                               |                                                      |
 | monitoring.sidecar.image.repository  | string | `ekofr/pihole-exporter`                                                              |                                                      |
 | monitoring.sidecar.image.tag         | bool   | `0.0.9`                                                                              |                                                      |
 | monitoring.sidecar.image.pullPolicy  | bool   | `IfNotPresent`                                                                       |                                                      |
