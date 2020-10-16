@@ -75,7 +75,7 @@ spec:
           resources:
 {{ toYaml .Values.monitoring.sidecar.resources | indent 12 }}
           ports:
-            - containerPort: {{ .Values.monitoring.port }}
+            - containerPort: {{ .Values.monitoring.sidecar.port }}
               name: prometheus
               protocol: TCP
         {{- end }}
