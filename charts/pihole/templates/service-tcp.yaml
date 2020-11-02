@@ -32,6 +32,12 @@ spec:
       targetPort: dns
       protocol: TCP
       name: dns
+    {{- if .Values.monitoring.sidecar.enabled }}
+    - port: {{ .Values.monitoring.sidecar.port }}
+      targetPort: prometheus
+      protocol: TCP
+      name: prometheus
+    {{- end }}
   selector:
     app: {{ template "pihole.name" . }}
     release: {{ .Release.Name }}
