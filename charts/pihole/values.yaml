@@ -201,7 +201,7 @@ monitoring:
     port: 9617
     image:
       repository: ekofr/pihole-exporter
-      tag: 0.0.9
+      tag: 0.0.10
       pullPolicy: IfNotPresent
     resources:
       limits:
