@@ -1,13 +1,17 @@
 {{ template "chart.header" . }}
 {{ template "chart.description" . }}
 
-{{ template "chart.versionLine" . }}
+{{ template "chart.versionBadge" .  }}{{ template "chart.typeBadge" .  }}{{ template "chart.appVersionBadge" .  }}
 
-{{ template "chart.sourceLinkLine" . }}
+{{ template "chart.sourcesSection" . }}
 
 {{ template "chart.requirementsSection" . }}
 
 ## Installation
+
+Jeff Geerling on YouTube made a video about the installation of this chart:
+
+[![Jeff Geerling on YouTube](https://img.youtube.com/vi/IafVCHkJbtI/0.jpg)](https://youtu.be/IafVCHkJbtI?t=2655)
 
 ### Add Helm repository
 
@@ -36,7 +40,13 @@ dnsmasq:
 persistentVolumeClaim:
   enabled: true
 
-serviceTCP:
+serviceTCPHTTP:
+  loadBalancerIP: 192.168.178.252
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+  type: LoadBalancer
+
+serviceTCPDNS:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
@@ -65,15 +75,17 @@ The following table lists the configurable parameters of the pihole chart and th
 
 {{ template "chart.valuesSection" . }}
 
+{{ template "chart.maintainersSection" . }}
+
 ## Remarks
-
-### MetalLB 0.7.3
-
-MetalLB 0.7.3 has a bug, where the service is not announced anymore, when the pod changes (e.g. update of a deployment). My workaround is to restart the `metallb-speaker-*` pods.
 
 ### MetalLB 0.8.1+
 
 pihole seems to work without issue in MetalLB 0.8.1+
+
+### MetalLB 0.7.3
+
+MetalLB 0.7.3 has a bug, where the service is not announced anymore, when the pod changes (e.g. update of a deployment). My workaround is to restart the `metallb-speaker-*` pods.
 
 ## Credits
 
@@ -84,3 +96,5 @@ pihole seems to work without issue in MetalLB 0.8.1+
 Feel free to contribute by making a [pull request](https://github.com/MoJo2600/pihole-kubernetes/pull/new/master).
 
 Please read the official [Contribution Guide](https://github.com/helm/charts/blob/master/CONTRIBUTING.md) from Helm for more information on how you can contribute to this Chart.
+
+{{ template "helm-docs.versionFooter" . }}

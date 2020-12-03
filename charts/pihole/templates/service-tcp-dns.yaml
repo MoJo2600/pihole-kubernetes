@@ -1,33 +1,25 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "pihole.fullname" . }}-tcp
+  name: {{ template "pihole.fullname" . }}-tcp-dns
   labels:
     app: {{ template "pihole.name" . }}
     chart: {{ template "pihole.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-{{- if .Values.serviceTCP.annotations }}
+{{- if .Values.serviceTCPDNS.annotations }}
   annotations:
-{{ toYaml .Values.serviceTCP.annotations | indent 4 }}
+{{ toYaml .Values.serviceTCPDNS.annotations | indent 4 }}
 {{- end }}
 spec:
-  type: {{ .Values.serviceTCP.type }}
-  {{- if .Values.serviceTCP.loadBalancerIP }}
-  loadBalancerIP: {{ .Values.serviceTCP.loadBalancerIP }}
+  type: {{ .Values.serviceTCPDNS.type }}
+  {{- if .Values.serviceTCPDNS.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.serviceTCPDNS.loadBalancerIP }}
   {{- end }}
-  {{- if or (eq .Values.serviceTCP.type "NodePort") (eq .Values.serviceTCP.type "LoadBalancer") }}
-  externalTrafficPolicy: {{ .Values.serviceTCP.externalTrafficPolicy }}
+  {{- if or (eq .Values.serviceTCPDNS.type "NodePort") (eq .Values.serviceTCPDNS.type "LoadBalancer") }}
+  externalTrafficPolicy: {{ .Values.serviceTCPDNS.externalTrafficPolicy }}
   {{- end }}
   ports:
-    - port: 80
-      targetPort: http
-      protocol: TCP
-      name: http
-    - port: 443
-      targetPort: https
-      protocol: TCP
-      name: https
     - port: 53
       targetPort: dns
       protocol: TCP
