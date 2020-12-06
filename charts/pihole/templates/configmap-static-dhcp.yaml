@@ -1,0 +1,16 @@
+{{ if .Values.dnsmasq.staticDhcpEntries }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "pihole.fullname" . }}-static-dhcp
+  labels:
+    app: {{ template "pihole.name" . }}
+    chart: {{ template "pihole.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  pihole-static-dhcp.conf: |
+  {{- range .Values.dnsmasq.staticDhcpEntries }}
+    {{ . }}
+  {{- end }}
+{{ end }}
