@@ -26,6 +26,7 @@ spec:
         checksum.config.regex: {{ include (print $.Template.BasePath "/configmap-regex.yaml") . | sha256sum | trunc 63 }}
         checksum.config.whitelist: {{ include (print $.Template.BasePath "/configmap-whitelist.yaml") . | sha256sum | trunc 63 }}
         checksum.config.dnsmasqConfig: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.staticDhcpConfig: {{ include (print $.Template.BasePath "/configmap-static-dhcp.yaml") . | sha256sum | trunc 63 }}
       labels:
         app: {{ template "pihole.name" . }}
         release: {{ .Release.Name }}
@@ -39,7 +40,7 @@ spec:
         {{- else }}
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 100
-            podAffinityTerm:  
+            podAffinityTerm:
               labelSelector:
         {{- end }}
                 matchExpressions:
@@ -214,6 +215,11 @@ spec:
             name: whitelist
             subPath: whitelist.txt
           {{- end }}
+          {{- if .Values.dnsmasq.staticDhcpEntries }}
+          - mountPath: /etc/dnsmasq.d/04-pihole-static-dhcp.conf
+            name: static-dhcp
+            subPath: pihole-static-dhcp.conf
+          {{- end }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
@@ -253,6 +259,12 @@ spec:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-whitelist
         name: whitelist
+      {{- end }}
+      {{- if .Values.dnsmasq.staticDhcpEntries }}
+      - configMap:
+          defaultMode: 420
+          name: {{ template "pihole.fullname" . }}-static-dhcp
+        name: static-dhcp
       {{- end }}
       {{- if .Values.blacklist }}
       - configMap:

@@ -162,6 +162,10 @@ dnsmasq:
   # - 192.168.0.3     host4
   # - 192.168.0.4     host5
 
+  staticDhcpEntries: []
+  # Static DHCP config
+  # staticDhcpEntries:
+  # - dhcp-host=MAC_ADDRESS,IP_ADDRESS,HOSTNAME
 
 adlists: {}
   # If you want to provide blocklists, add them here.
