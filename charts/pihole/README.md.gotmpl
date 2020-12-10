@@ -60,6 +60,43 @@ serviceUDP:
 
 ```
 
+## Upgrading
+
+### To 1.8.22
+
+To enhance compatibility for traefik, we split the HTTP service into TCPHTTP and TCPDNS. This means, if you have a dedicated configuration for the service, you have to
+update your `values.yaml` and add a new configuration for this new service.
+
+Before (In my case, with metallb):
+```
+serviceTCP:
+  loadBalancerIP: 192.168.178.252
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+
+serviceUDP:
+  loadBalancerIP: 192.168.178.252
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+```
+
+After:
+```
+serviceTCPHTTP:
+  loadBalancerIP: 192.168.178.252
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+
+serviceTCPDNS:
+  loadBalancerIP: 192.168.178.252
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+
+serviceUDP:
+  loadBalancerIP: 192.168.178.252
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+```
 
 ## Uninstallation
 

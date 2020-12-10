@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 1.7.22](https://img.shields.io/badge/Version-1.7.22-informational?style=flat-square) ![AppVersion: 5.2](https://img.shields.io/badge/AppVersion-5.2-informational?style=flat-square)
+![Version: 1.8.22](https://img.shields.io/badge/Version-1.8.22-informational?style=flat-square) ![AppVersion: 5.2](https://img.shields.io/badge/AppVersion-5.2-informational?style=flat-square)
 
 ## Source Code
 
@@ -62,6 +62,44 @@ serviceUDP:
     metallb.universe.tf/allow-shared-ip: pihole-svc
   type: LoadBalancer
 
+```
+
+## Upgrading
+
+### To 1.8.22
+
+To enhance compatibility for traefik, we split the HTTP service into TCPHTTP and TCPDNS. This means, if you have a dedicated configuration for the service, you have to
+update your `values.yaml` and add a new configuration for this new service.
+
+Before (In my case, with metallb):
+```
+serviceTCP:
+  loadBalancerIP: 192.168.178.252
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+
+serviceUDP:
+  loadBalancerIP: 192.168.178.252
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+```
+
+After:
+```
+serviceTCPHTTP:
+  loadBalancerIP: 192.168.178.252
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+
+serviceTCPDNS:
+  loadBalancerIP: 192.168.178.252
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+
+serviceUDP:
+  loadBalancerIP: 192.168.178.252
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
 ```
 
 ## Uninstallation
@@ -158,7 +196,7 @@ The following table lists the configurable parameters of the pihole chart and th
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| Christian Erhardt | christian.erhardt@mojo2k.de |  |
+| MoJo2600 | christian.erhardt@mojo2k.de |  |
 
 ## Remarks
 
