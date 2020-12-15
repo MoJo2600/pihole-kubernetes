@@ -9,7 +9,7 @@ image:
   tag: v5.2
   pullPolicy: IfNotPresent
 
-serviceTCPDNS:
+serviceDns:
   type: NodePort
   externalTrafficPolicy: Local
   loadBalancerIP: ""
@@ -18,21 +18,10 @@ serviceTCPDNS:
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
-serviceTCPHTTP:
+serviceWeb:
   type: ClusterIP
   externalTrafficPolicy: Local
   loadBalancerIP: ""
-    # a fixed LoadBalancer IP
-  annotations: {}
-    # metallb.universe.tf/address-pool: network-services
-    # metallb.universe.tf/allow-shared-ip: pihole-svc
-
-serviceUDP:
-  type: NodePort
-  externalTrafficPolicy: Local
-  loadBalancerIP: ""
-  port: 53
-  protocol: UDP
     # a fixed LoadBalancer IP
   annotations: {}
     # metallb.universe.tf/address-pool: network-services

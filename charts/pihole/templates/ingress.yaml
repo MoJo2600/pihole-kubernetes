@@ -1,7 +1,7 @@
 {{- if .Values.ingress.enabled -}}
-{{- $serviceName := printf "%s-%s" (include "pihole.fullname" .) "tcp-http" -}}
+{{- $serviceName := printf "%s-%s" (include "pihole.fullname" .) "web" -}}
 {{- $ingressPath := .Values.ingress.path -}}
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: {{ template "pihole.fullname" . }}
@@ -25,6 +25,7 @@ spec:
       http:
         paths:
           - path: {{ $ingressPath }}
+            pathType: ImplementationSpecific
             backend:
               serviceName: {{ $serviceName }}
               servicePort: http

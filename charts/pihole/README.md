@@ -44,31 +44,24 @@ dnsmasq:
 persistentVolumeClaim:
   enabled: true
 
-serviceTCPHTTP:
+serviceWeb:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
   type: LoadBalancer
 
-serviceTCPDNS:
+serviceDns:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
   type: LoadBalancer
-
-serviceUDP:
-  loadBalancerIP: 192.168.178.252
-  annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
-  type: LoadBalancer
-
 ```
 
 ## Upgrading
 
 ### To 1.8.22
 
-To enhance compatibility for traefik, we split the HTTP service into TCPHTTP and TCPDNS. This means, if you have a dedicated configuration for the service, you have to
+To enhance compatibility for traefik, we split the TCP and UDP service into Web and DNS. This means, if you have a dedicated configuration for the service, you have to
 update your `values.yaml` and add a new configuration for this new service.
 
 Before (In my case, with metallb):
@@ -86,17 +79,12 @@ serviceUDP:
 
 After:
 ```
-serviceTCPHTTP:
+serviceWeb:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
 
-serviceTCPDNS:
-  loadBalancerIP: 192.168.178.252
-  annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
-
-serviceUDP:
+serviceDns:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
@@ -172,20 +160,14 @@ The following table lists the configurable parameters of the pihole chart and th
 | regex | object | `{}` |  |
 | replicaCount | int | `1` |  |
 | resources | object | `{}` |  |
-| serviceTCPDNS.annotations | object | `{}` |  |
-| serviceTCPDNS.externalTrafficPolicy | string | `"Local"` |  |
-| serviceTCPDNS.loadBalancerIP | string | `""` |  |
-| serviceTCPDNS.type | string | `"NodePort"` |  |
-| serviceTCPHTTP.annotations | object | `{}` |  |
-| serviceTCPHTTP.externalTrafficPolicy | string | `"Local"` |  |
-| serviceTCPHTTP.loadBalancerIP | string | `""` |  |
-| serviceTCPHTTP.type | string | `"ClusterIP"` |  |
-| serviceUDP.annotations | object | `{}` |  |
-| serviceUDP.externalTrafficPolicy | string | `"Local"` |  |
-| serviceUDP.loadBalancerIP | string | `""` |  |
-| serviceUDP.port | int | `53` |  |
-| serviceUDP.protocol | string | `"UDP"` |  |
-| serviceUDP.type | string | `"NodePort"` |  |
+| serviceDns.annotations | object | `{}` |  |
+| serviceDns.externalTrafficPolicy | string | `"Local"` |  |
+| serviceDns.loadBalancerIP | string | `""` |  |
+| serviceDns.type | string | `"NodePort"` |  |
+| serviceWeb.annotations | object | `{}` |  |
+| serviceWeb.externalTrafficPolicy | string | `"Local"` |  |
+| serviceWeb.loadBalancerIP | string | `""` |  |
+| serviceWeb.type | string | `"ClusterIP"` |  |
 | tolerations | list | `[]` |  |
 | virtualHost | string | `"pi.hole"` |  |
 | webHttp | string | `"80"` |  |

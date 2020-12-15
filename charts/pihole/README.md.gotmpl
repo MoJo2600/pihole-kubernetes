@@ -40,31 +40,24 @@ dnsmasq:
 persistentVolumeClaim:
   enabled: true
 
-serviceTCPHTTP:
+serviceWeb:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
   type: LoadBalancer
 
-serviceTCPDNS:
+serviceDns:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
   type: LoadBalancer
-
-serviceUDP:
-  loadBalancerIP: 192.168.178.252
-  annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
-  type: LoadBalancer
-
 ```
 
 ## Upgrading
 
 ### To 1.8.22
 
-To enhance compatibility for traefik, we split the HTTP service into TCPHTTP and TCPDNS. This means, if you have a dedicated configuration for the service, you have to
+To enhance compatibility for traefik, we split the TCP and UDP service into Web and DNS. This means, if you have a dedicated configuration for the service, you have to
 update your `values.yaml` and add a new configuration for this new service.
 
 Before (In my case, with metallb):
@@ -82,17 +75,12 @@ serviceUDP:
 
 After:
 ```
-serviceTCPHTTP:
+serviceWeb:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
 
-serviceTCPDNS:
-  loadBalancerIP: 192.168.178.252
-  annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
-
-serviceUDP:
+serviceDns:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
