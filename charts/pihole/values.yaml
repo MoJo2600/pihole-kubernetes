@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: "pihole/pihole"
-  tag: v5.2
+  tag: v5.2.1
   pullPolicy: IfNotPresent
 
 serviceDns:
