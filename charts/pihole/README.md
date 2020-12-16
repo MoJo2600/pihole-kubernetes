@@ -91,23 +91,24 @@ serviceDns:
 ```
 
 Version 1.8.22 has switched from the deprecated ingress api `extensions/v1beta1` to the go forward version `networking.k8s.io/v1`. This means that your cluster must be running 1.19.x as this api is not available on older versions. If necessary to run on an older Kubernetes Version, it can be done by modifying the ingress.yaml and changing the api definition back. The backend definition would also change from:
+
 ```
             backend:
               service:
-                name: {{ $serviceName }}
-                port: 
+                name: \{\{ $serviceName \}\}
+                port:
                   name: http
 ```
 to:
 ```
             backend:
-              serviceName: {{ $serviceName }}
+              serviceName: \{\{ $serviceName \}\}
               servicePort: http
 ```
 
 ## Uninstallation
 
-To uninstall/delete the `my-release` deployment(NOTE: `--purge` is default behaviour in Helm 3+ and will error):
+To uninstall/delete the `my-release` deployment (NOTE: `--purge` is default behaviour in Helm 3+ and will error):
 
 ```bash
 helm delete --purge my-release

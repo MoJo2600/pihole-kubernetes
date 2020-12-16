@@ -57,7 +57,7 @@ serviceDns:
 
 ### To 1.8.22
 
-To enhance compatibility for traefik, we split the TCP and UDP service into Web and DNS. This means, if you have a dedicated configuration for the service, you have to
+To enhance compatibility for Traefik, we split the TCP and UDP service into Web and DNS. This means, if you have a dedicated configuration for the service, you have to
 update your `values.yaml` and add a new configuration for this new service.
 
 Before (In my case, with metallb):
@@ -86,9 +86,25 @@ serviceDns:
     metallb.universe.tf/allow-shared-ip: pihole-svc
 ```
 
+Version 1.8.22 has switched from the deprecated ingress api `extensions/v1beta1` to the go forward version `networking.k8s.io/v1`. This means that your cluster must be running 1.19.x as this api is not available on older versions. If necessary to run on an older Kubernetes Version, it can be done by modifying the ingress.yaml and changing the api definition back. The backend definition would also change from:
+
+```
+            backend:
+              service:
+                name: \{\{ $serviceName \}\}
+                port: 
+                  name: http
+```
+to:
+```
+            backend:
+              serviceName: \{\{ $serviceName \}\}
+              servicePort: http
+```
+
 ## Uninstallation
 
-To uninstall/delete the `my-release` deployment:
+To uninstall/delete the `my-release` deployment (NOTE: `--purge` is default behaviour in Helm 3+ and will error):
 
 ```bash
 helm delete --purge my-release
