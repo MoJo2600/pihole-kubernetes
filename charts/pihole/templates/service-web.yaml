@@ -28,6 +28,11 @@ spec:
       targetPort: https
       protocol: TCP
       name: https
+    {{- if .Values.doh.enabled }}
+    - port: 49312
+      protocol: TCP
+      name: cloudflared-met
+    {{- end }}
   selector:
     app: {{ template "pihole.name" . }}
     release: {{ .Release.Name }}
