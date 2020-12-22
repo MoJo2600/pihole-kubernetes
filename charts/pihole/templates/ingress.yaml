@@ -31,9 +31,14 @@ spec:
           - path: {{ $ingressPath }}
             pathType: ImplementationSpecific
             backend:
+            {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
               service:
                 name: {{ $serviceName }}
                 port: 
                   name: http
+           {{ else }}
+              serviceName: {{ $serviceName }}
+              servicePort: http
+           {{- end }}
   {{- end }}
 {{- end }}
