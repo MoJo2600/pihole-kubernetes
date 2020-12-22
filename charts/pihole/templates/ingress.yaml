@@ -36,9 +36,9 @@ spec:
                 name: {{ $serviceName }}
                 port: 
                   name: http
-           {{ else }}
+            {{ else }}
               serviceName: {{ $serviceName }}
               servicePort: http
-           {{- end }}
+            {{- end }}
   {{- end }}
 {{- end }}
