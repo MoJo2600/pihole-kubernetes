@@ -4,7 +4,7 @@ on: pull_request
 
 jobs:
   lint-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -13,10 +13,6 @@ jobs:
         uses: azure/setup-helm@v1
         with:
           version: v3.4.0
-
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.7
 
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.0.1
