@@ -7,21 +7,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Run chart-testing (lint)
         id: lint
-        uses: helm/chart-testing-action@v1.0.0-alpha.3
-        with:
-          command: lint
+        uses: helm/chart-testing-action@v2.0.1
+        
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed)
+          if [[ -n "$changed" ]]; then
+            echo "::set-output name=changed::true"
+          fi
+
+      - name: Run chart-testing (lint)
+        run: ct lint
 
       - name: Create kind cluster
-        uses: helm/kind-action@v1.0.0-alpha.3
-        with:
-          install_local_path_provisioner: true
-        if: steps.lint.outputs.changed == 'true'
+        uses: helm/kind-action@v1.1.0
+        if: steps.list-changed.outputs.changed == 'true'
 
       - name: Run chart-testing (install)
-        uses: helm/chart-testing-action@v1.0.0-alpha.3
-        with:
-          command: install
+        run: ct install
