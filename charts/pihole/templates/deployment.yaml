@@ -39,7 +39,7 @@ spec:
         {{- else }}
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 100
-            podAffinityTerm:  
+            podAffinityTerm:
               labelSelector:
         {{- end }}
                 matchExpressions:
@@ -99,6 +99,7 @@ spec:
             value: {{ $value | quote }}
             {{- end }}
           {{- end }}
+          {{- if .Values.doh.probes.liveness.enabled }}
           livenessProbe:
             exec:
               command:
@@ -106,6 +107,10 @@ spec:
               - "-uzvw3"
               - "localhost"
               - "5053"
+            initialDelaySeconds: {{ .Values.doh.probes.liveness.initialDelaySeconds }}
+            failureThreshold: {{ .Values.doh.probes.liveness.failureThreshold }}
+            timeoutSeconds: {{ .Values.doh.probes.liveness.timeoutSeconds }}
+          {{- end }}
         {{- end }}
         - name: {{ .Chart.Name }}
           env:
