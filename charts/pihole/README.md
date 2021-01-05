@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 1.8.22](https://img.shields.io/badge/Version-1.8.22-informational?style=flat-square) ![AppVersion: 5.2](https://img.shields.io/badge/AppVersion-5.2-informational?style=flat-square)
+![Version: 1.8.24](https://img.shields.io/badge/Version-1.8.24-informational?style=flat-square) ![AppVersion: 5.2.1](https://img.shields.io/badge/AppVersion-5.2.1-informational?style=flat-square)
 
 ## Source Code
 
@@ -149,12 +149,14 @@ The following table lists the configurable parameters of the pihole chart and th
 | hostNetwork | string | `"false"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"pihole/pihole"` |  |
-| image.tag | string | `"v5.2"` |  |
+| image.tag | string | `"v5.2.1"` |  |
 | ingress.annotations | object | `{}` |  |
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts[0] | string | `"chart-example.local"` |  |
 | ingress.path | string | `"/"` |  |
 | ingress.tls | list | `[]` |  |
+| maxSurge | int | `1` |  |
+| maxUnavailable | int | `1` |  |
 | monitoring.podMonitor.enabled | bool | `false` |  |
 | monitoring.sidecar.enabled | bool | `false` |  |
 | monitoring.sidecar.image.pullPolicy | string | `"IfNotPresent"` |  |
