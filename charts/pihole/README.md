@@ -144,6 +144,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.pullPolicy | string | `"IfNotPresent"` |  |
 | doh.repository | string | `"crazymax/cloudflared"` |  |
 | doh.tag | string | `"latest"` |  |
+| doh.probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5}` | Configure the healthcheck for the doh controller |
 | extraEnvVars | object | `{}` |  |
 | extraEnvVarsSecret | object | `{}` |  |
 | hostNetwork | string | `"false"` |  |

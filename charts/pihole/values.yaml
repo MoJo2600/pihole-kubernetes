@@ -141,6 +141,15 @@ doh:
     # Here you can pass environment variables to the DoH container, for example:
     # TUNNEL_DNS_UPSTREAM: "https://1.1.1.2/dns-query,https://1.0.0.2/dns-query"
 
+  # Probes configuration
+  probes:
+    # probes.liveness -- Configure the healthcheck for the doh container
+    liveness:
+      enabled: true
+      initialDelaySeconds: 60
+      failureThreshold: 10
+      timeoutSeconds: 5
+
 dnsmasq:
   upstreamServers: []
   # Here you can add upstream dns servers with. All lines will be added to the
