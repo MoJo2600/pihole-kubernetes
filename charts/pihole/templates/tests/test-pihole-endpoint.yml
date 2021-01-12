@@ -9,6 +9,6 @@ spec:
   - name: hook1-container
     image: curlimages/curl
     imagePullPolicy: IfNotPresent
-    command: ['sh', '-c', 'curl http://{{ template "pihole.fullname" . }}-tcp:80/']
+    command: ['sh', '-c', 'curl http://{{ template "pihole.fullname" . }}-web:80/']
   restartPolicy: Never
   terminationGracePeriodSeconds: 0
