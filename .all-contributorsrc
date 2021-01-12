@@ -1,0 +1,27 @@
+{
+  "files": [
+    "README.md",
+    "charts/pihole/README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "badgeTemplate": "![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)",
+  "contributorTemplate": "<a href=\"<%= contributor.profile %>\"><img src=\"<%= contributor.avatar_url %>\" width=\"<%= options.imageSize %>px;\" alt=\"\"/><br /><sub><b><%= contributor.name %></b></sub></a>",
+  "contributors": [
+    {
+      "login": "MoJo2600",
+      "name": "Christian Erhardt",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/2462817?v=4",
+      "profile": "http://www.mojo2k.de",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "pihole-kubernetes",
+  "projectOwner": "MoJo2600",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
