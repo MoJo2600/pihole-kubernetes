@@ -1,6 +1,6 @@
 # mojo2600.github.io
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)
+![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [Helm](https://helm.sh) repo for different charts which can be installed on [Kubernetes](https://kubernetes.io)
@@ -35,6 +35,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tr>
     <td align="center"><a href="http://www.mojo2k.de"><img src="https://avatars1.githubusercontent.com/u/2462817?v=4" width="100px;" alt=""/><br /><sub><b>Christian Erhardt</b></sub></a></td>
+    <td align="center"><a href="https://billimek.com/"><img src="https://avatars0.githubusercontent.com/u/6393612?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Jeff Billimek</b></sub></a><br /><a href="https://github.com/MoJo2600/pihole-kubernetes/commits?author=billimek" title="Code">💻</a></td>
   </tr>
 </table>
 
