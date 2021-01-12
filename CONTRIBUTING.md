@@ -46,7 +46,7 @@ This repository is used by Chart developers for maintaining the official charts 
 
 ### Add yourself to the list of contributors
 
-See the documentation on how to use the bot (here)[https://allcontributors.org/docs/en/bot/usage]
+See the documentation on how to use the bot [here](https://allcontributors.org/docs/en/bot/usage)
 
 ### Merge Approval and Release Process
 
