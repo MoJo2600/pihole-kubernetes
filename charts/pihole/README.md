@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 1.8.22](https://img.shields.io/badge/Version-1.8.22-informational?style=flat-square) ![AppVersion: 5.2](https://img.shields.io/badge/AppVersion-5.2-informational?style=flat-square)
+![Version: 1.8.25](https://img.shields.io/badge/Version-1.8.25-informational?style=flat-square) ![AppVersion: 5.2.1](https://img.shields.io/badge/AppVersion-5.2.1-informational?style=flat-square)
 
 ## Source Code
 
@@ -137,20 +137,24 @@ The following table lists the configurable parameters of the pihole chart and th
 | customVolumes.enabled | bool | `false` |  |
 | dnsmasq.additionalHostsEntries | list | `[]` |  |
 | dnsmasq.customDnsEntries | list | `[]` |  |
+| dnsmasq.staticDhcpEntries | list | `[]` |  |
 | dnsmasq.upstreamServers | list | `[]` |  |
 | doh.enabled | bool | `false` |  |
 | doh.envVars | object | `{}` |  |
 | doh.name | string | `"cloudflared"` |  |
+| doh.probes.liveness.enabled | bool | `true` |  |
+| doh.probes.liveness.failureThreshold | int | `10` |  |
+| doh.probes.liveness.initialDelaySeconds | int | `60` |  |
+| doh.probes.liveness.timeoutSeconds | int | `5` |  |
 | doh.pullPolicy | string | `"IfNotPresent"` |  |
 | doh.repository | string | `"crazymax/cloudflared"` |  |
 | doh.tag | string | `"latest"` |  |
-| doh.probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5}` | Configure the healthcheck for the doh controller |
 | extraEnvVars | object | `{}` |  |
 | extraEnvVarsSecret | object | `{}` |  |
 | hostNetwork | string | `"false"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"pihole/pihole"` |  |
-| image.tag | string | `"v5.2"` |  |
+| image.tag | string | `"v5.2.1"` |  |
 | ingress.annotations | object | `{}` |  |
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts[0] | string | `"chart-example.local"` |  |
@@ -169,7 +173,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | persistentVolumeClaim.enabled | bool | `false` |  |
 | persistentVolumeClaim.size | string | `"500Mi"` |  |
 | privileged | string | `"false"` |  |
-| probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5}` | Configure the healthcheck for the ingress controller |
+| probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5}` | Configure the healthcheck for the doh container |
 | probes.readiness.enabled | bool | `true` |  |
 | probes.readiness.failureThreshold | int | `3` |  |
 | probes.readiness.initialDelaySeconds | int | `60` |  |
