@@ -1,0 +1,24 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "luqasn",
+      "name": "Lucas Romero",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/274902?v=4",
+      "profile": "https://github.com/luqasn",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "pihole-kubernetes",
+  "projectOwner": "MoJo2600",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
