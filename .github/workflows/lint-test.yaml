@@ -2,10 +2,10 @@ name: Lint and Test Charts
 
 on:
   pull_request:
-    paths-ignore:
-    - 'README.md'
-    - 'charts/pihole/README.md'
-    - 'charts/pihole/README.md.gotmpl'
+    paths:
+    - 'charts/pihole/**'
+    - '!**/README.md'
+    - '!**/README.md.gotmpl'
 
 jobs:
   lint-test:
