@@ -1,0 +1,24 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "jetersen",
+      "name": "Joseph Petersen",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/1661688?v=4",
+      "profile": "http://jetersen.dev",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "pihole-kubernetes",
+  "projectOwner": "MoJo2600",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
