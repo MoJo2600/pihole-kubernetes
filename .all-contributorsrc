@@ -1,7 +1,8 @@
 {
   "files": [
     "README.md",
-    "charts/pihole/README.md"
+    "charts/pihole/README.md",
+    "charts/pihole/README.md.gotmpl"
   ],
   "imageSize": 100,
   "commit": false,
