@@ -12,8 +12,8 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
+      maxSurge: {{ .Values.maxSurge }}
+      maxUnavailable: {{ .Values.maxUnavailable }}
   selector:
     matchLabels:
       app: {{ template "pihole.name" . }}

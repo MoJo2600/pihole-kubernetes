@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 1.8.25](https://img.shields.io/badge/Version-1.8.25-informational?style=flat-square) ![AppVersion: 5.2.1](https://img.shields.io/badge/AppVersion-5.2.1-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 1.8.26](https://img.shields.io/badge/Version-1.8.26-informational?style=flat-square) ![AppVersion: 5.2.1](https://img.shields.io/badge/AppVersion-5.2.1-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -162,6 +162,8 @@ The following table lists the configurable parameters of the pihole chart and th
 | ingress.hosts[0] | string | `"chart-example.local"` |  |
 | ingress.path | string | `"/"` |  |
 | ingress.tls | list | `[]` |  |
+| maxSurge | int | `1` |  |
+| maxUnavailable | int | `1` |  |
 | monitoring.podMonitor.enabled | bool | `false` |  |
 | monitoring.sidecar.enabled | bool | `false` |  |
 | monitoring.sidecar.image.pullPolicy | string | `"IfNotPresent"` |  |
