@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - master
+    paths:
+    - 'charts/pihole/**'
+    - '!**/README.md'
+    - '!**/README.md.gotmpl'
 
 jobs:
   release:
