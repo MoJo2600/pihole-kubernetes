@@ -68,6 +68,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+            - name: PIHOLE_PORT
+              value: "{{ .Values.webHttp }}"
             - name: PIHOLE_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -93,6 +95,9 @@ spec:
             - containerPort: 5053
               name: cloudflared-udp
               protocol: UDP
+            - containerPort: 49312
+              name: cloudflared-met
+              protocol: TCP
           {{- if .Values.doh.envVars }}
           env:
             {{- range $key, $value := .Values.doh.envVars }}
@@ -102,12 +107,9 @@ spec:
           {{- end }}
           {{- if .Values.doh.probes.liveness.enabled }}
           livenessProbe:
-            exec:
-              command:
-              - "/usr/bin/nc"
-              - "-uzvw3"
-              - "localhost"
-              - "5053"
+            httpGet:
+              path: /metrics
+              port: 49312
             initialDelaySeconds: {{ .Values.doh.probes.liveness.initialDelaySeconds }}
             failureThreshold: {{ .Values.doh.probes.liveness.failureThreshold }}
             timeoutSeconds: {{ .Values.doh.probes.liveness.timeoutSeconds }}
