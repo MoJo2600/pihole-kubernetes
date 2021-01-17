@@ -110,6 +110,9 @@ spec:
             httpGet:
               path: /metrics
               port: 49312
+            initialDelaySeconds: {{ .Values.doh.probes.liveness.initialDelaySeconds }}
+            failureThreshold: {{ .Values.doh.probes.liveness.failureThreshold }}
+            timeoutSeconds: {{ .Values.doh.probes.liveness.timeoutSeconds }}
         {{- end }}
         - name: {{ .Chart.Name }}
           env:
