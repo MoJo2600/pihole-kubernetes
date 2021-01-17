@@ -113,6 +113,7 @@ spec:
             initialDelaySeconds: {{ .Values.doh.probes.liveness.initialDelaySeconds }}
             failureThreshold: {{ .Values.doh.probes.liveness.failureThreshold }}
             timeoutSeconds: {{ .Values.doh.probes.liveness.timeoutSeconds }}
+          {{- end }}
         {{- end }}
         - name: {{ .Chart.Name }}
           env:
