@@ -9,7 +9,7 @@ maxUnavailable: 1
 
 image:
   repository: "pihole/pihole"
-  tag: v5.2.1
+  tag: v5.4
   pullPolicy: IfNotPresent
 
 serviceDns:
