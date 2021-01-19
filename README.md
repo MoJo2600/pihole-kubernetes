@@ -67,6 +67,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="http://www.oneko.org/"><img src="https://avatars2.githubusercontent.com/u/4233214?v=4" width="100px;" alt=""/><br /><sub><b>Karlos</b></sub></a></td>
     <td align="center"><a href="https://github.com/dza89"><img src="https://avatars0.githubusercontent.com/u/20373984?v=4" width="100px;" alt=""/><br /><sub><b>dza89</b></sub></a></td>
     <td align="center"><a href="https://github.com/mikewhitley"><img src="https://avatars0.githubusercontent.com/u/52802633?v=4" width="100px;" alt=""/><br /><sub><b>mikewhitley</b></sub></a></td>
+    <td align="center"><a href="https://github.com/Vashiru"><img src="https://avatars2.githubusercontent.com/u/11370057?v=4" width="100px;" alt=""/><br /><sub><b>Vashiru</b></sub></a></td>
   </tr>
 </table>
 
