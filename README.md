@@ -21,7 +21,7 @@ helm repo update
 * [pihole](https://mojo2600.github.io/pihole-kubernetes)
 
   ```bash
-  helm install --name your-release mojo2600/pihole
+  helm install your-release mojo2600/pihole
   ```
   
 
