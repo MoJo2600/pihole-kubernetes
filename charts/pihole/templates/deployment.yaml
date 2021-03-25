@@ -227,6 +227,11 @@ spec:
             name: static-dhcp
             subPath: pihole-static-dhcp.conf
           {{- end }}
+          {{- if .Values.ftl }}
+          - mountPath: /etc/pihole/pihole-FTL.conf
+            name: ftl
+            subPath: pihole-FTL.conf
+          {{- end }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
@@ -284,4 +289,10 @@ spec:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-regex
         name: regex
+      {{- end }}
+      {{- if .Values.ftl }}
+      - configMap:
+          defaultMode: 420
+          name: {{ template "pihole.fullname" . }}-ftl
+        name: ftl
       {{- end }}
