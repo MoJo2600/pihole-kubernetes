@@ -13,6 +13,10 @@ image:
   tag: v5.5.1
   pullPolicy: IfNotPresent
 
+dnsHostPort:
+  enabled: false
+  port: 53
+
 serviceDns:
   type: NodePort
   externalTrafficPolicy: Local

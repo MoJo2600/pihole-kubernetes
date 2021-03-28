@@ -163,9 +163,15 @@ spec:
           - containerPort: 53
             name: dns
             protocol: TCP
+          {{- if .Values.dnsHostPort.enabled }}
+            hostPort: {{ .Values.dnsHostPort.port }}
+          {{- end }}
           - containerPort: 53
             name: dns-udp
             protocol: UDP
+          {{- if .Values.dnsHostPort.enabled }}
+            hostPort: {{ .Values.dnsHostPort.port }}
+          {{- end }}
           - containerPort:  {{ .Values.webHttps }}
             name: https
             protocol: TCP
