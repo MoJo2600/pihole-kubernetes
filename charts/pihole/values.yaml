@@ -4,6 +4,7 @@
 
 replicaCount: 1
 
+strategy: RollingUpdate
 maxSurge: 1
 maxUnavailable: 1
 
