@@ -22,6 +22,12 @@ serviceDns:
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
 serviceWeb:
+  http:
+    enabled: true
+    port: 80
+  https:
+    enabled: true
+    port: 443
   type: ClusterIP
   externalTrafficPolicy: Local
   loadBalancerIP: ""
