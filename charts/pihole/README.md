@@ -199,7 +199,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceWeb.https.port | int | `443` |  |
 | serviceWeb.loadBalancerIP | string | `""` |  |
 | serviceWeb.type | string | `"ClusterIP"` |  |
-| strategy | string | `"RollingUpdate"` |  |
+| strategyType | string | `"RollingUpdate"` |  |
 | tolerations | list | `[]` |  |
 | virtualHost | string | `"pi.hole"` |  |
 | webHttp | string | `"80"` |  |
