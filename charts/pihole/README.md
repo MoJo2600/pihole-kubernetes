@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 1.8.30](https://img.shields.io/badge/Version-1.8.30-informational?style=flat-square) ![AppVersion: 5.2.4](https://img.shields.io/badge/AppVersion-5.2.4-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 1.8.31](https://img.shields.io/badge/Version-1.8.31-informational?style=flat-square) ![AppVersion: 5.2.4](https://img.shields.io/badge/AppVersion-5.2.4-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -155,6 +155,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.tag | string | `"latest"` |  |
 | extraEnvVars | object | `{}` |  |
 | extraEnvVarsSecret | object | `{}` |  |
+| ftl | object | `{}` |  |
 | hostNetwork | string | `"false"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"pihole/pihole"` |  |
@@ -205,7 +206,6 @@ The following table lists the configurable parameters of the pihole chart and th
 | webHttp | string | `"80"` |  |
 | webHttps | string | `"443"` |  |
 | whitelist | object | `{}` |  |
-| ftl | object | `{}` |  |
 
 ## Maintainers
 
