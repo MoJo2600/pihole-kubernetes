@@ -198,6 +198,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | webHttp | string | `"80"` |  |
 | webHttps | string | `"443"` |  |
 | whitelist | object | `{}` |  |
+| ftl | object | `{}` |  |
 
 ## Maintainers
 

@@ -196,6 +196,9 @@ regex: {}
   # Add regular expression blacklist items
   # - (^|\.)facebook\.com$
 
+ftl: {}
+  # Add values for pihole-FTL.conf
+  # MAXDBDAYS: 14
 
 webHttp: "80"
 webHttps: "443"
