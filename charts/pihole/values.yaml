@@ -4,6 +4,7 @@
 
 replicaCount: 1
 
+strategyType: RollingUpdate
 maxSurge: 1
 maxUnavailable: 1
 
@@ -11,6 +12,10 @@ image:
   repository: "pihole/pihole"
   tag: v5.5.1
   pullPolicy: IfNotPresent
+
+dnsHostPort:
+  enabled: false
+  port: 53
 
 serviceDns:
   type: NodePort
@@ -22,6 +27,12 @@ serviceDns:
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
 serviceWeb:
+  http:
+    enabled: true
+    port: 80
+  https:
+    enabled: true
+    port: 443
   type: ClusterIP
   externalTrafficPolicy: Local
   loadBalancerIP: ""

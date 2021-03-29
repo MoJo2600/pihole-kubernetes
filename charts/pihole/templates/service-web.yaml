@@ -20,14 +20,18 @@ spec:
   externalTrafficPolicy: {{ .Values.serviceWeb.externalTrafficPolicy }}
   {{- end }}
   ports:
-    - port: 80
+    {{- if .Values.serviceWeb.http.enabled }}
+    - port: {{ .Values.serviceWeb.http.port }}
       targetPort: http
       protocol: TCP
       name: http
-    - port: 443
+    {{- end }}
+    {{- if .Values.serviceWeb.https.enabled }}
+    - port: {{ .Values.serviceWeb.https.port }}
       targetPort: https
       protocol: TCP
       name: https
+    {{- end }}
     {{- if .Values.doh.enabled }}
     - port: 49312
       protocol: TCP

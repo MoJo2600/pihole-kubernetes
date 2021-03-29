@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 1.8.29](https://img.shields.io/badge/Version-1.8.29-informational?style=flat-square) ![AppVersion: 5.2.4](https://img.shields.io/badge/AppVersion-5.2.4-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 1.8.31](https://img.shields.io/badge/Version-1.8.31-informational?style=flat-square) ![AppVersion: 5.2.4](https://img.shields.io/badge/AppVersion-5.2.4-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -137,6 +137,8 @@ The following table lists the configurable parameters of the pihole chart and th
 | blacklist | object | `{}` |  |
 | customVolumes.config | object | `{}` |  |
 | customVolumes.enabled | bool | `false` |  |
+| dnsHostPort.enabled | bool | `false` |  |
+| dnsHostPort.port | int | `53` |  |
 | dnsmasq.additionalHostsEntries | list | `[]` |  |
 | dnsmasq.customDnsEntries | list | `[]` |  |
 | dnsmasq.staticDhcpEntries | list | `[]` |  |
@@ -153,6 +155,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.tag | string | `"latest"` |  |
 | extraEnvVars | object | `{}` |  |
 | extraEnvVarsSecret | object | `{}` |  |
+| ftl | object | `{}` |  |
 | hostNetwork | string | `"false"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"pihole/pihole"` |  |
@@ -191,14 +194,18 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceDns.type | string | `"NodePort"` |  |
 | serviceWeb.annotations | object | `{}` |  |
 | serviceWeb.externalTrafficPolicy | string | `"Local"` |  |
+| serviceWeb.http.enabled | bool | `true` |  |
+| serviceWeb.http.port | int | `80` |  |
+| serviceWeb.https.enabled | bool | `true` |  |
+| serviceWeb.https.port | int | `443` |  |
 | serviceWeb.loadBalancerIP | string | `""` |  |
 | serviceWeb.type | string | `"ClusterIP"` |  |
+| strategyType | string | `"RollingUpdate"` |  |
 | tolerations | list | `[]` |  |
 | virtualHost | string | `"pi.hole"` |  |
 | webHttp | string | `"80"` |  |
 | webHttps | string | `"443"` |  |
 | whitelist | object | `{}` |  |
-| ftl | object | `{}` |  |
 
 ## Maintainers
 
