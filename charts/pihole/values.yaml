@@ -10,7 +10,7 @@ maxUnavailable: 1
 
 image:
   repository: "pihole/pihole"
-  tag: v5.5.1
+  tag: v5.7
   pullPolicy: IfNotPresent
 
 dnsHostPort:
