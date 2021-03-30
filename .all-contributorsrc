@@ -260,6 +260,51 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "sam-kleiner",
+      "name": "sam-kleiner",
+      "avatar_url": "https://avatars.githubusercontent.com/u/63059772?v=4",
+      "profile": "https://github.com/sam-kleiner",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "alexgorbatchev",
+      "name": "Alex Gorbatchev",
+      "avatar_url": "https://avatars.githubusercontent.com/u/65633?v=4",
+      "profile": "https://www.linkedin.com/in/alexgorbatchev/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "c-yco",
+      "name": "Alexander Rabenstein",
+      "avatar_url": "https://avatars.githubusercontent.com/u/355591?v=4",
+      "profile": "https://github.com/c-yco",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "tibbon",
+      "name": "David Fisher",
+      "avatar_url": "https://avatars.githubusercontent.com/u/82880?v=4",
+      "profile": "http://tibbon.com/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "utkuozdemir",
+      "name": "Utku Özdemir",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1465819?v=4",
+      "profile": "https://github.com/utkuozdemir",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
