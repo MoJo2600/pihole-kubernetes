@@ -11,9 +11,11 @@ spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
     type: {{ .Values.strategyType }}
+    {{- if eq .Values.strategyType "RollingUpdate" }}
     rollingUpdate:
       maxSurge: {{ .Values.maxSurge }}
       maxUnavailable: {{ .Values.maxUnavailable }}
+    {{- end }}
   selector:
     matchLabels:
       app: {{ template "pihole.name" . }}
