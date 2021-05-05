@@ -27,7 +27,7 @@ jobs:
           curl -sSLo get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get
           chmod 700 get_helm.sh
           ./get_helm.sh
-          helm init --client-only
+          # helm init --client-only
 
       - name: Add dependency chart repos
         run: |
