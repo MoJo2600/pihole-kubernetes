@@ -21,13 +21,10 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
-      # See https://github.com/helm/chart-releaser-action/issues/6
       - name: Install Helm
-        run: |
-          curl -sSLo get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get
-          chmod 700 get_helm.sh
-          ./get_helm.sh
-          helm init --client-only
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.4.0          
 
       - name: Add dependency chart repos
         run: |
@@ -35,7 +32,7 @@ jobs:
           helm repo add incubator https://charts.helm.sh/incubator 
 
       - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.0.0-alpha.2
+        uses: helm/chart-releaser-action@v1.2.0
         with:
           charts_repo_url: https://mojo2600.github.io/pihole-kubernetes/
         env:
