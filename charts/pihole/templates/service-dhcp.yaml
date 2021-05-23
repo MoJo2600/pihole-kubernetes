@@ -1,0 +1,31 @@
+{{- if .Values.serviceDhcp.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "pihole.fullname" . }}-dhcp
+  labels:
+    app: {{ template "pihole.name" . }}
+    chart: {{ template "pihole.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- if .Values.serviceDhcp.annotations }}
+  annotations:
+{{ toYaml .Values.serviceDhcp.annotations | indent 4 }}
+{{- end }}
+spec:
+  type: {{ .Values.serviceDhcp.type }}
+  {{- if .Values.serviceDhcp.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.serviceDhcp.loadBalancerIP }}
+  {{- end }}
+  {{- if or (eq .Values.serviceDhcp.type "NodePort") (eq .Values.serviceDhcp.type "LoadBalancer") }}
+  externalTrafficPolicy: {{ .Values.serviceDhcp.externalTrafficPolicy }}
+  {{- end }}
+  ports:
+    - port: 67
+      targetPort: client-udp
+      protocol: UDP
+      name: client-udp
+  selector:
+    app: {{ template "pihole.name" . }}
+    release: {{ .Release.Name }}
+{{- end }}

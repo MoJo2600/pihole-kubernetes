@@ -57,6 +57,14 @@ serviceDns:
 
 ## Upgrading
 
+### To 2.0.0
+
+This version splits the DHCP service into its own resource and puts the configuration to `serviceDhcp`.
+
+**If you have not changed any configuration for `serviceDns`, you don’t need to do anything.**
+
+If you have changed your `serviceDns` configuration, **copy** your `serviceDns` section into a new `serviceDhcp` section.
+
 ### To 1.8.22
 
 To enhance compatibility for Traefik, we split the TCP and UDP service into Web and DNS. This means, if you have a dedicated configuration for the service, you have to
@@ -94,7 +102,7 @@ Version 1.8.22 has switched from the deprecated ingress api `extensions/v1beta1`
             backend:
               service:
                 name: \{\{ $serviceName \}\}
-                port: 
+                port:
                   name: http
 ```
 to:
