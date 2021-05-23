@@ -27,6 +27,9 @@ serviceDns:
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
+  # -- If true, the DNS service listens on TCP and UDP, not only on UDP
+  enableTCP: true
+
 serviceWeb:
   http:
     enabled: true

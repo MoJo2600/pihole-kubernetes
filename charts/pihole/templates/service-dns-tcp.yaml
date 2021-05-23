@@ -1,3 +1,4 @@
+{{- if or .Values.monitoring.sidecar.enabled .Values.serviceDns.enableTCP }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -20,10 +21,12 @@ spec:
   externalTrafficPolicy: {{ .Values.serviceDns.externalTrafficPolicy }}
   {{- end }}
   ports:
+    {{- if .Values.serviceDns.enableTCP }}
     - port: {{ .Values.serviceDns.port }}
       targetPort: dns
       protocol: TCP
       name: dns
+    {{- end }}
     {{- if .Values.monitoring.sidecar.enabled }}
     - port: {{ .Values.monitoring.sidecar.port }}
       targetPort: prometheus
@@ -33,3 +36,4 @@ spec:
   selector:
     app: {{ template "pihole.name" . }}
     release: {{ .Release.Name }}
+{{- end }}

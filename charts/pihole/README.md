@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 1.9.0](https://img.shields.io/badge/Version-1.9.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 1.10.0](https://img.shields.io/badge/Version-1.10.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -189,6 +189,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | replicaCount | int | `1` |  |
 | resources | object | `{}` |  |
 | serviceDns.annotations | object | `{}` |  |
+| serviceDns.enableTCP | bool | `true` | If true, the DNS service listens on TCP and UDP, not only on UDP |
 | serviceDns.externalTrafficPolicy | string | `"Local"` |  |
 | serviceDns.loadBalancerIP | string | `""` |  |
 | serviceDns.port | int | `53` |  |
