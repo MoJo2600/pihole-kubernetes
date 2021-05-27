@@ -19,6 +19,7 @@ dnsHostPort:
 
 serviceDns:
   type: NodePort
+  port: 53
   externalTrafficPolicy: Local
   loadBalancerIP: ""
     # a fixed LoadBalancer IP

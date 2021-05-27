@@ -20,7 +20,7 @@ spec:
   externalTrafficPolicy: {{ .Values.serviceDns.externalTrafficPolicy }}
   {{- end }}
   ports:
-    - port: 53
+    - port: {{ .Values.serviceDns.port }}
       targetPort: dns
       protocol: TCP
       name: dns
