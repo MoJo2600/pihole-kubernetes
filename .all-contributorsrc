@@ -305,6 +305,16 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "johnsondnz",
+      "name": "Donald Johnson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7608966?v=4",
+      "profile": "https://github.com/johnsondnz",
+      "contributions": [
+        "doc",
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
