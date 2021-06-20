@@ -284,6 +284,7 @@ Thanks goes to these wonderful people:
     <td align="center"><a href="https://github.com/c-yco"><img src="https://avatars.githubusercontent.com/u/355591?v=4" width="100px;" alt=""/><br /><sub><b>Alexander Rabenstein</b></sub></a></td>
     <td align="center"><a href="http://tibbon.com/"><img src="https://avatars.githubusercontent.com/u/82880?v=4" width="100px;" alt=""/><br /><sub><b>David Fisher</b></sub></a></td>
     <td align="center"><a href="https://github.com/utkuozdemir"><img src="https://avatars.githubusercontent.com/u/1465819?v=4" width="100px;" alt=""/><br /><sub><b>Utku Özdemir</b></sub></a></td>
+    <td align="center"><a href="https://github.com/johnsondnz"><img src="https://avatars.githubusercontent.com/u/7608966?v=4" width="100px;" alt=""/><br /><sub><b>Donald Johnson</b></sub></a></td>
   </tr>
 </table>
 
