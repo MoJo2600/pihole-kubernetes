@@ -24,10 +24,6 @@ spec:
       targetPort: dns-udp
       protocol: UDP
       name: dns-udp
-    - port: 67
-      targetPort: client-udp
-      protocol: UDP
-      name: client-udp
   selector:
     app: {{ template "pihole.name" . }}
     release: {{ .Release.Name }}

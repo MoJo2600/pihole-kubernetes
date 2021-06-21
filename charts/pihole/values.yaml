@@ -27,6 +27,26 @@ serviceDns:
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
+# -- Configuration for the DHCP service on port 67
+serviceDhcp:
+
+  # -- Generate a Service resource for DHCP traffic
+  enabled: true
+
+  # -- `spec.type` for the DHCP Service
+  type: NodePort
+
+  # -- `spec.externalTrafficPolicy` for the DHCP Service
+  externalTrafficPolicy: Local
+
+  # -- A fixed `spec.loadBalancerIP` for the DHCP Service
+  loadBalancerIP: ""
+
+  # -- Annotations for the DHCP service
+  annotations: {}
+    # metallb.universe.tf/address-pool: network-services
+    # metallb.universe.tf/allow-shared-ip: pihole-svc
+
 serviceWeb:
   http:
     enabled: true
