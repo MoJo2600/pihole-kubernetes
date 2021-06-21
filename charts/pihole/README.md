@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 1.9.2](https://img.shields.io/badge/Version-1.9.2-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 1.10.0](https://img.shields.io/badge/Version-1.10.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -204,6 +204,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceWeb.type | string | `"ClusterIP"` |  |
 | strategyType | string | `"RollingUpdate"` |  |
 | tolerations | list | `[]` |  |
+| topologySpreadConstraints | list | `[]` |  |
 | virtualHost | string | `"pi.hole"` |  |
 | webHttp | string | `"80"` |  |
 | webHttps | string | `"443"` |  |
