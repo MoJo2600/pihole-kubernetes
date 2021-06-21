@@ -141,6 +141,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | dnsHostPort.port | int | `53` |  |
 | dnsmasq.additionalHostsEntries | list | `[]` |  |
 | dnsmasq.customDnsEntries | list | `[]` |  |
+| dnsmasq.customSettings | string | `nil` |  |
 | dnsmasq.staticDhcpEntries | list | `[]` |  |
 | dnsmasq.upstreamServers | list | `[]` |  |
 | doh.enabled | bool | `false` |  |

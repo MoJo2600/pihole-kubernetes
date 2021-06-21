@@ -19,6 +19,9 @@ data:
   {{- if .Values.serviceDns.loadBalancerIP }}
     dhcp-option=6,{{ .Values.serviceDns.loadBalancerIP }}
   {{- end }}
+  {{- range .Values.dnsmasq.customSettings }}
+    {{ . }}
+  {{- end }}
   addn-hosts: |
   {{- range .Values.dnsmasq.additionalHostsEntries }}
     {{ . }}
