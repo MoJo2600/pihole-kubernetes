@@ -305,6 +305,33 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "morremeyer",
+      "name": "Morre Meyer",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7683567?v=4",
+      "profile": "https://mor.re/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "johnsondnz",
+      "name": "Donald Johnson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7608966?v=4",
+      "profile": "https://github.com/johnsondnz",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "wrmilling",
+      "name": "Winston R. Milling",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6162814?v=4",
+      "profile": "https://winston.milli.ng/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
