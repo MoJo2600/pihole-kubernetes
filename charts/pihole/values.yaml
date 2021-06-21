@@ -191,6 +191,11 @@ dnsmasq:
   # staticDhcpEntries:
   # - dhcp-host=MAC_ADDRESS,IP_ADDRESS,HOSTNAME
 
+  customSettings:
+  # Other options
+  # otherSettings:
+  # - rebind-domain-ok=/plex.direct/
+
 adlists: {}
   # If you want to provide blocklists, add them here.
   # - https://hosts-file.net/grm.txt
