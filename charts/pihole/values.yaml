@@ -256,6 +256,10 @@ customVolumes:
     # hostPath:
     #   path: "/mnt/data"
 
+podAnnotations: {}
+#  prometheus.io/port: '9617'
+#  prometheus.io/scrape: 'true'
+
 monitoring:
   podMonitor:
     enabled: false
