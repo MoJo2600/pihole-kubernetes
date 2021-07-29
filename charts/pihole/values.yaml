@@ -272,3 +272,10 @@ monitoring:
       # requests:
       #  cpu: 100m
       #  memory: 128Mi
+
+podDnsConfig:
+  enabled: true
+  policy: "None"
+  nameservers:
+  - 127.0.0.1
+  - 8.8.8.8

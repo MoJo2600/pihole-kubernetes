@@ -52,11 +52,12 @@ spec:
                   - {{ .Values.antiaff.avoidRelease }}
               topologyKey: "kubernetes.io/hostname"
       {{- end }}
-      dnsPolicy: "None"
+      {{- if .Values.podDnsConfig.enabled }}
+      dnsPolicy: {{ .Values.podDnsConfig.policy }}
       dnsConfig:
         nameservers:
-        - 127.0.0.1
-        - 8.8.8.8
+        {{- toYaml .Values.podDnsConfig.nameservers | nindent 8 }}
+      {{- end }}
       hostNetwork: {{ .Values.hostNetwork }}
       containers:
         {{- if .Values.monitoring.sidecar.enabled }}
