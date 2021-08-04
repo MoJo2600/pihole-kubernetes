@@ -257,11 +257,14 @@ customVolumes:
     #   path: "/mnt/data"
 
 podAnnotations: {}
-#  prometheus.io/port: '9617'
-#  prometheus.io/scrape: 'true'
+  # Additional annotations for Deployment Pods
+  # Example below allows Prometheus to scape on metric port (requires pihole-exporter sidecar enabled)
+  # prometheus.io/port: '9617'
+  # prometheus.io/scrape: 'true'
 
 monitoring:
   podMonitor:
+    # Preferably adding prometheus scrape annotations rather than enabling podMonitor.
     enabled: false
   sidecar:
     enabled: false
