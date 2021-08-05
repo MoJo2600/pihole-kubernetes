@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 2.0.1](https://img.shields.io/badge/Version-2.0.1-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -188,6 +188,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | persistentVolumeClaim.annotations | object | `{}` |  |
 | persistentVolumeClaim.enabled | bool | `false` |  |
 | persistentVolumeClaim.size | string | `"500Mi"` |  |
+| podAnnotations | object | `{"prometheus.io/port": '9617', "prometheus.io/scrape": 'true'}` | Annotations for Deployment Pods |
 | privileged | string | `"false"` |  |
 | probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5}` | Configure the healthcheck for the doh container |
 | probes.readiness.enabled | bool | `true` |  |
@@ -248,7 +249,7 @@ MetalLB 0.7.3 has a bug, where the service is not announced anymore, when the po
 
 Feel free to contribute by making a [pull request](https://github.com/MoJo2600/pihole-kubernetes/pull/new/master).
 
-Please read [Contribution Guide](CONTRIBUTING.md) for more information on how you can contribute to this Chart.
+Please read [Contribution Guide](../../CONTRIBUTING.md) for more information on how you can contribute to this Chart.
 
 ## Contributors ✨
 
