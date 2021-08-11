@@ -281,7 +281,7 @@ MetalLB 0.7.3 has a bug, where the service is not announced anymore, when the po
 
 Feel free to contribute by making a [pull request](https://github.com/MoJo2600/pihole-kubernetes/pull/new/master).
 
-Please read [Contribution Guide](CONTRIBUTING.md) for more information on how you can contribute to this Chart.
+Please read [Contribution Guide](../../CONTRIBUTING.md) for more information on how you can contribute to this Chart.
 
 ## Contributors ✨
 
