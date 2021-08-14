@@ -38,6 +38,9 @@ The following items can be set via `--set` flag during installation or configure
 dnsmasq:
   customDnsEntries:
     - address=/nas/192.168.178.10
+  
+  customCnameEntries:
+    - cname=foo.nas,nas
 
 persistentVolumeClaim:
   enabled: true

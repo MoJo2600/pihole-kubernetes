@@ -39,7 +39,7 @@ This repository is used by Chart developers for maintaining the official charts 
 
 ### Documentation Requirements
 
-* Please update the `README.md.gotmpl` file and not the `README.md`, as the `README.md` is automatically generated wiht helm-docs
+* Please update the `README.md.gotmpl` file and not the `README.md`, as the `README.md` is automatically generated with helm-docs
 * Please update `NOTES.txt` if necessary, including:
     * Any relevant post-installation information for the Chart
     * Instructions on how to access the application or service provided by the Chart
