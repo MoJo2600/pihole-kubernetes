@@ -213,7 +213,7 @@ spec:
           - mountPath: /etc/addn-hosts
             name: custom-dnsmasq
             subPath: addn-hosts
-          - mountPath: /etc/0dnsmasq.d/5-pihole-custom-cname.conf
+          - mountPath: /etc/dnsmasq.d/05-pihole-custom-cname.conf
             name: custom-dnsmasq
             subPath: 05-pihole-custom-cname.conf
           {{- if .Values.adlists }}
