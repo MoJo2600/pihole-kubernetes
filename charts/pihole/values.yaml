@@ -222,9 +222,9 @@ dnsmasq:
   # Other options
   # otherSettings:
   # - rebind-domain-ok=/plex.direct/
-  
+ 
   customCnameEntries: []
-  # Here we specify custom cname entries that should point to `A` records or 
+  # Here we specify custom cname entries that should point to `A` records or
   # customDnsEntries array.
   # The format should be:
   #   - cname=cname.foo.bar,foo.bar
