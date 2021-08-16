@@ -38,6 +38,9 @@ The following items can be set via `--set` flag during installation or configure
 dnsmasq:
   customDnsEntries:
     - address=/nas/192.168.178.10
+  
+  customCnameEntries:
+    - cname=foo.nas,nas
 
 persistentVolumeClaim:
   enabled: true
@@ -53,6 +56,34 @@ serviceDns:
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
   type: LoadBalancer
+```
+
+## Configuring Upstream DNS Resolvers
+
+By default, `pihole-kubernetes` will configure pod DNS automatically to use Google's `8.8.8.8` nameserver for upstream
+DNS resolution. You can configure this, or opt-out of pod DNS configuration completely.
+
+### Changing The Upstream DNS Resolver
+
+For example, to use Cloudflare's resolver:
+
+```yaml
+podDnsConfig:
+  enabled: true
+  policy: "None"
+  nameservers:
+  - 127.0.0.1
+  - 1.1.1.1
+```
+
+### Disabling Pod DNS Configuration
+
+If you have other DNS policy at play (for example, when running a service mesh), you may not want to have
+`pihole-kubernetes` control this behavior. In that case, you can disable DNS configuration on `pihole` pods:
+
+```yaml
+podDnsConfig:
+  enabled: false
 ```
 
 ## Upgrading

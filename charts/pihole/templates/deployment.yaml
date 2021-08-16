@@ -55,11 +55,12 @@ spec:
                   - {{ .Values.antiaff.avoidRelease }}
               topologyKey: "kubernetes.io/hostname"
       {{- end }}
-      dnsPolicy: "None"
+      {{- if .Values.podDnsConfig.enabled }}
+      dnsPolicy: {{ .Values.podDnsConfig.policy }}
       dnsConfig:
         nameservers:
-        - 127.0.0.1
-        - 8.8.8.8
+        {{- toYaml .Values.podDnsConfig.nameservers | nindent 8 }}
+      {{- end }}
       hostNetwork: {{ .Values.hostNetwork }}
       containers:
         {{- if .Values.monitoring.sidecar.enabled }}
@@ -213,6 +214,9 @@ spec:
           - mountPath: /etc/addn-hosts
             name: custom-dnsmasq
             subPath: addn-hosts
+          - mountPath: /etc/dnsmasq.d/05-pihole-custom-cname.conf
+            name: custom-dnsmasq
+            subPath: 05-pihole-custom-cname.conf
           {{- if .Values.adlists }}
           - mountPath: /etc/pihole/adlists.list
             name: adlists

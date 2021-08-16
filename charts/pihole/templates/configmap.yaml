@@ -26,4 +26,7 @@ data:
   {{- range .Values.dnsmasq.additionalHostsEntries }}
     {{ . }}
   {{- end }}
- 
+  05-pihole-custom-cname.conf: |
+  {{- range .Values.dnsmasq.customCnameEntries }}
+    {{ . }}
+  {{- end }}

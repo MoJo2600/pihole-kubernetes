@@ -223,6 +223,14 @@ dnsmasq:
   # otherSettings:
   # - rebind-domain-ok=/plex.direct/
 
+  customCnameEntries: []
+  # Here we specify custom cname entries that should point to `A` records or
+  # elements in customDnsEntries array.
+  # The format should be:
+  #   - cname=cname.foo.bar,foo.bar
+  #   - cname=cname.bar.foo,bar.foo
+  #   - cname=cname record,dns record
+
 adlists: {}
   # If you want to provide blocklists, add them here.
   # - https://hosts-file.net/grm.txt
@@ -279,3 +287,10 @@ monitoring:
       # requests:
       #  cpu: 100m
       #  memory: 128Mi
+
+podDnsConfig:
+  enabled: true
+  policy: "None"
+  nameservers:
+  - 127.0.0.1
+  - 8.8.8.8
