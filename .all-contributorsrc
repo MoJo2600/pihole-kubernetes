@@ -332,6 +332,33 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "larivierec",
+      "name": "Christopher Larivière",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3633214?v=4",
+      "profile": "https://github.com/larivierec",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "jsievenpiper",
+      "name": "Justin Sievenpiper",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1131882?v=4",
+      "profile": "https://sievenpiper.co/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "beastob",
+      "name": "beastob",
+      "avatar_url": "https://avatars.githubusercontent.com/u/76816315?v=4",
+      "profile": "https://github.com/beastob",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

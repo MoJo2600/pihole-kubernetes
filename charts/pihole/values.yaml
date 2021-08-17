@@ -15,12 +15,17 @@ maxSurge: 1
 maxUnavailable: 1
 
 image:
+  # -- the repostory to pull the image from
   repository: "pihole/pihole"
+  # -- the docker tag
   tag: v5.8.1
+  # -- the pull policy
   pullPolicy: IfNotPresent
 
 dnsHostPort:
+  # -- set this to true to enable dnsHostPort
   enabled: false
+  # -- default port for this pod
   port: 53
 
 # -- Configuration for the DNS service on port 53
@@ -189,55 +194,62 @@ topologySpreadConstraints: []
 
 affinity: {}
 
-# Administrator password when not using an existing secret (see below)
+# -- Administrator password when not using an existing secret (see below)
 adminPassword: "admin"
 
-# Use an existing secret for the admin password.
+# -- Use an existing secret for the admin password.
 admin:
+  # -- Specify an existing secret to use as admin password
   existingSecret: ""
+  # -- Specify the key inside the secret to use
   passwordKey: "password"
 
-# extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use
+# -- extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use
 extraEnvVars: {}
   # TZ: UTC
 
-# extraEnvVarsSecret is a list of secrets to load in as environment variables.
+# -- extraEnvVarsSecret is a list of secrets to load in as environment variables.
 extraEnvVarsSecret: {}
   # env_var:
   #   name: secret-name
   #   key: secret-key
 
-# default upstream DNS servers to use
+# -- default upstream DNS 1 server to use
 DNS1: "8.8.8.8"
+# -- default upstream DNS 2 server to use
 DNS2: "8.8.4.4"
 
 antiaff:
-  # set to true to enable antiaffinity (example: 2 pihole DNS in the same cluster)
+  # -- set to true to enable antiaffinity (example: 2 pihole DNS in the same cluster)
   enabled: false
-  # Here you can set the pihole release (you set in `helm install <releasename> ...`)
+  # -- Here you can set the pihole release (you set in `helm install <releasename> ...`)
   # you want to avoid
   avoidRelease: pihole1
-  # Here you can choose between preferred or required
+  # -- Here you can choose between preferred or required
   strict: true
 
 doh:
-  # set to true to enabled DNS over HTTPs via cloudflared
+  # -- set to true to enabled DNS over HTTPs via cloudflared
   enabled: false
   name: "cloudflared"
   repository: "crazymax/cloudflared"
   tag: latest
   pullPolicy: IfNotPresent
+  # -- Here you can pass environment variables to the DoH container, for example:
   envVars: {}
-    # Here you can pass environment variables to the DoH container, for example:
     # TUNNEL_DNS_UPSTREAM: "https://1.1.1.2/dns-query,https://1.0.0.2/dns-query"
 
-  # Probes configuration
+  # -- Probes configuration
   probes:
-    # probes.liveness -- Configure the healthcheck for the doh container
+    # -- Configure the healthcheck for the doh container
     liveness:
+      # -- set to true to enable liveness probe
       enabled: true
+      # -- defines the initial delay for the liveness probe
       initialDelaySeconds: 60
+      # -- defines the failure threshold for the liveness probe
       failureThreshold: 10
+      # -- defines the timeout in secondes for the liveness probe
       timeoutSeconds: 5
 
 dnsmasq:
@@ -261,11 +273,17 @@ dnsmasq:
   # staticDhcpEntries:
   # - dhcp-host=MAC_ADDRESS,IP_ADDRESS,HOSTNAME
 
+  # -- Other options
   customSettings:
-  # Other options
   # otherSettings:
   # - rebind-domain-ok=/plex.direct/
 
+  # -- Here we specify custom cname entries that should point to `A` records or
+  # elements in customDnsEntries array.
+  # The format should be:
+  #  - cname=cname.foo.bar,foo.bar
+  #  - cname=cname.bar.foo,bar.foo
+  #  - cname=cname record,dns record
   customCnameEntries: []
   # Here we specify custom cname entries that should point to `A` records or
   # elements in customDnsEntries array.
@@ -313,23 +331,27 @@ hostNetwork: "false"
 privileged: "false"
 
 customVolumes:
+  # -- set this to true to enable custom volumes
   enabled: false
+  # -- any volume type can be used here
   config: {}
-    # any volume type can be used here
     # hostPath:
     #   path: "/mnt/data"
 
+# -- Additional annotations for pods
 podAnnotations: {}
-  # Additional annotations for Deployment Pods
   # Example below allows Prometheus to scape on metric port (requires pihole-exporter sidecar enabled)
   # prometheus.io/port: '9617'
   # prometheus.io/scrape: 'true'
 
 monitoring:
+  # -- Preferably adding prometheus scrape annotations rather than enabling podMonitor.
   podMonitor:
-    # Preferably adding prometheus scrape annotations rather than enabling podMonitor.
+    # -- set this to true to enable podMonitor
     enabled: false
+  # -- Sidecar configuration
   sidecar:
+    # -- set this to true to enable podMonitor as sidecar
     enabled: false
     port: 9617
     image:
