@@ -180,6 +180,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | dnsmasq.customSettings | string | `nil` |  |
 | dnsmasq.staticDhcpEntries | list | `[]` |  |
 | dnsmasq.upstreamServers | list | `[]` |  |
+| dnsmasq.customCnameEntries | list | `[]` |  |
 | doh.enabled | bool | `false` |  |
 | doh.envVars | object | `{}` |  |
 | doh.name | string | `"cloudflared"` |  |
