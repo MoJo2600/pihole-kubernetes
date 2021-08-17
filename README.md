@@ -80,6 +80,9 @@ Thanks goes to these wonderful people:
   </tr>
   <tr>
     <td align="center"><a href="https://winston.milli.ng/"><img src="https://avatars.githubusercontent.com/u/6162814?v=4" width="100px;" alt=""/><br /><sub><b>Winston R. Milling</b></sub></a></td>
+    <td align="center"><a href="https://github.com/larivierec"><img src="https://avatars.githubusercontent.com/u/3633214?v=4" width="100px;" alt=""/><br /><sub><b>Christopher Larivière</b></sub></a></td>
+    <td align="center"><a href="https://sievenpiper.co/"><img src="https://avatars.githubusercontent.com/u/1131882?v=4" width="100px;" alt=""/><br /><sub><b>Justin Sievenpiper</b></sub></a></td>
+    <td align="center"><a href="https://github.com/beastob"><img src="https://avatars.githubusercontent.com/u/76816315?v=4" width="100px;" alt=""/><br /><sub><b>beastob</b></sub></a></td>
   </tr>
 </table>
 
