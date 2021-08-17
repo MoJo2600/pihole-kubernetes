@@ -162,7 +162,7 @@ The following table lists the configurable parameters of the pihole chart and th
 |-----|------|---------|-------------|
 | DNS1 | string | `"8.8.8.8"` |  |
 | DNS2 | string | `"8.8.4.4"` |  |
-| adlists | object | `{}` |  |
+| adlists | object | `{}` | list of adlist to import during initial start of the container |
 | admin.existingSecret | string | `""` |  |
 | admin.passwordKey | string | `"password"` |  |
 | adminPassword | string | `"admin"` |  |
@@ -170,16 +170,16 @@ The following table lists the configurable parameters of the pihole chart and th
 | antiaff.avoidRelease | string | `"pihole1"` |  |
 | antiaff.enabled | bool | `false` |  |
 | antiaff.strict | bool | `true` |  |
-| blacklist | object | `{}` |  |
+| blacklist | object | `{}` | list of blacklisted domains to import during initial start of the container |
 | customVolumes.config | object | `{}` |  |
 | customVolumes.enabled | bool | `false` |  |
 | dnsHostPort.enabled | bool | `false` |  |
 | dnsHostPort.port | int | `53` |  |
-| dnsmasq.additionalHostsEntries | list | `[]` |  |
-| dnsmasq.customDnsEntries | list | `[]` |  |
+| dnsmasq.additionalHostsEntries | list | `[]` | Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like |
+| dnsmasq.customDnsEntries | list | `[]` | Add custom dns entries to override the dns resolution. All lines will be added to the pihole dnsmasq configuration. |
 | dnsmasq.customSettings | string | `nil` |  |
-| dnsmasq.staticDhcpEntries | list | `[]` |  |
-| dnsmasq.upstreamServers | list | `[]` |  |
+| dnsmasq.staticDhcpEntries | list | `[]` | Static DHCP config |
+| dnsmasq.upstreamServers | list | `[]` | Add upstream dns servers. All lines will be added to the pihole dnsmasq configuration |
 | dnsmasq.customCnameEntries | list | `[]` |  |
 | doh.enabled | bool | `false` |  |
 | doh.envVars | object | `{}` |  |
@@ -193,18 +193,16 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.tag | string | `"latest"` |  |
 | extraEnvVars | object | `{}` |  |
 | extraEnvVarsSecret | object | `{}` |  |
-| ftl | object | `{}` |  |
-| hostNetwork | string | `"false"` |  |
+| ftl | object | `{}` | values that should be added to pihole-FTL.conf |
+| hostNetwork | string | `"false"` | should the container use host network |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"pihole/pihole"` |  |
 | image.tag | string | `"v5.8.1"` |  |
-| ingress.annotations | object | `{}` |  |
-| ingress.enabled | bool | `false` |  |
-| ingress.hosts[0] | string | `"chart-example.local"` |  |
-| ingress.path | string | `"/"` |  |
-| ingress.tls | list | `[]` |  |
-| maxSurge | int | `1` |  |
-| maxUnavailable | int | `1` |  |
+| ingress | object | `{"annotations":{},"enabled":false,"hosts":["chart-example.local"],"path":"/","tls":[]}` | Configuration for the Ingress |
+| ingress.annotations | object | `{}` | Annotations for the ingress |
+| ingress.enabled | bool | `false` | Generate a Ingress resource |
+| maxSurge | int | `1` | The maximum number of Pods that can be created over the desired number of `ReplicaSet` during updating. |
+| maxUnavailable | int | `1` | The maximum number of Pods that can be unavailable during updating |
 | monitoring.podMonitor.enabled | bool | `false` |  |
 | monitoring.sidecar.enabled | bool | `false` |  |
 | monitoring.sidecar.image.pullPolicy | string | `"IfNotPresent"` |  |
@@ -222,41 +220,44 @@ The following table lists the configurable parameters of the pihole chart and th
 | podDnsConfig.nameservers[0] | string | `"127.0.0.1"` |  |
 | podDnsConfig.nameservers[1] | string | `"8.8.8.8"` |  |
 | podDnsConfig.policy | string | `"None"` |  |
-| privileged | string | `"false"` |  |
+| privileged | string | `"false"` | should container run in privileged mode |
+| probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5},"readiness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":60,"timeoutSeconds":5}}` | Probes configuration |
 | probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5}` | Configure the healthcheck for the doh container |
-| probes.readiness.enabled | bool | `true` |  |
-| probes.readiness.failureThreshold | int | `3` |  |
-| probes.readiness.initialDelaySeconds | int | `60` |  |
-| probes.readiness.timeoutSeconds | int | `5` |  |
-| regex | object | `{}` |  |
-| replicaCount | int | `1` |  |
-| resources | object | `{}` |  |
+| probes.liveness.enabled | bool | `true` | Generate a liveness probe |
+| probes.readiness.enabled | bool | `true` | Generate a readiness probe |
+| regex | object | `{}` | list of blacklisted regex expressions to import during initial start of the container |
+| replicaCount | int | `1` | The number of replicas |
+| resources | object | `{}` | We usually recommend not to specify default resources and to leave this as a conscious -- choice for the user. This also increases chances charts run on environments with little -- resources, such as Minikube. If you do want to specify resources, uncomment the following -- lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
 | serviceDhcp | object | `{"annotations":{},"enabled":true,"externalTrafficPolicy":"Local","loadBalancerIP":"","type":"NodePort"}` | Configuration for the DHCP service on port 67 |
 | serviceDhcp.annotations | object | `{}` | Annotations for the DHCP service |
 | serviceDhcp.enabled | bool | `true` | Generate a Service resource for DHCP traffic |
 | serviceDhcp.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
 | serviceDhcp.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DHCP Service |
 | serviceDhcp.type | string | `"NodePort"` | `spec.type` for the DHCP Service |
-| serviceDns.annotations | object | `{}` |  |
-| serviceDns.externalTrafficPolicy | string | `"Local"` |  |
-| serviceDns.loadBalancerIP | string | `""` |  |
-| serviceDns.port | int | `53` |  |
-| serviceDns.type | string | `"NodePort"` |  |
-| serviceWeb.annotations | object | `{}` |  |
-| serviceWeb.externalTrafficPolicy | string | `"Local"` |  |
-| serviceWeb.http.enabled | bool | `true` |  |
-| serviceWeb.http.port | int | `80` |  |
-| serviceWeb.https.enabled | bool | `true` |  |
-| serviceWeb.https.port | int | `443` |  |
-| serviceWeb.loadBalancerIP | string | `""` |  |
-| serviceWeb.type | string | `"ClusterIP"` |  |
-| strategyType | string | `"RollingUpdate"` |  |
+| serviceDns | object | `{"annotations":{},"externalTrafficPolicy":"Local","loadBalancerIP":"","port":53,"type":"NodePort"}` | Configuration for the DNS service on port 53 |
+| serviceDns.annotations | object | `{}` | Annotations for the DNS service |
+| serviceDns.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
+| serviceDns.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DNS Service |
+| serviceDns.port | int | `53` | The port of the DNS service |
+| serviceDns.type | string | `"NodePort"` | `spec.type` for the DNS Service |
+| serviceWeb | object | `{"annotations":{},"externalTrafficPolicy":"Local","http":{"enabled":true,"port":80},"https":{"enabled":true,"port":443},"loadBalancerIP":"","type":"ClusterIP"}` | Configuration for the web interface service |
+| serviceWeb.annotations | object | `{}` | Annotations for the DHCP service |
+| serviceWeb.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the web interface Service |
+| serviceWeb.http | object | `{"enabled":true,"port":80}` | Configuration for the HTTP web interface listener |
+| serviceWeb.http.enabled | bool | `true` | Generate a service for HTTP traffic |
+| serviceWeb.http.port | int | `80` | The port of the web HTTP service |
+| serviceWeb.https | object | `{"enabled":true,"port":443}` | Configuration for the HTTPS web interface listener |
+| serviceWeb.https.enabled | bool | `true` | Generate a service for HTTPS traffic |
+| serviceWeb.https.port | int | `443` | The port of the web HTTPS service |
+| serviceWeb.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the web interface Service |
+| serviceWeb.type | string | `"ClusterIP"` | `spec.type` for the web interface Service |
+| strategyType | string | `"RollingUpdate"` | The `spec.strategyTpye` for updates |
 | tolerations | list | `[]` |  |
 | topologySpreadConstraints | list | `[]` |  |
 | virtualHost | string | `"pi.hole"` |  |
-| webHttp | string | `"80"` |  |
-| webHttps | string | `"443"` |  |
-| whitelist | object | `{}` |  |
+| webHttp | string | `"80"` | port the container should use to expose HTTP traffic |
+| webHttps | string | `"443"` | port the container should use to expose HTTPS traffic |
+| whitelist | object | `{}` | list of whitelisted domains to import during initial start of the container |
 
 ## Maintainers
 
