@@ -7,8 +7,8 @@ metadata:
     chart: {{ template "pihole.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-    {{- if .Values.monitoring.podMonitor.labels }}
-    {{ toYaml .Values.monitoring.podMonitor.labels }}
+    {{- with .Values.monitoring.podMonitor.labels }}
+    {{- . | toYaml | nindent 4 }}
     {{- end }}
   name: {{ template "pihole.fullname" . }}-prometheus-exporter
 {{- if .Values.monitoring.podMonitor.namespace }}

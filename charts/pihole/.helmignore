@@ -19,3 +19,9 @@
 .project
 .idea/
 *.tmproj
+
+# Manually added entries
+ci/
+examples/
+Makefile
+README.md.gotmpl

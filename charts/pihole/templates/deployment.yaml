@@ -25,6 +25,7 @@ spec:
       annotations:
         checksum.config.adlists: {{ include (print $.Template.BasePath "/configmap-adlists.yaml") . | sha256sum | trunc 63 }}
         checksum.config.blacklist: {{ include (print $.Template.BasePath "/configmap-blacklist.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.ftl: {{ include (print $.Template.BasePath "/configmap-ftl.yaml") . | sha256sum | trunc 63 }}
         checksum.config.regex: {{ include (print $.Template.BasePath "/configmap-regex.yaml") . | sha256sum | trunc 63 }}
         checksum.config.whitelist: {{ include (print $.Template.BasePath "/configmap-whitelist.yaml") . | sha256sum | trunc 63 }}
         checksum.config.dnsmasqConfig: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum | trunc 63 }}
