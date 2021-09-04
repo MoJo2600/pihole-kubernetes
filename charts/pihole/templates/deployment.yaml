@@ -151,7 +151,8 @@ spec:
             value: "127.0.0.1#5053"
           {{- else }}
           {{- if .Values.pihole.DNS1 }}
-          "PIHOLE_DNS_": {{ if .Values.DNS2 }}{{ ( printf "%v;%v" .Values.DNS1 .Values.DNS2 ) | squote }}{{ else }}{{ .Values.DNS1 | squote }}{{ end }}
+          - name: 'PIHOLE_DNS_'
+            value: {{ if .Values.DNS2 }}{{ ( printf "%v;%v" .Values.DNS1 .Values.DNS2 ) | squote }}{{ else }}{{ .Values.DNS1 | squote }}{{ end }}
          {{- end }}
          {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
