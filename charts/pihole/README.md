@@ -42,7 +42,7 @@ The following items can be set via `--set` flag during installation or configure
 dnsmasq:
   customDnsEntries:
     - address=/nas/192.168.178.10
- 
+
   customCnameEntries:
     - cname=foo.nas,nas
 
@@ -236,6 +236,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceDhcp.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DHCP Service |
 | serviceDhcp.type | string | `"NodePort"` | `spec.type` for the DHCP Service |
 | serviceDns | object | `{"annotations":{},"externalTrafficPolicy":"Local","loadBalancerIP":"","port":53,"type":"NodePort"}` | Configuration for the DNS service on port 53 |
+| serviceDns.mixedService | bool | `false` | Enabled creation of a mixed (TCP + UDP) service instead of separate services |
 | serviceDns.annotations | object | `{}` | Annotations for the DNS service |
 | serviceDns.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
 | serviceDns.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DNS Service |
