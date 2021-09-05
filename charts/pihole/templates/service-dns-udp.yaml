@@ -1,3 +1,4 @@
+{{- if not .Values.serviceDns.mixedService }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -27,3 +28,4 @@ spec:
   selector:
     app: {{ template "pihole.name" . }}
     release: {{ .Release.Name }}
+{{- end }}
