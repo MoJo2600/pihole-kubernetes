@@ -147,7 +147,7 @@ spec:
           {{- if .Values.doh.enabled }}
           - name: 'DNS1'
             value: "127.0.0.1#5053"
-          - name: 'DNS2'
+          - name: DNS2
             value: "127.0.0.1#5053"
           {{- else }}
           {{- if .Values.pihole.DNS1 }}
