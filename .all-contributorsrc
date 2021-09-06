@@ -359,6 +359,33 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "muhlba91",
+      "name": "Daniel Mühlbachler-Pietrzykowski",
+      "avatar_url": "https://avatars.githubusercontent.com/u/653739?v=4",
+      "profile": "https://niftyside.io/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "consideRatio",
+      "name": "Erik Sundell",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3837114?v=4",
+      "profile": "https://github.com/consideRatio",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Ornias1993",
+      "name": "Kjeld Schouten-Lebbing",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7613738?v=4",
+      "profile": "https://github.com/Ornias1993",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

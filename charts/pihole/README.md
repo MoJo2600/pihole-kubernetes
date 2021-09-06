@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.1.1](https://img.shields.io/badge/Version-2.1.1-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 2.2.1](https://img.shields.io/badge/Version-2.2.1-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -42,7 +42,7 @@ The following items can be set via `--set` flag during installation or configure
 dnsmasq:
   customDnsEntries:
     - address=/nas/192.168.178.10
-
+ 
   customCnameEntries:
     - cname=foo.nas,nas
 
@@ -235,11 +235,11 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceDhcp.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
 | serviceDhcp.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DHCP Service |
 | serviceDhcp.type | string | `"NodePort"` | `spec.type` for the DHCP Service |
-| serviceDns | object | `{"annotations":{},"externalTrafficPolicy":"Local","loadBalancerIP":"","port":53,"type":"NodePort"}` | Configuration for the DNS service on port 53 |
-| serviceDns.mixedService | bool | `false` | Enabled creation of a mixed (TCP + UDP) service instead of separate services |
+| serviceDns | object | `{"annotations":{},"externalTrafficPolicy":"Local","loadBalancerIP":"","mixedService":false,"port":53,"type":"NodePort"}` | Configuration for the DNS service on port 53 |
 | serviceDns.annotations | object | `{}` | Annotations for the DNS service |
 | serviceDns.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
 | serviceDns.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DNS Service |
+| serviceDns.mixedService | bool | `false` | deploys a mixed (TCP + UDP) Service instead of separate ones |
 | serviceDns.port | int | `53` | The port of the DNS service |
 | serviceDns.type | string | `"NodePort"` | `spec.type` for the DNS Service |
 | serviceWeb | object | `{"annotations":{},"externalTrafficPolicy":"Local","http":{"enabled":true,"port":80},"https":{"enabled":true,"port":443},"loadBalancerIP":"","type":"ClusterIP"}` | Configuration for the web interface service |
@@ -345,6 +345,9 @@ Thanks goes to these wonderful people:
     <td align="center"><a href="https://github.com/larivierec"><img src="https://avatars.githubusercontent.com/u/3633214?v=4" width="100px;" alt=""/><br /><sub><b>Christopher Larivière</b></sub></a></td>
     <td align="center"><a href="https://sievenpiper.co/"><img src="https://avatars.githubusercontent.com/u/1131882?v=4" width="100px;" alt=""/><br /><sub><b>Justin Sievenpiper</b></sub></a></td>
     <td align="center"><a href="https://github.com/beastob"><img src="https://avatars.githubusercontent.com/u/76816315?v=4" width="100px;" alt=""/><br /><sub><b>beastob</b></sub></a></td>
+    <td align="center"><a href="https://niftyside.io/"><img src="https://avatars.githubusercontent.com/u/653739?v=4" width="100px;" alt=""/><br /><sub><b>Daniel Mühlbachler-Pietrzykowski</b></sub></a></td>
+    <td align="center"><a href="https://github.com/consideRatio"><img src="https://avatars.githubusercontent.com/u/3837114?v=4" width="100px;" alt=""/><br /><sub><b>Erik Sundell</b></sub></a></td>
+    <td align="center"><a href="https://github.com/Ornias1993"><img src="https://avatars.githubusercontent.com/u/7613738?v=4" width="100px;" alt=""/><br /><sub><b>Kjeld Schouten-Lebbing</b></sub></a></td>
   </tr>
 </table>
 
