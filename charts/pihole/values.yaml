@@ -327,6 +327,9 @@ webHttp: "80"
 # -- port the container should use to expose HTTPS traffic
 webHttps: "443"
 
+# -- hostname of pod
+hostname: ""
+
 # -- should the container use host network
 hostNetwork: "false"
 
