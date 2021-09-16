@@ -14,6 +14,12 @@ metadata:
 {{- end }}
 spec:
   type: {{ .Values.serviceDhcp.type }}
+  {{- if and (.Values.dualStack.enabled) (not (eq .Values.serviceDhcp.type "LoadBalancer")) }}
+  ipFamilies:
+  - IPv4
+  - IPv6
+  ipFamilyPolicy: PreferDualStack
+  {{- end }}
   {{- if .Values.serviceDhcp.loadBalancerIP }}
   loadBalancerIP: {{ .Values.serviceDhcp.loadBalancerIP }}
   {{- end }}
@@ -28,4 +34,39 @@ spec:
   selector:
     app: {{ template "pihole.name" . }}
     release: {{ .Release.Name }}
+---
+{{- if and (.Values.dualStack.enabled) (eq .Values.serviceDhcp.type "LoadBalancer") -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "pihole.fullname" . }}-dhcp-ivp6
+  labels:
+    app: {{ template "pihole.name" . }}
+    chart: {{ template "pihole.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- if .Values.serviceDhcp.annotations }}
+  annotations:
+{{ toYaml .Values.serviceDhcp.annotations | indent 4 }}
+{{- end }}
+spec:
+  type: {{ .Values.serviceDhcp.type }}
+  ipFamilies:
+  - IPv6
+  ipFamilyPolicy: SingleStack
+  {{- if .Values.serviceDhcp.loadBalancerIPv6 }}
+  loadBalancerIP: {{ .Values.serviceDhcp.loadBalancerIPv6 }}
+  {{- end }}
+  {{- if or (eq .Values.serviceDhcp.type "NodePort") (eq .Values.serviceDhcp.type "LoadBalancer") }}
+  externalTrafficPolicy: {{ .Values.serviceDhcp.externalTrafficPolicy }}
+  {{- end }}
+  ports:
+    - port: 67
+      targetPort: client-udp
+      protocol: UDP
+      name: client-udp
+  selector:
+    app: {{ template "pihole.name" . }}
+    release: {{ .Release.Name }}
+{{- end }}
 {{- end }}
