@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.3.0](https://img.shields.io/badge/Version-2.3.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 2.4.0](https://img.shields.io/badge/Version-2.4.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -202,6 +202,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | extraEnvVarsSecret | object | `{}` | extraEnvVarsSecret is a list of secrets to load in as environment variables. |
 | ftl | object | `{}` | values that should be added to pihole-FTL.conf |
 | hostNetwork | string | `"false"` | should the container use host network |
+| hostname | string | `""` | hostname of pod |
 | image.pullPolicy | string | `"IfNotPresent"` | the pull policy |
 | image.repository | string | `"pihole/pihole"` | the repostory to pull the image from |
 | image.tag | string | `"v5.8.1"` | the docker tag |
