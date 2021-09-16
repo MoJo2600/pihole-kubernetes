@@ -22,6 +22,10 @@ image:
   # -- the pull policy
   pullPolicy: IfNotPresent
 
+dualStack:
+  # -- set this to true to enable creation of DualStack services or creation of separate IPv6 services if `serviceDns.type` is set to `"LoadBalancer"`
+  enabled: false
+
 dnsHostPort:
   # -- set this to true to enable dnsHostPort
   enabled: false
@@ -45,7 +49,8 @@ serviceDns:
 
   # -- A fixed `spec.loadBalancerIP` for the DNS Service
   loadBalancerIP: ""
-    # a fixed LoadBalancer IP
+  # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service
+  loadBalancerIPv6: ""
 
   # -- Annotations for the DNS service
   annotations: {}
@@ -66,6 +71,8 @@ serviceDhcp:
 
   # -- A fixed `spec.loadBalancerIP` for the DHCP Service
   loadBalancerIP: ""
+  # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service
+  loadBalancerIPv6: ""
 
   # -- Annotations for the DHCP service
   annotations: {}
@@ -99,7 +106,8 @@ serviceWeb:
 
   # -- A fixed `spec.loadBalancerIP` for the web interface Service
   loadBalancerIP: ""
-    # a fixed LoadBalancer IP
+  # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service
+  loadBalancerIPv6: ""
 
   # -- Annotations for the DHCP service
   annotations: {}
