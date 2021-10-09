@@ -121,6 +121,9 @@ ingress:
   # -- Generate a Ingress resource
   enabled: false
 
+  # -- Specify an ingressClassName
+  # ingressClassName: nginx
+
   # -- Annotations for the ingress
   annotations: {}
     # kubernetes.io/ingress.class: nginx
