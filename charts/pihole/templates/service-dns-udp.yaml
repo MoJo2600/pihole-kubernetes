@@ -29,6 +29,9 @@ spec:
   ports:
     - port: {{ .Values.serviceDns.port }}
       targetPort: dns-udp
+      {{- if and (.Values.serviceDns.nodePort) (eq .Values.serviceDns.type "NodePort") }}
+      nodePort: {{ .Values.serviceDns.nodePort }}
+      {{- end }}
       protocol: UDP
       name: dns-udp
   selector:

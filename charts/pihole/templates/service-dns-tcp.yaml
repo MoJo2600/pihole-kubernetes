@@ -29,6 +29,9 @@ spec:
   ports:
     - port: {{ .Values.serviceDns.port }}
       targetPort: dns
+      {{- if and (.Values.serviceDns.nodePort) (eq .Values.serviceDns.type "NodePort") }}
+      nodePort: {{ .Values.serviceDns.nodePort }}
+      {{- end }}
       protocol: TCP
       name: dns
     {{- if .Values.monitoring.sidecar.enabled }}

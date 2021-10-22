@@ -44,6 +44,9 @@ serviceDns:
   # -- The port of the DNS service
   port: 53
 
+  # -- Optional node port for the DNS service
+  nodePort: ""
+
   # -- `spec.externalTrafficPolicy` for the DHCP Service
   externalTrafficPolicy: Local
 
