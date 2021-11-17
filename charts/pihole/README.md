@@ -177,6 +177,8 @@ The following table lists the configurable parameters of the pihole chart and th
 | blacklist | object | `{}` | list of blacklisted domains to import during initial start of the container |
 | customVolumes.config | object | `{}` | any volume type can be used here |
 | customVolumes.enabled | bool | `false` | set this to true to enable custom volumes |
+| extrasVolumes | object | `{}` | any extra volumes you might want |
+| extraVolumeMounts | object | `{}` | any extra volume mounts you might want |
 | dnsHostPort.enabled | bool | `false` | set this to true to enable dnsHostPort |
 | dnsHostPort.port | int | `53` | default port for this pod |
 | dnsmasq.additionalHostsEntries | list | `[]` | Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like |

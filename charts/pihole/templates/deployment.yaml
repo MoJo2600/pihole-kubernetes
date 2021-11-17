@@ -245,6 +245,10 @@ spec:
             name: ftl
             subPath: pihole-FTL.conf
           {{- end }}
+          {{- range $key, $value := .Values.extraVolumeMounts }}
+          - name: {{ $key }}
+{{- toYaml $value | nindent 12 }}
+          {{- end }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
@@ -315,4 +319,8 @@ spec:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-ftl
         name: ftl
+      {{- end }}
+      {{- range $key, $value := .Values.extraVolumes }}
+      - name: {{ $key }}
+{{- toYaml $value | nindent 8 }}
       {{- end }}

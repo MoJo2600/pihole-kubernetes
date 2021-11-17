@@ -361,6 +361,18 @@ customVolumes:
     # hostPath:
     #   path: "/mnt/data"
 
+# -- any extra volumes you might want
+extraVolumes: {}
+  # external-conf:
+  #   configMap:
+  #     name: pi-hole-lighttpd-external-conf
+
+# -- any extra volume mounts you might want
+extraVolumeMounts: {}
+  # external-conf:
+  #   mountPath: /etc/lighttpd/external.conf
+  #   subPath: external.conf
+
 # -- Additional annotations for pods
 podAnnotations: {}
   # Example below allows Prometheus to scape on metric port (requires pihole-exporter sidecar enabled)
