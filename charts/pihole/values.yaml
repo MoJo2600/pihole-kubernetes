@@ -17,8 +17,8 @@ maxUnavailable: 1
 image:
   # -- the repostory to pull the image from
   repository: "pihole/pihole"
-  # -- the docker tag
-  tag: "2021.10"
+  # -- the docker tag, if left empty it will get it from the chart's appVersion
+  tag: ""
   # -- the pull policy
   pullPolicy: IfNotPresent
 

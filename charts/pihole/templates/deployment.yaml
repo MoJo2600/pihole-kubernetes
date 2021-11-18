@@ -156,7 +156,7 @@ spec:
             value: {{ if .Values.DNS2 }}{{ ( printf "%v;%v" .Values.DNS1 .Values.DNS2 ) | squote }}{{ else }}{{ .Values.DNS1 | squote }}{{ end }}
          {{- end }}
          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             privileged: {{ .Values.privileged }}
