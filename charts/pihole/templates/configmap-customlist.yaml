@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "pihole.fullname" . }}-customList
+  name: {{ template "pihole.fullname" . }}-custom-list
   labels:
     app: {{ template "pihole.name" . }}
     chart: {{ template "pihole.chart" . }}
