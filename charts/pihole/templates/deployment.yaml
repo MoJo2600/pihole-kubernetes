@@ -26,6 +26,7 @@ spec:
         checksum.config.adlists: {{ include (print $.Template.BasePath "/configmap-adlists.yaml") . | sha256sum | trunc 63 }}
         checksum.config.blacklist: {{ include (print $.Template.BasePath "/configmap-blacklist.yaml") . | sha256sum | trunc 63 }}
         checksum.config.ftl: {{ include (print $.Template.BasePath "/configmap-ftl.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.customlist: {{ include (print $.Template.BasePath "/configmap-customlist.yaml") . | sha256sum | trunc 63 }}
         checksum.config.regex: {{ include (print $.Template.BasePath "/configmap-regex.yaml") . | sha256sum | trunc 63 }}
         checksum.config.whitelist: {{ include (print $.Template.BasePath "/configmap-whitelist.yaml") . | sha256sum | trunc 63 }}
         checksum.config.dnsmasqConfig: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum | trunc 63 }}
@@ -245,6 +246,11 @@ spec:
             name: ftl
             subPath: pihole-FTL.conf
           {{- end }}
+          {{- if not (empty .Values.localDns.dnsRecords) }}
+          - mountPath: /etc/pihole/custom.list
+            name: custom-list
+            subPath: custom.list
+          {{- end }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
@@ -315,4 +321,10 @@ spec:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-ftl
         name: ftl
+      {{- end }}
+      {{- if not (empty .Values.localDns.dnsRecords) }}
+      - configMap:
+          defaultMode: 420
+          name: {{ template "pihole.fullname" . }}-custom-list
+        name: custom-list
       {{- end }}

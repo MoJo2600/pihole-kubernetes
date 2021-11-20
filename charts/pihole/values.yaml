@@ -338,6 +338,13 @@ ftl: {}
   # Add values for pihole-FTL.conf
   # MAXDBDAYS: 14
 
+# -- values that should be added to custom.list
+localDns: 
+  dnsRecords:
+    []
+  # If you want to create some custom dns entry:
+  #   - 192.168.1.2 pihole.home.local
+
 # -- port the container should use to expose HTTP traffic
 webHttp: "80"
 
