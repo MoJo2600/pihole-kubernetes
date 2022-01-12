@@ -338,6 +338,9 @@ ftl: {}
   # Add values for pihole-FTL.conf
   # MAXDBDAYS: 14
 
+# -- values that should be added to setupVars.conf
+setupVars: {}
+
 # -- values that should be added to custom.list
 localDns: 
   dnsRecords:
