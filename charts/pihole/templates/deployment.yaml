@@ -330,7 +330,7 @@ spec:
       {{- end }}
       {{- if .Values.setupVars }}
       - configMap:
-          defaultMode: 420
+          defaultMode: 777
           name: {{ template "pihole.fullname" . }}-setupvars
         name: setupvars
       {{- end }}
