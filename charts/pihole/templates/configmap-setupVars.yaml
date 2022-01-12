@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "pihole.fullname" . }}-setupVars
+  name: {{ template "pihole.fullname" . }}-setupvars
   labels:
     app: {{ template "pihole.name" . }}
     chart: {{ template "pihole.chart" . }}

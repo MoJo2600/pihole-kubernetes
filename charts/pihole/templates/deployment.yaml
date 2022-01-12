@@ -26,7 +26,7 @@ spec:
         checksum.config.adlists: {{ include (print $.Template.BasePath "/configmap-adlists.yaml") . | sha256sum | trunc 63 }}
         checksum.config.blacklist: {{ include (print $.Template.BasePath "/configmap-blacklist.yaml") . | sha256sum | trunc 63 }}
         checksum.config.ftl: {{ include (print $.Template.BasePath "/configmap-ftl.yaml") . | sha256sum | trunc 63 }}
-        checksum.config.setupVars: {{ include (print $.Template.BasePath "/configmap-setupVars.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.setupvars: {{ include (print $.Template.BasePath "/configmap-setupVars.yaml") . | sha256sum | trunc 63 }}
         checksum.config.customlist: {{ include (print $.Template.BasePath "/configmap-customlist.yaml") . | sha256sum | trunc 63 }}
         checksum.config.regex: {{ include (print $.Template.BasePath "/configmap-regex.yaml") . | sha256sum | trunc 63 }}
         checksum.config.whitelist: {{ include (print $.Template.BasePath "/configmap-whitelist.yaml") . | sha256sum | trunc 63 }}
@@ -249,7 +249,7 @@ spec:
           {{- end }}
           {{- if .Values.setupVars }}
           - mountPath: /etc/pihole/setupVars.conf
-            name: ftl
+            name: setupvars
             subPath: setupVars.conf
           {{- end }}
           {{- if not (empty .Values.localDns.dnsRecords) }}
@@ -331,8 +331,8 @@ spec:
       {{- if .Values.setupVars }}
       - configMap:
           defaultMode: 420
-          name: {{ template "pihole.fullname" . }}-setupVars
-        name: setupVars
+          name: {{ template "pihole.fullname" . }}-setupvars
+        name: setupvars
       {{- end }}
       {{- if not (empty .Values.localDns.dnsRecords) }}
       - configMap:
