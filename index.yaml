@@ -3,6 +3,25 @@ entries:
   pihole:
   - apiVersion: v1
     appVersion: 2022.01.1
+    created: "2022-02-09T07:58:38.228172366Z"
+    description: Installs pihole in kubernetes
+    digest: 69638b5d630cd307243dc69b8019f75dcc8c4071a5a97cfeae5c04a751db79ae
+    home: https://github.com/MoJo2600/pihole-kubernetes/tree/master/charts/pihole
+    icon: https://i2.wp.com/pi-hole.net/wp-content/uploads/2016/12/Vortex-R.png
+    maintainers:
+    - email: christian.erhardt@mojo2k.de
+      name: MoJo2600
+    name: pihole
+    sources:
+    - https://github.com/MoJo2600/pihole-kubernetes/tree/master/charts/pihole
+    - https://pi-hole.net/
+    - https://github.com/pi-hole
+    - https://github.com/pi-hole/docker-pi-hole
+    urls:
+    - https://github.com/MoJo2600/pihole-kubernetes/releases/download/pihole-2.5.6/pihole-2.5.6.tgz
+    version: 2.5.6
+  - apiVersion: v1
+    appVersion: 2022.01.1
     created: "2022-02-08T08:14:03.072871663Z"
     description: Installs pihole in kubernetes
     digest: 18a36c055a8720b7ea91e474216595454dec6e7cdb3e5e8f84e3d3374404aac2
@@ -1133,4 +1152,4 @@ entries:
     urls:
     - https://github.com/MoJo2600/pihole-kubernetes/releases/download/pihole-1.2.1/pihole-1.2.1.tgz
     version: 1.2.1
-generated: "2022-02-08T08:14:03.073465886Z"
+generated: "2022-02-09T07:58:38.228946875Z"
