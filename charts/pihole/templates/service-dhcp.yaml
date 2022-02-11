@@ -14,14 +14,22 @@ metadata:
 {{- end }}
 spec:
   type: {{ .Values.serviceDhcp.type }}
-  {{- if and (.Values.dualStack.enabled) (not (eq .Values.serviceDhcp.type "LoadBalancer")) }}
+  {{- if and (.Values.dualStack.enabled) (or (not (eq .Values.serviceDhcp.type "LoadBalancer")) (.Values.dualStack.loadBalancer)) }}
   ipFamilies:
   - IPv4
   - IPv6
   ipFamilyPolicy: PreferDualStack
+  {{- if and (.Values.serviceDhcp.loadBalancerIP) (.Values.serviceDhcp.loadBalancerIPv6) }}
+  loadBalancerIP: {{ .Values.serviceDhcp.loadBalancerIP }},{{ .Values.serviceDhcp.loadBalancerIPv6 }}
+  {{- else if .Values.serviceDhcp.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.serviceDhcp.loadBalancerIP }}
+  {{- else if .Values.serviceDhcp.loadBalancerIPv6 }}
+  loadBalancerIP: {{ .Values.serviceDhcp.loadBalancerIPv6 }}
   {{- end }}
+  {{- else }}
   {{- if .Values.serviceDhcp.loadBalancerIP }}
   loadBalancerIP: {{ .Values.serviceDhcp.loadBalancerIP }}
+  {{- end }}
   {{- end }}
   {{- if or (eq .Values.serviceDhcp.type "NodePort") (eq .Values.serviceDhcp.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceDhcp.externalTrafficPolicy }}
@@ -35,7 +43,7 @@ spec:
     app: {{ template "pihole.name" . }}
     release: {{ .Release.Name }}
 ---
-{{- if and (.Values.dualStack.enabled) (eq .Values.serviceDhcp.type "LoadBalancer") -}}
+{{- if and (.Values.dualStack.enabled) (eq .Values.serviceDhcp.type "LoadBalancer") (not .Values.dualStack.loadBalancer) -}}
 apiVersion: v1
 kind: Service
 metadata:
