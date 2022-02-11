@@ -25,7 +25,6 @@ spec:
       annotations:
         checksum.config.adlists: {{ include (print $.Template.BasePath "/configmap-adlists.yaml") . | sha256sum | trunc 63 }}
         checksum.config.blacklist: {{ include (print $.Template.BasePath "/configmap-blacklist.yaml") . | sha256sum | trunc 63 }}
-        checksum.config.ftl: {{ include (print $.Template.BasePath "/configmap-ftl.yaml") . | sha256sum | trunc 63 }}
         checksum.config.regex: {{ include (print $.Template.BasePath "/configmap-regex.yaml") . | sha256sum | trunc 63 }}
         checksum.config.whitelist: {{ include (print $.Template.BasePath "/configmap-whitelist.yaml") . | sha256sum | trunc 63 }}
         checksum.config.dnsmasqConfig: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum | trunc 63 }}
@@ -156,6 +155,10 @@ spec:
             value: {{ if .Values.DNS2 }}{{ ( printf "%v;%v" .Values.DNS1 .Values.DNS2 ) | squote }}{{ else }}{{ .Values.DNS1 | squote }}{{ end }}
          {{- end }}
          {{- end }}
+         {{- range $key, $value := .Values.ftl }}
+          - name: 'FTLCONF_{{ $key }}'
+            value: {{ $value | quote }}
+         {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
@@ -240,11 +243,6 @@ spec:
             name: static-dhcp
             subPath: pihole-static-dhcp.conf
           {{- end }}
-          {{- if .Values.ftl }}
-          - mountPath: /etc/pihole/pihole-FTL.conf
-            name: ftl
-            subPath: pihole-FTL.conf
-          {{- end }}
           {{- range $key, $value := .Values.extraVolumeMounts }}
           - name: {{ $key }}
 {{- toYaml $value | nindent 12 }}
@@ -313,12 +311,6 @@ spec:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-regex
         name: regex
-      {{- end }}
-      {{- if .Values.ftl }}
-      - configMap:
-          defaultMode: 420
-          name: {{ template "pihole.fullname" . }}-ftl
-        name: ftl
       {{- end }}
       {{- range $key, $value := .Values.extraVolumes }}
       - name: {{ $key }}
