@@ -63,6 +63,10 @@ spec:
       {{- end }}
       hostname: {{ .Values.hostname }}
       hostNetwork: {{ .Values.hostNetwork }}
+      {{- with .Values.extraInitContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         {{- if .Values.monitoring.sidecar.enabled }}
         - name: exporter
