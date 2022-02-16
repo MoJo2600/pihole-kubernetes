@@ -14,10 +14,7 @@ metadata:
 {{- end }}
 spec:
   type: {{ .Values.serviceDns.type }}
-  {{- if and (.Values.dualStack.enabled) (not (eq .Values.serviceDns.type "LoadBalancer")) }}
-  ipFamilies:
-  - IPv4
-  - IPv6
+  {{- if .Values.dualStack.enabled }}
   ipFamilyPolicy: PreferDualStack
   {{- end }}
   {{- if .Values.serviceDns.loadBalancerIP }}
@@ -43,45 +40,4 @@ spec:
   selector:
     app: {{ template "pihole.name" . }}
     release: {{ .Release.Name }}
----
-{{- if and (.Values.dualStack.enabled) (eq .Values.serviceDns.type "LoadBalancer") -}}
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ template "pihole.fullname" . }}-dns-tcp-ipv6
-  labels:
-    app: {{ template "pihole.name" . }}
-    chart: {{ template "pihole.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
-{{- if .Values.serviceDns.annotations }}
-  annotations:
-{{ toYaml .Values.serviceDns.annotations | indent 4 }}
-{{- end }}
-spec:
-  type: {{ .Values.serviceDns.type }}
-  ipFamilies:
-  - IPv6
-  ipFamilyPolicy: SingleStack
-  {{- if .Values.serviceDns.loadBalancerIPv6 }}
-  loadBalancerIP: {{ .Values.serviceDns.loadBalancerIPv6 }}
-  {{- end }}
-  {{- if or (eq .Values.serviceDns.type "NodePort") (eq .Values.serviceDns.type "LoadBalancer") }}
-  externalTrafficPolicy: {{ .Values.serviceDns.externalTrafficPolicy }}
-  {{- end }}
-  ports:
-    - port: {{ .Values.serviceDns.port }}
-      targetPort: dns
-      protocol: TCP
-      name: dns
-    {{- if .Values.monitoring.sidecar.enabled }}
-    - port: {{ .Values.monitoring.sidecar.port }}
-      targetPort: prometheus
-      protocol: TCP
-      name: prometheus
-    {{- end }}
-  selector:
-    app: {{ template "pihole.name" . }}
-    release: {{ .Release.Name }}
-{{- end }}
 {{- end }}
