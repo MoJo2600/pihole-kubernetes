@@ -20,9 +20,6 @@ spec:
   - IPv6
   ipFamilyPolicy: PreferDualStack
   {{- end }}
-  {{- if .Values.serviceDns.loadBalancerIP }}
-  loadBalancerIP: {{ .Values.serviceDns.loadBalancerIP }}
-  {{- end }}
   {{- if or (eq .Values.serviceDns.type "NodePort") (eq .Values.serviceDns.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceDns.externalTrafficPolicy }}
   {{- end }}
@@ -63,9 +60,6 @@ spec:
   ipFamilies:
   - IPv6
   ipFamilyPolicy: SingleStack
-  {{- if .Values.serviceDns.loadBalancerIPv6 }}
-  loadBalancerIP: {{ .Values.serviceDns.loadBalancerIPv6 }}
-  {{- end }}
   {{- if or (eq .Values.serviceDns.type "NodePort") (eq .Values.serviceDns.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceDns.externalTrafficPolicy }}
   {{- end }}

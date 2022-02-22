@@ -46,15 +46,15 @@ persistentVolumeClaim:
   enabled: true
 
 serviceWeb:
-  loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
+    metallb.universe.tf/loadBalancerIPs: "192.168.178.252"
   type: LoadBalancer
 
 serviceDns:
-  loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
+    metallb.universe.tf/loadBalancerIPs: "192.168.178.252"
   type: LoadBalancer
 ```
 
@@ -104,27 +104,27 @@ update your `values.yaml` and add a new configuration for this new service.
 Before (In my case, with metallb):
 ```
 serviceTCP:
-  loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
+    metallb.universe.tf/loadBalancerIPs: "192.168.178.252"
 
 serviceUDP:
-  loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
+    metallb.universe.tf/loadBalancerIPs: "192.168.178.252"
 ```
 
 After:
 ```
 serviceWeb:
-  loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
+    metallb.universe.tf/loadBalancerIPs: "192.168.178.252"
 
 serviceDns:
-  loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
+    metallb.universe.tf/loadBalancerIPs: "192.168.178.252"
 ```
 
 Version 1.8.22 has switched from the deprecated ingress api `extensions/v1beta1` to the go forward version `networking.k8s.io/v1`. This means that your cluster must be running 1.19.x as this api is not available on older versions. If necessary to run on an older Kubernetes Version, it can be done by modifying the ingress.yaml and changing the api definition back. The backend definition would also change from:
