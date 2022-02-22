@@ -50,6 +50,9 @@ serviceDns:
   # -- `spec.externalTrafficPolicy` for the DHCP Service
   externalTrafficPolicy: Local
 
+  # -- A fixed `spec.loadBalancerIP` for the DNS Service
+  loadBalancerIP: ""
+
   # -- Annotations for the DNS service
   annotations: {}
     # metallb.universe.tf/address-pool: network-services
@@ -67,6 +70,9 @@ serviceDhcp:
 
   # -- `spec.externalTrafficPolicy` for the DHCP Service
   externalTrafficPolicy: Local
+
+  # -- A fixed `spec.loadBalancerIP` for the DHCP Service
+  loadBalancerIP: ""
 
   # -- Annotations for the DHCP service
   annotations: {}
@@ -98,6 +104,9 @@ serviceWeb:
 
   # -- `spec.externalTrafficPolicy` for the web interface Service
   externalTrafficPolicy: Local
+
+  # -- A fixed `spec.loadBalancerIP` for the web interface Service
+  loadBalancerIP: ""
 
   # -- Annotations for the DHCP service
   annotations: {}

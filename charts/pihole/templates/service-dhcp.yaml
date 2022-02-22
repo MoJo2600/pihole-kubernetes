@@ -17,6 +17,9 @@ spec:
   {{- if .Values.dualStack.enabled }}
   ipFamilyPolicy: PreferDualStack
   {{- end }}
+  {{- if .Values.serviceDhcp.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.serviceDhcp.loadBalancerIP }}
+  {{- end }}
   {{- if or (eq .Values.serviceDhcp.type "NodePort") (eq .Values.serviceDhcp.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceDhcp.externalTrafficPolicy }}
   {{- end }}
