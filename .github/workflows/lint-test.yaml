@@ -4,28 +4,11 @@ on:
   pull_request:
     paths:
       - "charts/pihole/**"
+      - "!**/README.md"
 
 jobs:
 
-  generate-documentation:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.head_ref }}        
-
-      - name: Generate Documentation
-        id: generate-documentation
-        run: |
-          docker run --rm --volume "$(pwd):/helm-docs" -u $(id -u) jnorwood/helm-docs:latest
-
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "Bot: Update Documentation"
-
   lint-test:
-    needs: generate-documentation
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -58,3 +41,21 @@ jobs:
 
       - name: Run chart-testing (install)
         run: ct install
+
+  generate-documentation:
+    runs-on: ubuntu-20.04
+    needs: lint-test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}        
+
+      - name: Generate Documentation
+        id: generate-documentation
+        run: |
+          docker run --rm --volume "$(pwd):/helm-docs" -u $(id -u) jnorwood/helm-docs:latest
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Bot: Update Documentation"
