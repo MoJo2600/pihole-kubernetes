@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.4.0](https://img.shields.io/badge/Version-2.4.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 2.5.8](https://img.shields.io/badge/Version-2.5.8-informational?style=flat-square) ![AppVersion: 2022.02.1](https://img.shields.io/badge/AppVersion-2022.02.1-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -177,8 +177,6 @@ The following table lists the configurable parameters of the pihole chart and th
 | blacklist | object | `{}` | list of blacklisted domains to import during initial start of the container |
 | customVolumes.config | object | `{}` | any volume type can be used here |
 | customVolumes.enabled | bool | `false` | set this to true to enable custom volumes |
-| extrasVolumes | object | `{}` | any extra volumes you might want |
-| extraVolumeMounts | object | `{}` | any extra volume mounts you might want |
 | dnsHostPort.enabled | bool | `false` | set this to true to enable dnsHostPort |
 | dnsHostPort.port | int | `53` | default port for this pod |
 | dnsmasq.additionalHostsEntries | list | `[]` | Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like |
@@ -203,6 +201,8 @@ The following table lists the configurable parameters of the pihole chart and th
 | extraEnvVars | object | `{}` | extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use |
 | extraEnvVarsSecret | object | `{}` | extraEnvVarsSecret is a list of secrets to load in as environment variables. |
 | extraObjects | list | `[]` | any extra kubernetes manifests you might want |
+| extraVolumeMounts | object | `{}` | any extra volume mounts you might want |
+| extraVolumes | object | `{}` | any extra volumes you might want |
 | ftl | object | `{}` | values that should be added to pihole-FTL.conf |
 | hostNetwork | string | `"false"` | should the container use host network |
 | hostname | string | `""` | hostname of pod |
@@ -220,7 +220,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | monitoring.sidecar.enabled | bool | `false` | set this to true to enable podMonitor as sidecar |
 | nodeSelector | object | `{}` |  |
 | persistentVolumeClaim | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"size":"500Mi"}` | `spec.PersitentVolumeClaim` configuration |
-| persistentVolumeClaim.annotations | object | `{}` | specify an existing `PersistentVolumeClaim` to use existingClaim: "" -- Annotations for the `PersitentVolumeClaim` |
+| persistentVolumeClaim.annotations | object | `{}` | Annotations for the `PersitentVolumeClaim` |
 | persistentVolumeClaim.enabled | bool | `false` | set to true to use pvc |
 | podAnnotations | object | `{}` | Additional annotations for pods |
 | podDnsConfig.enabled | bool | `true` |  |
@@ -233,7 +233,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | probes.readiness.enabled | bool | `true` | Generate a readiness probe |
 | regex | object | `{}` | list of blacklisted regex expressions to import during initial start of the container |
 | replicaCount | int | `1` | The number of replicas |
-| resources | object | `{}` | We usually recommend not to specify default resources and to leave this as a conscious -- choice for the user. This also increases chances charts run on environments with little -- resources, such as Minikube. If you do want to specify resources, uncomment the following -- lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
+| resources | object | `{}` | lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
 | serviceDhcp | object | `{"annotations":{},"enabled":true,"externalTrafficPolicy":"Local","loadBalancerIP":"","loadBalancerIPv6":"","type":"NodePort"}` | Configuration for the DHCP service on port 67 |
 | serviceDhcp.annotations | object | `{}` | Annotations for the DHCP service |
 | serviceDhcp.enabled | bool | `true` | Generate a Service resource for DHCP traffic |
@@ -241,12 +241,13 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceDhcp.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DHCP Service |
 | serviceDhcp.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service |
 | serviceDhcp.type | string | `"NodePort"` | `spec.type` for the DHCP Service |
-| serviceDns | object | `{"annotations":{},"externalTrafficPolicy":"Local","loadBalancerIP":"","loadBalancerIPv6":"","mixedService":false,"port":53,"type":"NodePort"}` | Configuration for the DNS service on port 53 |
+| serviceDns | object | `{"annotations":{},"externalTrafficPolicy":"Local","loadBalancerIP":"","loadBalancerIPv6":"","mixedService":false,"nodePort":"","port":53,"type":"NodePort"}` | Configuration for the DNS service on port 53 |
 | serviceDns.annotations | object | `{}` | Annotations for the DNS service |
 | serviceDns.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
 | serviceDns.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DNS Service |
 | serviceDns.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 DNS Service |
 | serviceDns.mixedService | bool | `false` | deploys a mixed (TCP + UDP) Service instead of separate ones |
+| serviceDns.nodePort | string | `""` | Optional node port for the DNS service |
 | serviceDns.port | int | `53` | The port of the DNS service |
 | serviceDns.type | string | `"NodePort"` | `spec.type` for the DNS Service |
 | serviceWeb | object | `{"annotations":{},"externalTrafficPolicy":"Local","http":{"enabled":true,"port":80},"https":{"enabled":true,"port":443},"loadBalancerIP":"","loadBalancerIPv6":"","type":"ClusterIP"}` | Configuration for the web interface service |
@@ -263,7 +264,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceWeb.type | string | `"ClusterIP"` | `spec.type` for the web interface Service |
 | strategyType | string | `"RollingUpdate"` | The `spec.strategyTpye` for updates |
 | tolerations | list | `[]` |  |
-| topologySpreadConstraints | list | `[]` |  |
+| topologySpreadConstraints | list | `[]` | Specify a priorityClassName priorityClassName: "" Reference: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/ |
 | virtualHost | string | `"pi.hole"` |  |
 | webHttp | string | `"80"` | port the container should use to expose HTTP traffic |
 | webHttps | string | `"443"` | port the container should use to expose HTTPS traffic |
@@ -367,4 +368,4 @@ Thanks goes to these wonderful people:
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.5.0](https://github.com/norwoodj/helm-docs/releases/v1.5.0)
+Autogenerated from chart metadata using [helm-docs v1.6.0](https://github.com/norwoodj/helm-docs/releases/v1.6.0)
