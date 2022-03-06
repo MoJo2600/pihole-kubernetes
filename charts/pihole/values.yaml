@@ -265,6 +265,11 @@ doh:
     liveness:
       # -- set to true to enable liveness probe
       enabled: true
+      # -- customize the liveness probe
+      probe:
+        httpGet:
+          path: /metrics
+          port: 49312
       # -- defines the initial delay for the liveness probe
       initialDelaySeconds: 60
       # -- defines the failure threshold for the liveness probe
