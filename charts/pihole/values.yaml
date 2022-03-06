@@ -267,9 +267,12 @@ doh:
       enabled: true
       # -- customize the liveness probe
       probe:
-        httpGet:
-          path: /metrics
-          port: 49312
+        exec:
+          command:
+            - nslookup
+            - -po=5053
+            - cloudflare.com
+            - '127.0.0.1'
       # -- defines the initial delay for the liveness probe
       initialDelaySeconds: 60
       # -- defines the failure threshold for the liveness probe
