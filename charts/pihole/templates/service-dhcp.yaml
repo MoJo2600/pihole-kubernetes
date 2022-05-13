@@ -27,8 +27,11 @@ spec:
   externalTrafficPolicy: {{ .Values.serviceDhcp.externalTrafficPolicy }}
   {{- end }}
   ports:
-    - port: 67
+    - port: {{ .Values.serviceDhcp.port }}
       targetPort: client-udp
+      {{- if and (.Values.serviceDhcp.nodePort) (eq .Values.serviceDhcp.type "NodePort") }}
+      nodePort: {{ .Values.serviceDhcp.nodePort }}
+      {{- end }}
       protocol: UDP
       name: client-udp
   selector:
