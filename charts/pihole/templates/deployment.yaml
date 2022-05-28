@@ -187,7 +187,8 @@ spec:
           livenessProbe:
             httpGet:
               path: /admin.index.php
-              port: http
+              port: {{ .Values.probes.liveness.port }}
+              scheme: {{ .Values.probes.liveness.scheme }}
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
             timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
@@ -196,7 +197,8 @@ spec:
           readinessProbe:
             httpGet:
               path: /admin.index.php
-              port: http
+              port: {{ .Values.probes.readiness.port }}
+              scheme: {{ .Values.probes.readiness.scheme }}
             initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
             failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
