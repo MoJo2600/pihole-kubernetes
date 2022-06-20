@@ -114,9 +114,7 @@ spec:
           {{- end }}
           {{- if .Values.doh.probes.liveness.enabled }}
           livenessProbe:
-            httpGet:
-              path: /metrics
-              port: 49312
+{{ toYaml .Values.doh.probes.liveness.probe | indent 12 }}
             initialDelaySeconds: {{ .Values.doh.probes.liveness.initialDelaySeconds }}
             failureThreshold: {{ .Values.doh.probes.liveness.failureThreshold }}
             timeoutSeconds: {{ .Values.doh.probes.liveness.timeoutSeconds }}
