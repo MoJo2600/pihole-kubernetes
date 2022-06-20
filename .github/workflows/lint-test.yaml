@@ -3,7 +3,6 @@ name: Lint and Test Charts
 on:
   pull_request:
     paths:
-      - "charts/pihole/**"
       - "!**/README.md"
 
 jobs:
