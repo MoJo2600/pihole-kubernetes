@@ -188,11 +188,12 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.enabled | bool | `true` | set to true to enabled DNS over HTTPs via cloudflared |
 | doh.envVars | object | `{"TUNNEL_DNS_UPSTREAM":"https://aufvfbzgbj.cloudflare-gateway.com/dns-query"}` | Here you can pass environment variables to the DoH container, for example: |
 | doh.name | string | `"cloudflared"` |  |
-| doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5}}` | Probes configuration |
-| doh.probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5}` | Configure the healthcheck for the doh container |
+| doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5}}` | Probes configuration |
+| doh.probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5}` | Configure the healthcheck for the doh container |
 | doh.probes.liveness.enabled | bool | `true` | set to true to enable liveness probe |
 | doh.probes.liveness.failureThreshold | int | `10` | defines the failure threshold for the liveness probe |
 | doh.probes.liveness.initialDelaySeconds | int | `60` | defines the initial delay for the liveness probe |
+| doh.probes.liveness.probe | object | `{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}}` | customize the liveness probe |
 | doh.probes.liveness.timeoutSeconds | int | `5` | defines the timeout in secondes for the liveness probe |
 | doh.pullPolicy | string | `"IfNotPresent"` |  |
 | doh.repository | string | `"crazymax/cloudflared"` |  |
