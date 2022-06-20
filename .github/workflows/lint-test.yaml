@@ -4,8 +4,8 @@ on:
   pull_request:
     branches:
       - master
-    paths:
-      - "!**/README.md"
+    paths-ignore:
+      - "**/README.md"
 
 jobs:
 
