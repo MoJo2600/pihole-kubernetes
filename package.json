@@ -1,0 +1,26 @@
+{
+  "name": "pihole-kubernetes",
+  "version": "1.0.0",
+  "description": "A helm chart for Pi-hole",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "example": "example"
+  },
+  "scripts": {
+    "updateReadme": "docker run --rm --volume \"$(pwd):/helm-docs\" -u $(id -u) jnorwood/helm-docs:latest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MoJo2600/pihole-kubernetes.git"
+  },
+  "author": "Christian Erhardt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MoJo2600/pihole-kubernetes/issues"
+  },
+  "homepage": "https://github.com/MoJo2600/pihole-kubernetes#readme",
+  "devDependencies": {
+    "all-contributors-cli": "^6.20.0"
+  }
+}
