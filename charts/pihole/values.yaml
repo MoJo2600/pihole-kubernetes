@@ -69,6 +69,12 @@ serviceDhcp:
   # -- `spec.type` for the DHCP Service
   type: NodePort
 
+  # -- The port of the DHCP service
+  port: 67
+
+  # -- Optional node port for the DHCP service
+  nodePort: ""
+
   # -- `spec.externalTrafficPolicy` for the DHCP Service
   externalTrafficPolicy: Local
 
@@ -93,6 +99,9 @@ serviceWeb:
     # -- The port of the web HTTP service
     port: 80
 
+    # -- Optional node port for the web HTTP service
+    nodePort: ""
+
   # -- Configuration for the HTTPS web interface listener
   https:
     # -- Generate a service for HTTPS traffic
@@ -100,6 +109,9 @@ serviceWeb:
 
     # -- The port of the web HTTPS service
     port: 443
+
+    # -- Optional node port for the web HTTPS service
+    nodePort: ""
 
   # -- `spec.type` for the web interface Service
   type: ClusterIP
