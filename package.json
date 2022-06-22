@@ -8,7 +8,9 @@
     "example": "example"
   },
   "scripts": {
-    "updateReadme": "docker run --rm --volume \"$(pwd):/helm-docs\" -u $(id -u) jnorwood/helm-docs:latest"
+    "updateReadme": "docker run --rm --volume \"$(pwd):/helm-docs\" -u $(id -u) jnorwood/helm-docs:latest",
+    "all-contributorsCheck": "all-contributors check",
+    "all-contributorsAdd": "all-contributors add"
   },
   "repository": {
     "type": "git",
