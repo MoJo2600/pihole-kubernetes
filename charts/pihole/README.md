@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.5.8](https://img.shields.io/badge/Version-2.5.8-informational?style=flat-square) ![AppVersion: 2022.02.1](https://img.shields.io/badge/AppVersion-2022.02.1-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 2.9.0](https://img.shields.io/badge/Version-2.9.0-informational?style=flat-square) ![AppVersion: 2022.05](https://img.shields.io/badge/AppVersion-2022.05-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -188,11 +188,12 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.enabled | bool | `false` | set to true to enabled DNS over HTTPs via cloudflared |
 | doh.envVars | object | `{}` | Here you can pass environment variables to the DoH container, for example: |
 | doh.name | string | `"cloudflared"` |  |
-| doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5}}` | Probes configuration |
-| doh.probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5}` | Configure the healthcheck for the doh container |
+| doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5}}` | Probes configuration |
+| doh.probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5}` | Configure the healthcheck for the doh container |
 | doh.probes.liveness.enabled | bool | `true` | set to true to enable liveness probe |
 | doh.probes.liveness.failureThreshold | int | `10` | defines the failure threshold for the liveness probe |
 | doh.probes.liveness.initialDelaySeconds | int | `60` | defines the initial delay for the liveness probe |
+| doh.probes.liveness.probe | object | `{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}}` | customize the liveness probe |
 | doh.probes.liveness.timeoutSeconds | int | `5` | defines the timeout in secondes for the liveness probe |
 | doh.pullPolicy | string | `"IfNotPresent"` |  |
 | doh.repository | string | `"crazymax/cloudflared"` |  |
@@ -216,7 +217,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | maxUnavailable | int | `1` | The maximum number of Pods that can be unavailable during updating |
 | monitoring.podMonitor | object | `{"enabled":false}` | Preferably adding prometheus scrape annotations rather than enabling podMonitor. |
 | monitoring.podMonitor.enabled | bool | `false` | set this to true to enable podMonitor |
-| monitoring.sidecar | object | `{"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"ekofr/pihole-exporter","tag":"0.0.10"},"port":9617,"resources":{"limits":{"memory":"128Mi"}}}` | Sidecar configuration |
+| monitoring.sidecar | object | `{"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"ekofr/pihole-exporter","tag":"v0.3.0"},"port":9617,"resources":{"limits":{"memory":"128Mi"}}}` | Sidecar configuration |
 | monitoring.sidecar.enabled | bool | `false` | set this to true to enable podMonitor as sidecar |
 | nodeSelector | object | `{}` |  |
 | persistentVolumeClaim | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"size":"500Mi"}` | `spec.PersitentVolumeClaim` configuration |
@@ -228,18 +229,20 @@ The following table lists the configurable parameters of the pihole chart and th
 | podDnsConfig.nameservers[1] | string | `"8.8.8.8"` |  |
 | podDnsConfig.policy | string | `"None"` |  |
 | privileged | string | `"false"` | should container run in privileged mode |
-| probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5},"readiness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":60,"timeoutSeconds":5}}` | Probes configuration |
+| probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5},"readiness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5}}` | Probes configuration |
 | probes.liveness.enabled | bool | `true` | Generate a liveness probe |
 | probes.readiness.enabled | bool | `true` | Generate a readiness probe |
 | regex | object | `{}` | list of blacklisted regex expressions to import during initial start of the container |
 | replicaCount | int | `1` | The number of replicas |
 | resources | object | `{}` | lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
-| serviceDhcp | object | `{"annotations":{},"enabled":true,"externalTrafficPolicy":"Local","loadBalancerIP":"","loadBalancerIPv6":"","type":"NodePort"}` | Configuration for the DHCP service on port 67 |
+| serviceDhcp | object | `{"annotations":{},"enabled":true,"externalTrafficPolicy":"Local","loadBalancerIP":"","loadBalancerIPv6":"","nodePort":"","port":67,"type":"NodePort"}` | Configuration for the DHCP service on port 67 |
 | serviceDhcp.annotations | object | `{}` | Annotations for the DHCP service |
 | serviceDhcp.enabled | bool | `true` | Generate a Service resource for DHCP traffic |
 | serviceDhcp.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
 | serviceDhcp.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DHCP Service |
 | serviceDhcp.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service |
+| serviceDhcp.nodePort | string | `""` | Optional node port for the DHCP service |
+| serviceDhcp.port | int | `67` | The port of the DHCP service |
 | serviceDhcp.type | string | `"NodePort"` | `spec.type` for the DHCP Service |
 | serviceDns | object | `{"annotations":{},"externalTrafficPolicy":"Local","loadBalancerIP":"","loadBalancerIPv6":"","mixedService":false,"nodePort":"","port":53,"type":"NodePort"}` | Configuration for the DNS service on port 53 |
 | serviceDns.annotations | object | `{}` | Annotations for the DNS service |
@@ -250,14 +253,16 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceDns.nodePort | string | `""` | Optional node port for the DNS service |
 | serviceDns.port | int | `53` | The port of the DNS service |
 | serviceDns.type | string | `"NodePort"` | `spec.type` for the DNS Service |
-| serviceWeb | object | `{"annotations":{},"externalTrafficPolicy":"Local","http":{"enabled":true,"port":80},"https":{"enabled":true,"port":443},"loadBalancerIP":"","loadBalancerIPv6":"","type":"ClusterIP"}` | Configuration for the web interface service |
+| serviceWeb | object | `{"annotations":{},"externalTrafficPolicy":"Local","http":{"enabled":true,"nodePort":"","port":80},"https":{"enabled":true,"nodePort":"","port":443},"loadBalancerIP":"","loadBalancerIPv6":"","type":"ClusterIP"}` | Configuration for the web interface service |
 | serviceWeb.annotations | object | `{}` | Annotations for the DHCP service |
 | serviceWeb.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the web interface Service |
-| serviceWeb.http | object | `{"enabled":true,"port":80}` | Configuration for the HTTP web interface listener |
+| serviceWeb.http | object | `{"enabled":true,"nodePort":"","port":80}` | Configuration for the HTTP web interface listener |
 | serviceWeb.http.enabled | bool | `true` | Generate a service for HTTP traffic |
+| serviceWeb.http.nodePort | string | `""` | Optional node port for the web HTTP service |
 | serviceWeb.http.port | int | `80` | The port of the web HTTP service |
-| serviceWeb.https | object | `{"enabled":true,"port":443}` | Configuration for the HTTPS web interface listener |
+| serviceWeb.https | object | `{"enabled":true,"nodePort":"","port":443}` | Configuration for the HTTPS web interface listener |
 | serviceWeb.https.enabled | bool | `true` | Generate a service for HTTPS traffic |
+| serviceWeb.https.nodePort | string | `""` | Optional node port for the web HTTPS service |
 | serviceWeb.https.port | int | `443` | The port of the web HTTPS service |
 | serviceWeb.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the web interface Service |
 | serviceWeb.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 web interface Service |
@@ -357,6 +362,24 @@ Thanks goes to these wonderful people:
     <td align="center"><a href="https://niftyside.io/"><img src="https://avatars.githubusercontent.com/u/653739?v=4" width="100px;" alt=""/><br /><sub><b>Daniel Mühlbachler-Pietrzykowski</b></sub></a></td>
     <td align="center"><a href="https://github.com/consideRatio"><img src="https://avatars.githubusercontent.com/u/3837114?v=4" width="100px;" alt=""/><br /><sub><b>Erik Sundell</b></sub></a></td>
     <td align="center"><a href="https://github.com/Ornias1993"><img src="https://avatars.githubusercontent.com/u/7613738?v=4" width="100px;" alt=""/><br /><sub><b>Kjeld Schouten-Lebbing</b></sub></a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/mrwulf"><img src="https://avatars.githubusercontent.com/u/2494769?v=4" width="100px;" alt=""/><br /><sub><b>Brandon Wulf</b></sub></a></td>
+    <td align="center"><a href="https://github.com/DerRockWolf"><img src="https://avatars.githubusercontent.com/u/50499906?v=4" width="100px;" alt=""/><br /><sub><b>DerRockWolf</b></sub></a></td>
+    <td align="center"><a href="https://github.com/brnl"><img src="https://avatars.githubusercontent.com/u/3243133?v=4" width="100px;" alt=""/><br /><sub><b>brnl</b></sub></a></td>
+    <td align="center"><a href="https://rafaelgaspar.xyz/"><img src="https://avatars.githubusercontent.com/u/5567?v=4" width="100px;" alt=""/><br /><sub><b>Rafael Gaspar</b></sub></a></td>
+    <td align="center"><a href="https://chadimasri.com/"><img src="https://avatars.githubusercontent.com/u/1502811?v=4" width="100px;" alt=""/><br /><sub><b>Chadi El Masri</b></sub></a></td>
+    <td align="center"><a href="https://github.com/dfoulkes"><img src="https://avatars.githubusercontent.com/u/8113674?v=4" width="100px;" alt=""/><br /><sub><b>Dan Foulkes</b></sub></a></td>
+    <td align="center"><a href="https://github.com/george124816"><img src="https://avatars.githubusercontent.com/u/26443736?v=4" width="100px;" alt=""/><br /><sub><b>George Rodrigues</b></sub></a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://pascaliske.dev/"><img src="https://avatars.githubusercontent.com/u/7473880?v=4" width="100px;" alt=""/><br /><sub><b>Pascal Iske</b></sub></a></td>
+    <td align="center"><a href="https://www.reyth.dev/"><img src="https://avatars.githubusercontent.com/u/23526880?v=4" width="100px;" alt=""/><br /><sub><b>Theo REY</b></sub></a></td>
+    <td align="center"><a href="https://github.com/piwi3910"><img src="https://avatars.githubusercontent.com/u/12539757?v=4" width="100px;" alt=""/><br /><sub><b>Watteel Pascal</b></sub></a></td>
+    <td align="center"><a href="https://github.com/frittenlab"><img src="https://avatars.githubusercontent.com/u/29921946?v=4" width="100px;" alt=""/><br /><sub><b>simon</b></sub></a></td>
+    <td align="center"><a href="https://github.com/FernFerret"><img src="https://avatars.githubusercontent.com/u/72811?v=4" width="100px;" alt=""/><br /><sub><b>Eric</b></sub></a></td>
+    <td align="center"><a href="https://github.com/vince-vibin"><img src="https://avatars.githubusercontent.com/u/99386370?v=4" width="100px;" alt=""/><br /><sub><b>Vincent</b></sub></a></td>
+    <td align="center"><a href="https://github.com/Keydrain"><img src="https://avatars.githubusercontent.com/u/5723055?v=4" width="100px;" alt=""/><br /><sub><b>Clint</b></sub></a></td>
   </tr>
 </table>
 

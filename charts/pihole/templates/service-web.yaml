@@ -29,12 +29,18 @@ spec:
     {{- if .Values.serviceWeb.http.enabled }}
     - port: {{ .Values.serviceWeb.http.port }}
       targetPort: http
+      {{- if and (.Values.serviceWeb.http.nodePort) (eq .Values.serviceWeb.type "NodePort") }}
+      nodePort: {{ .Values.serviceWeb.http.nodePort }}
+      {{- end }}
       protocol: TCP
       name: http
     {{- end }}
     {{- if .Values.serviceWeb.https.enabled }}
     - port: {{ .Values.serviceWeb.https.port }}
       targetPort: https
+      {{- if and (.Values.serviceWeb.https.nodePort) (eq .Values.serviceWeb.type "NodePort") }}
+      nodePort: {{ .Values.serviceWeb.https.nodePort }}
+      {{- end }}
       protocol: TCP
       name: https
     {{- end }}
