@@ -118,9 +118,7 @@ spec:
           {{- end }}
           {{- if .Values.doh.probes.liveness.enabled }}
           livenessProbe:
-            httpGet:
-              path: /metrics
-              port: 49312
+{{ toYaml .Values.doh.probes.liveness.probe | indent 12 }}
             initialDelaySeconds: {{ .Values.doh.probes.liveness.initialDelaySeconds }}
             failureThreshold: {{ .Values.doh.probes.liveness.failureThreshold }}
             timeoutSeconds: {{ .Values.doh.probes.liveness.timeoutSeconds }}
@@ -193,7 +191,8 @@ spec:
           livenessProbe:
             httpGet:
               path: /admin.index.php
-              port: http
+              port: {{ .Values.probes.liveness.port }}
+              scheme: {{ .Values.probes.liveness.scheme }}
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
             timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
@@ -202,7 +201,8 @@ spec:
           readinessProbe:
             httpGet:
               path: /admin.index.php
-              port: http
+              port: {{ .Values.probes.readiness.port }}
+              scheme: {{ .Values.probes.readiness.scheme }}
             initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
             failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
