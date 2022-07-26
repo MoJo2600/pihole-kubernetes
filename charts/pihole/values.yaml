@@ -39,7 +39,7 @@ serviceDns:
   mixedService: false
 
   # -- `spec.type` for the DNS Service
-  type: NodePort
+  type: LoadBalancer
 
   # -- The port of the DNS service
   port: 53
@@ -51,12 +51,12 @@ serviceDns:
   externalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the DNS Service
-  loadBalancerIP: ""
+  loadBalancerIP: "192.168.50.21"
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service
   loadBalancerIPv6: ""
 
   # -- Annotations for the DNS service
-  annotations: {}
+  annotations: {"metallb.universe.tf/allow-shared-ip": "pihole-svc"}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -67,18 +67,18 @@ serviceDhcp:
   enabled: true
 
   # -- `spec.type` for the DHCP Service
-  type: NodePort
+  type: LoadBalancer
 
   # -- `spec.externalTrafficPolicy` for the DHCP Service
   externalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the DHCP Service
-  loadBalancerIP: ""
+  loadBalancerIP: "192.168.50.21"
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service
   loadBalancerIPv6: ""
 
   # -- Annotations for the DHCP service
-  annotations: {}
+  annotations: {"metallb.universe.tf/allow-shared-ip": "pihole-svc"}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -102,18 +102,18 @@ serviceWeb:
     port: 443
 
   # -- `spec.type` for the web interface Service
-  type: ClusterIP
+  type: LoadBalancer
 
   # -- `spec.externalTrafficPolicy` for the web interface Service
   externalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the web interface Service
-  loadBalancerIP: ""
+  loadBalancerIP: "192.168.50.21"
   # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service
   loadBalancerIPv6: ""
 
   # -- Annotations for the DHCP service
-  annotations: {}
+  annotations: {"metallb.universe.tf/allow-shared-ip": "pihole-svc"}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -395,9 +395,11 @@ monitoring:
       pullPolicy: IfNotPresent
     resources:
       limits:
-        memory: 128Mi
-      # requests:
-      #  cpu: 100m
+        cpu: 200m
+        memory: 512Mi
+      requests:
+        cpu: 300m
+        memory: 256Mi
       #  memory: 128Mi
 
 podDnsConfig:
