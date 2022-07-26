@@ -105,9 +105,6 @@ serviceWeb:
     # -- The port of the web HTTP service
     port: 80
 
-    # -- Optional node port for the web HTTP service
-    nodePort: ""
-
   # -- Configuration for the HTTPS web interface listener
   https:
     # -- Generate a service for HTTPS traffic
@@ -115,9 +112,6 @@ serviceWeb:
 
     # -- The port of the web HTTPS service
     port: 443
-
-    # -- Optional node port for the web HTTPS service
-    nodePort: ""
 
   # -- `spec.type` for the web interface Service
   type: LoadBalancer
@@ -171,16 +165,12 @@ probes:
     initialDelaySeconds: 60
     failureThreshold: 10
     timeoutSeconds: 5
-    port: http
-    scheme: HTTP
   readiness:
     # -- Generate a readiness probe
     enabled: true
     initialDelaySeconds: 60
     failureThreshold: 3
     timeoutSeconds: 5
-    port: http
-    scheme: HTTP
 
 # -- We usually recommend not to specify default resources and to leave this as a conscious
 # -- choice for the user. This also increases chances charts run on environments with little
@@ -290,14 +280,6 @@ doh:
     liveness:
       # -- set to true to enable liveness probe
       enabled: true
-      # -- customize the liveness probe
-      probe:
-        exec:
-          command:
-            - nslookup
-            - -po=5053
-            - cloudflare.com
-            - '127.0.0.1'
       # -- defines the initial delay for the liveness probe
       initialDelaySeconds: 60
       # -- defines the failure threshold for the liveness probe
@@ -421,39 +403,6 @@ extraVolumeMounts: {}
   #   mountPath: /etc/lighttpd/external.conf
   #   subPath: external.conf
 
-# -- any extra kubernetes manifests you might want
-extraObjects: []
-  # - apiVersion: v1
-  #   kind: ConfigMap
-  #   metadata:
-  #     name: pi-hole-lighttpd-external-conf
-  #   data:
-  #     external.conf: |
-  #       $HTTP["host"] =~ "example.foo" {
-  #         # If we're using a non-standard host for pihole, ensure the Pi-hole
-  #         # Block Page knows that this is not a blocked domain
-  #         setenv.add-environment = ("fqdn" => "true")
-  #
-  #         # Enable the SSL engine with a cert, only for this specific host
-  #         $SERVER["socket"] == ":443" {
-  #           ssl.engine = "enable"
-  #           ssl.pemfile = "/etc/ssl/lighttpd-private/tls.crt"
-  #           ssl.privkey = "/etc/ssl/lighttpd-private/tls.key"
-  #           ssl.ca-file = "/etc/ssl/lighttpd-private/ca.crt"
-  #           ssl.honor-cipher-order = "enable"
-  #           ssl.cipher-list = "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH"
-  #           ssl.use-sslv2 = "disable"
-  #           ssl.use-sslv3 = "disable"
-  #         }
-  #       }
-  #
-  #       # Redirect HTTP to HTTPS
-  #       $HTTP["scheme"] == "http" {
-  #         $HTTP["host"] =~ ".*" {
-  #           url.redirect = (".*" => "https://%0$0")
-  #         }
-  #       }
-
 # -- Additional annotations for pods
 podAnnotations: {}
   # Example below allows Prometheus to scape on metric port (requires pihole-exporter sidecar enabled)
@@ -472,12 +421,12 @@ monitoring:
     port: 9617
     image:
       repository: ekofr/pihole-exporter
-      tag: v0.3.0
+      tag: 0.0.10
       pullPolicy: IfNotPresent
     resources:
       limits:
-        cpu: 200m
-        memory: 512Mi
+        cpu: 2000m
+        memory: 1024Mi
       requests:
         cpu: 300m
         memory: 256Mi
