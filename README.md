@@ -105,6 +105,9 @@ Thanks goes to these wonderful people:
     <td align="center"><a href="https://github.com/vince-vibin"><img src="https://avatars.githubusercontent.com/u/99386370?v=4" width="100px;" alt=""/><br /><sub><b>Vincent</b></sub></a></td>
     <td align="center"><a href="https://github.com/Keydrain"><img src="https://avatars.githubusercontent.com/u/5723055?v=4" width="100px;" alt=""/><br /><sub><b>Clint</b></sub></a></td>
   </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/tamcore"><img src="https://avatars.githubusercontent.com/u/319917?v=4" width="100px;" alt=""/><br /><sub><b>Philipp B.</b></sub></a></td>
+  </tr>
 </table>
 
 <!-- markdownlint-restore -->
