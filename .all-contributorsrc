@@ -512,6 +512,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "tamcore",
+      "name": "Philipp B.",
+      "avatar_url": "https://avatars.githubusercontent.com/u/319917?v=4",
+      "profile": "https://github.com/tamcore",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
