@@ -3,7 +3,7 @@ name: Deploy To Pi Cluster
 on:
   push:
     branches:
-      - "main"
+      - "master"
 
 jobs:
   deploy-via-kubectl:
@@ -20,9 +20,9 @@ jobs:
     - name: 'Deploy'
       uses: 'deliverybot/helm@v1'
       with:
-        release: 'nginx'
+        release: 'exacerbated-gecko'
         namespace: 'pihole'
-        chart: 'pihole-2.9.0'
+        chart: 'pihole'
         value-files: 
           "./charts/vaules.yaml"
         
