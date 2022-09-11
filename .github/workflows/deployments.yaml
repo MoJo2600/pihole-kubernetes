@@ -1,0 +1,28 @@
+name: Deploy To Pi Cluster
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  deploy-via-kubectl:
+    name: Deploy to Pi Cluster
+    runs-on: self-hosted
+    
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - uses: actions/checkout@v3
+    # Run deployment manifesto
+    - name: 'Deploy'
+      uses: 'deliverybot/helm@v1'
+      with:
+        release: 'nginx'
+        namespace: 'pihole'
+        chart: 'pihole-2.9.0'
+        value-files: 
+          "./charts/vaules.yaml"
+        
