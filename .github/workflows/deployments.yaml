@@ -20,5 +20,5 @@ jobs:
       uses: actions/checkout@v3
       
     - name: 'Deploy'
-      run: helm upgrade --namespace pihole -f ./charts/pihole/values.yaml exacerbated-gecko ./charts/pihole
+      run: helm upgrade --namespace pihole -f ./charts/pihole/values.yaml pi-hole ./charts/pihole
         
