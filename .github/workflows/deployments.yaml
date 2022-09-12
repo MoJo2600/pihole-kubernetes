@@ -17,10 +17,5 @@ jobs:
     steps:
     # Run deployment manifesto
     - name: 'Deploy'
-      run: helm update -f ./charts/vaules.yaml pihole ./pihole
-        # release: 'exacerbated-gecko'
-        # namespace: 'pihole'
-        # chart: 'pihole'
-        # value-files: 
-        #   "./charts/vaules.yaml"
+      run: helm upgrade --namespace pihole -f ./charts/pihole/values.yaml exacerbated-gecko ./charts/pihole
         
