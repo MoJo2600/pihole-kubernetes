@@ -16,6 +16,9 @@ jobs:
 
     steps:
     # Run deployment manifesto
+    - name: Check out repository code
+      uses: actions/checkout@v3
+      
     - name: 'Deploy'
       run: helm upgrade --namespace pihole -f ./charts/pihole/values.yaml exacerbated-gecko ./charts/pihole
         
