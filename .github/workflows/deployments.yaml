@@ -15,14 +15,12 @@ jobs:
       id-token: 'write'
 
     steps:
-    - uses: actions/checkout@v3
     # Run deployment manifesto
     - name: 'Deploy'
-      uses: 'deliverybot/helm@v1'
-      with:
-        release: 'exacerbated-gecko'
-        namespace: 'pihole'
-        chart: 'pihole'
-        value-files: 
-          "./charts/vaules.yaml"
+      run: helm update -f ./charts/vaules.yaml pihole ./pihole
+        # release: 'exacerbated-gecko'
+        # namespace: 'pihole'
+        # chart: 'pihole'
+        # value-files: 
+        #   "./charts/vaules.yaml"
         
