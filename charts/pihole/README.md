@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.9.0](https://img.shields.io/badge/Version-2.9.0-informational?style=flat-square) ![AppVersion: 2022.07](https://img.shields.io/badge/AppVersion-2022.07-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 3.0.0](https://img.shields.io/badge/Version-3.0.0-informational?style=flat-square) ![AppVersion: 2022.09.2](https://img.shields.io/badge/AppVersion-2022.09.2-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -214,7 +214,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | hostname | string | `""` | hostname of pod |
 | image.pullPolicy | string | `"IfNotPresent"` | the pull policy |
 | image.repository | string | `"pihole/pihole"` | the repostory to pull the image from |
-| image.tag | string | `"2022.07.1"` | the docker tag, if left empty it will get it from the chart's appVersion |
+| image.tag | string | `"2022.09.4"` | the docker tag, if left empty it will get it from the chart's appVersion |
 | ingress | object | `{"annotations":{},"enabled":false,"hosts":["chart-example.local"],"path":"/","tls":[]}` | Configuration for the Ingress |
 | ingress.annotations | object | `{}` | Annotations for the ingress |
 | ingress.enabled | bool | `false` | Generate a Ingress resource |
@@ -226,7 +226,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | monitoring.sidecar | object | `{"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"ekofr/pihole-exporter","tag":"0.0.10"},"port":9617,"resources":{"limits":{"cpu":"200m","memory":"512Mi"},"requests":{"cpu":"300m","memory":"256Mi"}}}` | Sidecar configuration |
 | monitoring.sidecar.enabled | bool | `false` | set this to true to enable podMonitor as sidecar |
 | nodeSelector | object | `{}` |  |
-| persistentVolumeClaim | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":true,"size":"500Mi"}` | `spec.PersitentVolumeClaim` configuration |
+| persistentVolumeClaim | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":true,"size":"500Mi","storageClass":"longhorn"}` | `spec.PersitentVolumeClaim` configuration |
 | persistentVolumeClaim.annotations | object | `{}` | Annotations for the `PersitentVolumeClaim` |
 | persistentVolumeClaim.enabled | bool | `true` | set to true to use pvc |
 | persistentVolumeClaim.enabled | bool | `true` | set to true to use pvc |
@@ -298,7 +298,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | Name | Email | Url |
 | ---- | ------ | --- |
 | MoJo2600 | <christian.erhardt@mojo2k.de> |  |
-| MoJo2600 | <christian.erhardt@mojo2k.de> |  |
+| dfoulkes | <danfoulkes@gmail.com> |  |
 
 ## Remarks
 
