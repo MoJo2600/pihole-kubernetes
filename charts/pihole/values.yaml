@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 # -- The number of replicas
-replicaCount: 1
+replicaCount: 2
 
 # -- The `spec.strategyTpye` for updates
 strategyType: RollingUpdate
