@@ -284,7 +284,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | Name | Email | Url |
 | ---- | ------ | --- |
 | MoJo2600 | <christian.erhardt@mojo2k.de> |  |
-| MoJo2600 | <christian.erhardt@mojo2k.de> |  |
+| dfoulkes | <danfoulkes@gmail.com> |  |
 
 ## Remarks
 
