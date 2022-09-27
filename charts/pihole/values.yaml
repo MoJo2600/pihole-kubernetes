@@ -18,7 +18,7 @@ image:
   # -- the repostory to pull the image from
   repository: "pihole/pihole"
   # -- the docker tag, if left empty it will get it from the chart's appVersion
-  tag: "2022.09.2"
+  tag: "2022.09.4"
   # -- the pull policy
   pullPolicy: IfNotPresent
 
@@ -57,8 +57,8 @@ serviceDns:
 
   # -- Annotations for the DNS service
   annotations: #{"metallb.universe.tf/allow-shared-ip": "pihole-svc"}
-     metallb.universe.tf/address-pool: "first-pool"
-     metallb.universe.tf/allow-shared-ip: "pihole-svc"
+    {"metallb.universe.tf/address-pool":"first-pool",
+     "metallb.universe.tf/allow-shared-ip": "pihole-svc"}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -206,6 +206,7 @@ persistentVolumeClaim:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
+  storageClass: "longhorn"
   storageClass: "longhorn"
 
   ## If subPath is set mount a sub folder of a volume instead of the root of the volume.
