@@ -4,7 +4,7 @@ home: https://github.com/dfoulkes/pihole-kubernetes/tree/master/charts/pihole
 name: pihole
 
 appVersion: "2022.09.2"
-version: 3.0.1
+version: 3.0.2
 
 sources:
   - https://github.com/dfoulkes/pihole-kubernetes/tree/master/charts/pihole
