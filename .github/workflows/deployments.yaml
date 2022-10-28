@@ -15,10 +15,23 @@ jobs:
       id-token: 'write'
 
     steps:
+    
+    - name:  step check if release exists
+      run: | 
+           STATUS=$(helm status pihole -n pihole || echo "NOT_FOUND")
+           NOT_FOUND="release: not found"
+           if [[ "$STATUS" == *"NOT_FOUND"* ]]; then
+               echo "deployed=false" >> $GITHUB_ENV
+           fi
     # Run deployment manifesto
     - name: Check out repository code
       uses: actions/checkout@v3
-      
-    - name: 'Deploy'
-      run: helm upgrade --namespace pihole -f ./charts/pihole/values.yaml pihole ./charts/pihole
         
+    - name: Deploy if release does not exist the deploy release 
+      if: env.deployed 
+      run: helm upgrade --namespace pihole -f ./charts/pihole/values.yaml pihole ./charts/pihole
+   
+    - name: if release exists then upgrade 
+      if: false == env.deployed
+      run: helm upgrade blog ./infra/ -f ./infra/values.yaml  --namespace blog --set image.tag=${{ env.app-version }}
+
