@@ -18,7 +18,7 @@ image:
   # -- the repostory to pull the image from
   repository: "pihole/pihole"
   # -- the docker tag, if left empty it will get it from the chart's appVersion
-  tag: "2022.09.4"
+  tag: "2022.10"
   # -- the pull policy
   pullPolicy: IfNotPresent
 
@@ -75,7 +75,7 @@ serviceDhcp:
   externalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the DHCP Service
-  loadBalancerIP: "192.168.50.21"
+  loadBalancerIP: "10.39.113.23"
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service
   loadBalancerIPv6: ""
 
@@ -112,7 +112,7 @@ serviceWeb:
   externalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the web interface Service
-  loadBalancerIP: "192.168.50.21"
+  loadBalancerIP: "10.39.113.23"
   # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service
   loadBalancerIPv6: ""
 
@@ -241,9 +241,9 @@ extraEnvVarsSecret: {}
   #   key: secret-key
 
 # -- default upstream DNS 1 server to use
-DNS1: "192.168.50.1"
+DNS1: "172.64.36.1"
 # -- default upstream DNS 2 server to use
-DNS2: "192.168.50.1"
+DNS2: "172.64.36.2"
 
 antiaff:
   # -- set to true to enable antiaffinity (example: 2 pihole DNS in the same cluster)
