@@ -51,7 +51,7 @@ serviceDns:
   externalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the DNS Service
-  loadBalancerIP: "192.168.50.21"
+  loadBalancerIP: "10.39.113.23"
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service
   loadBalancerIPv6: ""
 
