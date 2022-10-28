@@ -33,5 +33,5 @@ jobs:
    
     - name: if release exists then upgrade 
       if: false == env.deployed
-      run: helm upgrade blog ./infra/ -f ./infra/values.yaml  --namespace blog --set image.tag=${{ env.app-version }}
+      run: helm upgrade pihole  -f ./charts/pihole/values.yaml --namespace pihole ./charts/pihole
 
