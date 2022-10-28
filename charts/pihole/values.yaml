@@ -18,7 +18,7 @@ image:
   # -- the repostory to pull the image from
   repository: "pihole/pihole"
   # -- the docker tag, if left empty it will get it from the chart's appVersion
-  tag: "2022.09.4"
+  tag: "2022.10"
   # -- the pull policy
   pullPolicy: IfNotPresent
 
@@ -120,7 +120,7 @@ serviceWeb:
   #  externalTrafficPolicy: Local
   externalTrafficPolicy: Local
   # -- A fixed `spec.loadBalancerIP` for the web interface Service
-  loadBalancerIP: "192.168.50.21"
+  loadBalancerIP: "10.39.113.23"
   # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service
   loadBalancerIPv6: ""
 
