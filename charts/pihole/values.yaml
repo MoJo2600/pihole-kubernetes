@@ -57,7 +57,7 @@ serviceDns:
 
   # -- Annotations for the DNS service
   annotations: #{"metallb.universe.tf/allow-shared-ip": "pihole-svc"}
-    {"metallb.universe.tf/address-pool":"first-pool",
+    {"metallb.universe.tf/address-pool":"default",
      "metallb.universe.tf/allow-shared-ip": "pihole-svc"}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
@@ -81,7 +81,7 @@ serviceDhcp:
 
   # -- Annotations for the DHCP service
   annotations: #{"metallb.universe.tf/allow-shared-ip": "pihole-svc"}
-    {"metallb.universe.tf/address-pool":"first-pool",
+    {"metallb.universe.tf/address-pool":"default",
     "metallb.universe.tf/allow-shared-ip": "pihole-svc"}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
@@ -118,7 +118,7 @@ serviceWeb:
 
   # -- Annotations for the DHCP service
   annotations: #{"metallb.universe.tf/allow-shared-ip": "pihole-svc"}
-    {"metallb.universe.tf/address-pool":"first-pool",
+    {"metallb.universe.tf/address-pool":"default",
     "metallb.universe.tf/allow-shared-ip": "pihole-svc"}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
