@@ -27,9 +27,9 @@ jobs:
     - name: Check out repository code
       uses: actions/checkout@v3
         
-    - name: Deploy if release does not exist the deploy release 
+    - name: if pihole helm release does not exist then install
       if: env.deployed 
-      run: helm upgrade --namespace pihole -f ./charts/pihole/values.yaml pihole ./charts/pihole
+      run: helm install --namespace pihole -f ./charts/pihole/values.yaml pihole ./charts/pihole
    
     - name: if release exists then upgrade 
       if: false == env.deployed
