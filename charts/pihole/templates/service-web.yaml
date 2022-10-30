@@ -22,6 +22,13 @@ spec:
   {{- if .Values.serviceWeb.loadBalancerIP }}
   loadBalancerIP: {{ .Values.serviceWeb.loadBalancerIP }}
   {{- end }}
+  {{- if .Values.serviceWeb.clusterIP }}
+  clusterIP: {{ .Values.serviceWeb.clusterIP }}
+  {{- end }}
+  {{- if .Values.serviceWeb.clusterIPs }}
+  clusterIPs:
+    {{- toYaml .Values.serviceWeb.clusterIPs | indent 4 }}
+  {{- end }}
   {{- if or (eq .Values.serviceWeb.type "NodePort") (eq .Values.serviceWeb.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceWeb.externalTrafficPolicy }}
   {{- end }}
@@ -74,6 +81,9 @@ spec:
   ipFamilyPolicy: SingleStack
   {{- if .Values.serviceWeb.loadBalancerIPv6 }}
   loadBalancerIP: {{ .Values.serviceWeb.loadBalancerIPv6 }}
+  {{- end }}
+  {{- if .Values.serviceWeb.clusterIPv6 }}
+  clusterIP: {{ .Values.serviceWeb.clusterIPv6 }}
   {{- end }}
   {{- if or (eq .Values.serviceWeb.type "NodePort") (eq .Values.serviceWeb.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceWeb.externalTrafficPolicy }}
