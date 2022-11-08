@@ -28,7 +28,7 @@ spec:
   {{- end }}
   {{- if .Values.serviceDns.clusterIPs }}
   clusterIPs:
-    {{- toYaml .Values.serviceDns.clusterIPs | indent 4 }}
+    {{- toYaml .Values.serviceDns.clusterIPs | nindent 4 }}
   {{- end }}
   {{- if or (eq .Values.serviceDns.type "NodePort") (eq .Values.serviceDns.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceDns.externalTrafficPolicy }}
