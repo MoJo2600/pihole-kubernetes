@@ -80,6 +80,9 @@ spec:
   {{- if .Values.serviceDns.clusterIPv6 }}
   clusterIP: {{ .Values.serviceDns.clusterIPv6 }}
   {{- end }}
+  {{- if .Values.serviceDns.loadBalancerIPv6 }}
+  loadBalancerIP: {{ .Values.serviceDns.loadBalancerIPv6 }}
+  {{- end }}
   {{- if .Values.serviceDns.clusterIPs }}
   clusterIPs:
     {{- .Values.serviceDns.clusterIPs | indent 4 }}
