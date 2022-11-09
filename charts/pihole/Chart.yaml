@@ -3,7 +3,7 @@ description: Installs pihole in kubernetes
 home: https://github.com/MoJo2600/pihole-kubernetes/tree/master/charts/pihole
 name: pihole
 appVersion: "2022.09.1"
-version: 2.9.6
+version: 2.9.7
 sources:
   - https://github.com/MoJo2600/pihole-kubernetes/tree/master/charts/pihole
   - https://pi-hole.net/

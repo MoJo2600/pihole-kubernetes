@@ -19,6 +19,10 @@ spec:
   - IPv4
   - IPv6
   ipFamilyPolicy: PreferDualStack
+  {{- else }}
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
   {{- end }}
   {{- if .Values.serviceDns.loadBalancerIP }}
   loadBalancerIP: {{ .Values.serviceDns.loadBalancerIP }}
