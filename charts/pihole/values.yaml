@@ -36,7 +36,7 @@ dnsHostPort:
 serviceDns:
 
   # -- deploys a mixed (TCP + UDP) Service instead of separate ones
-  mixedService: false
+  mixedService: true
 
   # -- `spec.type` for the DNS Service
   type: LoadBalancer
@@ -45,20 +45,20 @@ serviceDns:
   port: 53
 
   # -- Optional node port for the DNS service
-  nodePort: ""
+  #nodePort: ""
 
   # -- `spec.externalTrafficPolicy` for the DHCP Service
+  # externalTrafficPolicy: Local
   externalTrafficPolicy: Local
-
   # -- A fixed `spec.loadBalancerIP` for the DNS Service
-  loadBalancerIP: "10.39.113.23"
+  loadBalancerIP: "192.168.50.22"
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service
   loadBalancerIPv6: ""
 
   # -- Annotations for the DNS service
   annotations: #{"metallb.universe.tf/allow-shared-ip": "pihole-svc"}
-    {"metallb.universe.tf/address-pool":"default",
-     "metallb.universe.tf/allow-shared-ip": "pihole-svc"}
+     metallb.universe.tf/address-pool: "first-pool"
+     metallb.universe.tf/allow-shared-ip: "pihole-svc"
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -66,23 +66,25 @@ serviceDns:
 serviceDhcp:
 
   # -- Generate a Service resource for DHCP traffic
-  enabled: true
+  enabled: false
 
   # -- `spec.type` for the DHCP Service
   type: LoadBalancer
 
   # -- `spec.externalTrafficPolicy` for the DHCP Service
+  #externalTrafficPolicy: Local
   externalTrafficPolicy: Local
-
   # -- A fixed `spec.loadBalancerIP` for the DHCP Service
-  loadBalancerIP: "10.39.113.23"
+  loadBalancerIP: "192.168.50.23"
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service
   loadBalancerIPv6: ""
 
   # -- Annotations for the DHCP service
   annotations: #{"metallb.universe.tf/allow-shared-ip": "pihole-svc"}
-    {"metallb.universe.tf/address-pool":"default",
-    "metallb.universe.tf/allow-shared-ip": "pihole-svc"}
+     metallb.universe.tf/address-pool: "first-pool"
+     metallb.universe.tf/allow-shared-ip: "pihole-svc"
+    #  "service.kubernetes.io/external-traffic": "OnlyLocal",
+    
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -109,17 +111,17 @@ serviceWeb:
   type: LoadBalancer
 
   # -- `spec.externalTrafficPolicy` for the web interface Service
+  #  externalTrafficPolicy: Local
   externalTrafficPolicy: Local
-
   # -- A fixed `spec.loadBalancerIP` for the web interface Service
-  loadBalancerIP: "10.39.113.23"
+  loadBalancerIP: "192.168.50.21"
   # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service
   loadBalancerIPv6: ""
 
   # -- Annotations for the DHCP service
   annotations: #{"metallb.universe.tf/allow-shared-ip": "pihole-svc"}
-    {"metallb.universe.tf/address-pool":"default",
-    "metallb.universe.tf/allow-shared-ip": "pihole-svc"}
+    metallb.universe.tf/address-pool: "first-pool"
+    metallb.universe.tf/allow-shared-ip: "pihole-svc"
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -134,13 +136,14 @@ ingress:
   # ingressClassName: nginx
 
   # -- Annotations for the ingress
-  annotations: {}
+  annotations:
+    kubernetes.io/ingress.class: traefik
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
-  path: /
+  path: /admin
   hosts:
     # virtualHost (default value is pi.hole) will be appended to the hosts
-    - chart-example.local
+    - pihole.10.39.113.208.nip.io
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -178,7 +181,7 @@ resources: {}
 # -- `spec.PersitentVolumeClaim` configuration
 persistentVolumeClaim:
   # -- set to true to use pvc
-  enabled: true
+  enabled: false
 
   # -- specify an existing `PersistentVolumeClaim` to use
   # existingClaim: ""
@@ -189,7 +192,7 @@ persistentVolumeClaim:
   accessModes:
     - ReadWriteOnce
 
-  size: "500Mi"
+  size: "4098Mi"
 
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
