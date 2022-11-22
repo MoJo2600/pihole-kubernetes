@@ -92,6 +92,10 @@ podDnsConfig:
 
 ## Upgrading
 
+### To 3.0.0
+
+TODO
+
 ### To 2.0.0
 
 This version splits the DHCP service into its own resource and puts the configuration to `serviceDhcp`.
