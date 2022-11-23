@@ -201,6 +201,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | dualStack.enabled | bool | `false` | set this to true to enable creation of DualStack services or creation of separate IPv6 services if `serviceDns.type` is set to `"LoadBalancer"` |
 | extraEnvVars | object | `{}` | extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use |
 | extraEnvVarsSecret | object | `{}` | extraEnvVarsSecret is a list of secrets to load in as environment variables. |
+| extraObjects | list | `[]` | any extra kubernetes manifests you might want |
 | extraVolumeMounts | object | `{}` | any extra volume mounts you might want |
 | extraVolumes | object | `{}` | any extra volumes you might want |
 | ftl | object | `{}` | values that should be added to pihole-FTL.conf |
