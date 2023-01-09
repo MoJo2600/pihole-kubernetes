@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 # -- The number of replicas
-replicaCount: 1
+replicaCount: 3
 
 # -- The `spec.strategyTpye` for updates
 strategyType: RollingUpdate
@@ -130,7 +130,7 @@ virtualHost: pi.hole
 # -- Configuration for the Ingress
 ingress:
   # -- Generate a Ingress resource
-  enabled: false
+  enabled: true
 
   # -- Specify an ingressClassName
   # ingressClassName: nginx
@@ -170,13 +170,13 @@ probes:
 # -- choice for the user. This also increases chances charts run on environments with little
 # -- resources, such as Minikube. If you do want to specify resources, uncomment the following
 # -- lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-resources: {}
-  # limits:
-  #  cpu: 100m
-  #  memory: 128Mi
-  # requests:
-  #  cpu: 100m
-  #  memory: 128Mi
+resources: 
+   limits:
+    cpu: 500m
+    memory: 256Mi
+   requests:
+    cpu: 1000m
+    memory: 512Mi
 
 # -- `spec.PersitentVolumeClaim` configuration
 persistentVolumeClaim:
@@ -327,7 +327,6 @@ adlists:
    - https://reddestdream.github.io/Projects/MinimalHosts/etc/MinimalHostsBlocker/minimalhosts
    - https://raw.githubusercontent.com/r-a-y/mobile-hosts/master/AdguardMobileSpyware.txt
    - https://raw.githubusercontent.com/blocklistproject/Lists/master/phishing.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/WindowsSpyBlocker81.txt
    - https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt
    - https://raw.githubusercontent.com/pirat28/IHateTracker/master/iHateTracker.txt
    - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/CryptoWall-Ransomware-C2-Domain-blocklist.txt
