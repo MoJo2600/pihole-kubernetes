@@ -186,7 +186,7 @@ spec:
           {{- if .Values.probes.liveness.enabled }}
           livenessProbe:
             httpGet:
-              path: /admin.index.php
+              path: /admin/index.php
               port: {{ .Values.probes.liveness.port }}
               scheme: {{ .Values.probes.liveness.scheme }}
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
@@ -196,7 +196,7 @@ spec:
           {{- if .Values.probes.readiness.enabled }}
           readinessProbe:
             httpGet:
-              path: /admin.index.php
+              path: /admin/index.php
               port: {{ .Values.probes.readiness.port }}
               scheme: {{ .Values.probes.readiness.scheme }}
             initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
