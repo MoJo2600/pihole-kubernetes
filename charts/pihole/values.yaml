@@ -149,7 +149,7 @@ ingress:
   path: /admin
   hosts:
     # virtualHost (default value is pi.hole) will be appended to the hosts
-    - pihole.10.39.113.208.nip.io
+    - pihole.192.168.50.21.nip.io
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -207,7 +207,6 @@ persistentVolumeClaim:
   ##   GKE, AWS & OpenStack)
   ##
   storageClass: "longhorn"
-  storageClass: "longhorn"
 
   ## If subPath is set mount a sub folder of a volume instead of the root of the volume.
   ## This is especially handy for volume plugins that don't natively support sub mounting (like glusterfs).
@@ -251,7 +250,7 @@ extraEnvVarsSecret: {}
   #   key: secret-key
 
 # -- default upstream DNS 1 server to use
-DNS1: "172.64.36.1"
+DNS1: "192.64.36.1"
 # -- default upstream DNS 2 server to use
 DNS2: "172.64.36.2"
 
