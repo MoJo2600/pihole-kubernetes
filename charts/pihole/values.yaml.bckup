@@ -3,13 +3,13 @@
 # Declare variables to be passed into your templates.
 
 # -- The number of replicas
-replicaCount: 1
+replicaCount: 3
 
 # -- The `spec.strategyTpye` for updates
 strategyType: RollingUpdate
 
 # -- The maximum number of Pods that can be created over the desired number of `ReplicaSet` during updating.
-maxSurge: 1
+maxSurge: 5
 
 # -- The maximum number of Pods that can be unavailable during updating
 maxUnavailable: 1
@@ -18,7 +18,7 @@ image:
   # -- the repostory to pull the image from
   repository: "pihole/pihole"
   # -- the docker tag, if left empty it will get it from the chart's appVersion
-  tag: "2023.02.2"
+  tag: "2022.12.2"
   # -- the pull policy
   pullPolicy: IfNotPresent
 
@@ -45,11 +45,11 @@ serviceDns:
   port: 53
 
   # -- Optional node port for the DNS service
-  nodePort: ""
+  #nodePort: ""
 
   # -- `spec.externalTrafficPolicy` for the DHCP Service
+  # externalTrafficPolicy: Local
   externalTrafficPolicy: Local
-
   # -- A fixed `spec.loadBalancerIP` for the DNS Service
   loadBalancerIP: "192.168.50.22"
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service
@@ -77,16 +77,18 @@ serviceDhcp:
   nodePort: ""
 
   # -- `spec.externalTrafficPolicy` for the DHCP Service
+  #externalTrafficPolicy: Local
   externalTrafficPolicy: Local
-
   # -- A fixed `spec.loadBalancerIP` for the DHCP Service
   loadBalancerIP: "192.168.50.23"
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service
   loadBalancerIPv6: ""
 
   # -- Annotations for the DHCP service
-  annotations: 
-    metallb.universe.tf/address-pool: "first-pool"
+  annotations: #{"metallb.universe.tf/allow-shared-ip": "pihole-svc"}
+     metallb.universe.tf/address-pool: "first-pool"
+    #  "service.kubernetes.io/external-traffic": "OnlyLocal",
+    
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -101,9 +103,6 @@ serviceWeb:
     # -- The port of the web HTTP service
     port: 80
 
-    # -- Optional node port for the web HTTP service
-    nodePort: ""
-
   # -- Configuration for the HTTPS web interface listener
   https:
     # -- Generate a service for HTTPS traffic
@@ -112,23 +111,20 @@ serviceWeb:
     # -- The port of the web HTTPS service
     port: 443
 
-    # -- Optional node port for the web HTTPS service
-    nodePort: ""
-
   # -- `spec.type` for the web interface Service
   type: LoadBalancer
 
   # -- `spec.externalTrafficPolicy` for the web interface Service
+  #  externalTrafficPolicy: Local
   externalTrafficPolicy: Local
-
   # -- A fixed `spec.loadBalancerIP` for the web interface Service
   loadBalancerIP: "192.168.50.21"
   # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service
   loadBalancerIPv6: ""
 
   # -- Annotations for the DHCP service
-  annotations:
-    metallb.universe.tf/address-pool: "first-pool"
+  annotations: #{"metallb.universe.tf/allow-shared-ip": "pihole-svc"}
+     metallb.universe.tf/address-pool: "first-pool"
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -147,7 +143,7 @@ ingress:
     kubernetes.io/ingress.class: traefik
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
-  path: /
+  path: /admin
   hosts:
     # virtualHost (default value is pi.hole) will be appended to the hosts
     - pihole.192.168.50.21.nip.io
@@ -166,16 +162,12 @@ probes:
     initialDelaySeconds: 60
     failureThreshold: 10
     timeoutSeconds: 5
-    port: http
-    scheme: HTTP
   readiness:
     # -- Generate a readiness probe
     enabled: true
     initialDelaySeconds: 60
     failureThreshold: 3
     timeoutSeconds: 5
-    port: http
-    scheme: HTTP
 
 # -- We usually recommend not to specify default resources and to leave this as a conscious
 # -- choice for the user. This also increases chances charts run on environments with little
@@ -276,7 +268,7 @@ doh:
   tag: latest
   pullPolicy: IfNotPresent
   # -- Here you can pass environment variables to the DoH container, for example:
-  envVars:
+  envVars: 
           TUNNEL_DNS_UPSTREAM: "https://aufvfbzgbj.cloudflare-gateway.com/dns-query"
 
   # -- Probes configuration
@@ -285,14 +277,6 @@ doh:
     liveness:
       # -- set to true to enable liveness probe
       enabled: true
-      # -- customize the liveness probe
-      probe:
-        exec:
-          command:
-            - nslookup
-            - -po=5053
-            - cloudflare.com
-            - '127.0.0.1'
       # -- defines the initial delay for the liveness probe
       initialDelaySeconds: 60
       # -- defines the failure threshold for the liveness probe
@@ -312,8 +296,8 @@ dnsmasq:
   # - address=/bar.foo/192.168.178.11
 
   # -- Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like
-  additionalHostsEntries:
-   - 192.168.50.1 
+  additionalHostsEntries: []
+  # - 192.168.0.3     host4
   # - 192.168.0.4     host5
 
   # -- Static DHCP config
@@ -341,26 +325,26 @@ dnsmasq:
   #   - cname=cname record,dns record
 
 # -- list of adlists to import during initial start of the container
-adlists: 
+adlists: #{}
+  # If you want to provide blocklists, add them here.
    - https://reddestdream.github.io/Projects/MinimalHosts/etc/MinimalHostsBlocker/minimalhosts
-   - https://raw.githubusercontent.com/r-a-y/mobile-hosts/master/AdguardMobileSpyware.txt
-   - https://raw.githubusercontent.com/blocklistproject/Lists/master/phishing.txt
-   - https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt
-   - https://raw.githubusercontent.com/pirat28/IHateTracker/master/iHateTracker.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/CryptoWall-Ransomware-C2-Domain-blocklist.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/Locky-Ransomware-C2-Domain-Blocklist.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/Ransomware-Domain-Blocklist.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TeslaCrypt-Ransomware-C2-Domain-Blocklist.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TeslaCrypt-Ransomware-Payment-Sites-Domain-Blocklist.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TorrentLocker-Ransomware-C2-Domain-Blocklist.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TorrentLocker-Ransomware-Payment-Sites-Domain-Blocklist.txt
-   - https://gitlab.com/Kurobeats/phishing_hosts/raw/master/hosts
-   - https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/master/src/hosts.txt
-   - https://raw.githubusercontent.com/blocklistproject/Lists/master/basic.txt
-   - https://raw.githubusercontent.com/blocklistproject/Lists/master/ads.txt
-   - https://raw.githubusercontent.com/blocklistproject/Lists/master/ransomware.txt
-   - https://raw.githubusercontent.com/blocklistproject/Lists/master/malware.txt
-
+  #  - https://raw.githubusercontent.com/r-a-y/mobile-hosts/master/AdguardMobileSpyware.txt
+  #  - https://raw.githubusercontent.com/blocklistproject/Lists/master/phishing.txt
+  #  - https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt
+  #  - https://raw.githubusercontent.com/pirat28/IHateTracker/master/iHateTracker.txt
+  #  - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/CryptoWall-Ransomware-C2-Domain-blocklist.txt
+  #  - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/Locky-Ransomware-C2-Domain-Blocklist.txt
+  #  - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/Ransomware-Domain-Blocklist.txt
+  #  - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TeslaCrypt-Ransomware-C2-Domain-Blocklist.txt
+  #  - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TeslaCrypt-Ransomware-Payment-Sites-Domain-Blocklist.txt
+  #  - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TorrentLocker-Ransomware-C2-Domain-Blocklist.txt
+  #  - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TorrentLocker-Ransomware-Payment-Sites-Domain-Blocklist.txt
+  #  - https://gitlab.com/Kurobeats/phishing_hosts/raw/master/hosts
+  #  - https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/master/src/hosts.txt
+  #  - https://raw.githubusercontent.com/blocklistproject/Lists/master/basic.txt
+  #  - https://raw.githubusercontent.com/blocklistproject/Lists/master/ads.txt
+  #  - https://raw.githubusercontent.com/blocklistproject/Lists/master/ransomware.txt
+  #  - https://raw.githubusercontent.com/blocklistproject/Lists/master/malware.txt
 # -- list of whitelisted domains to import during initial start of the container
 whitelist: {}
   # If you want to provide whitelisted domains, add them here.
@@ -416,39 +400,6 @@ extraVolumeMounts: {}
   #   mountPath: /etc/lighttpd/external.conf
   #   subPath: external.conf
 
-# -- any extra kubernetes manifests you might want
-extraObjects: []
-  # - apiVersion: v1
-  #   kind: ConfigMap
-  #   metadata:
-  #     name: pi-hole-lighttpd-external-conf
-  #   data:
-  #     external.conf: |
-  #       $HTTP["host"] =~ "example.foo" {
-  #         # If we're using a non-standard host for pihole, ensure the Pi-hole
-  #         # Block Page knows that this is not a blocked domain
-  #         setenv.add-environment = ("fqdn" => "true")
-  #
-  #         # Enable the SSL engine with a cert, only for this specific host
-  #         $SERVER["socket"] == ":443" {
-  #           ssl.engine = "enable"
-  #           ssl.pemfile = "/etc/ssl/lighttpd-private/tls.crt"
-  #           ssl.privkey = "/etc/ssl/lighttpd-private/tls.key"
-  #           ssl.ca-file = "/etc/ssl/lighttpd-private/ca.crt"
-  #           ssl.honor-cipher-order = "enable"
-  #           ssl.cipher-list = "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH"
-  #           ssl.use-sslv2 = "disable"
-  #           ssl.use-sslv3 = "disable"
-  #         }
-  #       }
-  #
-  #       # Redirect HTTP to HTTPS
-  #       $HTTP["scheme"] == "http" {
-  #         $HTTP["host"] =~ ".*" {
-  #           url.redirect = (".*" => "https://%0$0")
-  #         }
-  #       }
-
 # -- Additional annotations for pods
 podAnnotations: {}
   # Example below allows Prometheus to scape on metric port (requires pihole-exporter sidecar enabled)
@@ -467,19 +418,20 @@ monitoring:
     port: 9617
     image:
       repository: ekofr/pihole-exporter
-      tag: v0.3.0
+      tag: 0.0.10
       pullPolicy: IfNotPresent
     resources:
       limits:
-       cpu: 2000m
-       memory: 1024Mi
+        cpu: 2000m
+        memory: 1024Mi
       requests:
         cpu: 300m
         memory: 256Mi
+      #  memory: 128Mi
 
 podDnsConfig:
   enabled: true
   policy: "None"
   nameservers:
   - 127.0.0.1
-  - 8.8.8.8
+  - 1.1.1.1
