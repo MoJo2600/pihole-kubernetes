@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 3.0.0](https://img.shields.io/badge/Version-3.0.0-informational?style=flat-square) ![AppVersion: 2022.09.2](https://img.shields.io/badge/AppVersion-2022.09.2-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 3.0.3](https://img.shields.io/badge/Version-3.0.3-informational?style=flat-square) ![AppVersion: 2022.09.2](https://img.shields.io/badge/AppVersion-2022.09.2-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -163,9 +163,9 @@ The following table lists the configurable parameters of the pihole chart and th
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| DNS1 | string | `"192.168.50.1"` | default upstream DNS 1 server to use |
-| DNS2 | string | `"192.168.50.1"` | default upstream DNS 2 server to use |
-| adlists | list | `["https://reddestdream.github.io/Projects/MinimalHosts/etc/MinimalHostsBlocker/minimalhosts","https://raw.githubusercontent.com/r-a-y/mobile-hosts/master/AdguardMobileSpyware.txt","https://raw.githubusercontent.com/blocklistproject/Lists/master/phishing.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/WindowsSpyBlocker81.txt","https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt","https://raw.githubusercontent.com/pirat28/IHateTracker/master/iHateTracker.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/CryptoWall-Ransomware-C2-Domain-blocklist.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/Locky-Ransomware-C2-Domain-Blocklist.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/Ransomware-Domain-Blocklist.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TeslaCrypt-Ransomware-C2-Domain-Blocklist.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TeslaCrypt-Ransomware-Payment-Sites-Domain-Blocklist.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TorrentLocker-Ransomware-C2-Domain-Blocklist.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TorrentLocker-Ransomware-Payment-Sites-Domain-Blocklist.txt","https://gitlab.com/Kurobeats/phishing_hosts/raw/master/hosts","https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/master/src/hosts.txt","https://raw.githubusercontent.com/blocklistproject/Lists/master/basic.txt","https://raw.githubusercontent.com/blocklistproject/Lists/master/ads.txt","https://raw.githubusercontent.com/blocklistproject/Lists/master/ransomware.txt","https://raw.githubusercontent.com/blocklistproject/Lists/master/malware.txt"]` | list of adlists to import during initial start of the container |
+| DNS1 | string | `"172.64.36.1"` | default upstream DNS 1 server to use |
+| DNS2 | string | `"172.64.36.2"` | default upstream DNS 2 server to use |
+| adlists | list | `["https://reddestdream.github.io/Projects/MinimalHosts/etc/MinimalHostsBlocker/minimalhosts","https://raw.githubusercontent.com/r-a-y/mobile-hosts/master/AdguardMobileSpyware.txt","https://raw.githubusercontent.com/blocklistproject/Lists/master/phishing.txt","https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt","https://raw.githubusercontent.com/pirat28/IHateTracker/master/iHateTracker.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/CryptoWall-Ransomware-C2-Domain-blocklist.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/Locky-Ransomware-C2-Domain-Blocklist.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/Ransomware-Domain-Blocklist.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TeslaCrypt-Ransomware-C2-Domain-Blocklist.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TeslaCrypt-Ransomware-Payment-Sites-Domain-Blocklist.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TorrentLocker-Ransomware-C2-Domain-Blocklist.txt","https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TorrentLocker-Ransomware-Payment-Sites-Domain-Blocklist.txt","https://gitlab.com/Kurobeats/phishing_hosts/raw/master/hosts","https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/master/src/hosts.txt","https://raw.githubusercontent.com/blocklistproject/Lists/master/basic.txt","https://raw.githubusercontent.com/blocklistproject/Lists/master/ads.txt","https://raw.githubusercontent.com/blocklistproject/Lists/master/ransomware.txt","https://raw.githubusercontent.com/blocklistproject/Lists/master/malware.txt"]` | list of adlists to import during initial start of the container |
 | admin | object | `{"existingSecret":"","passwordKey":"password"}` | Use an existing secret for the admin password. |
 | admin.existingSecret | string | `""` | Specify an existing secret to use as admin password |
 | admin.passwordKey | string | `"password"` | Specify the key inside the secret to use |
@@ -207,18 +207,18 @@ The following table lists the configurable parameters of the pihole chart and th
 | hostname | string | `""` | hostname of pod |
 | image.pullPolicy | string | `"IfNotPresent"` | the pull policy |
 | image.repository | string | `"pihole/pihole"` | the repostory to pull the image from |
-| image.tag | string | `"2022.09.4"` | the docker tag, if left empty it will get it from the chart's appVersion |
-| ingress | object | `{"annotations":{},"enabled":false,"hosts":["chart-example.local"],"path":"/","tls":[]}` | Configuration for the Ingress |
-| ingress.annotations | object | `{}` | Annotations for the ingress |
-| ingress.enabled | bool | `false` | Generate a Ingress resource |
-| maxSurge | int | `1` | The maximum number of Pods that can be created over the desired number of `ReplicaSet` during updating. |
+| image.tag | string | `"2023.02.2"` | the docker tag, if left empty it will get it from the chart's appVersion |
+| ingress | object | `{"annotations":{"kubernetes.io/ingress.class":"traefik"},"enabled":true,"hosts":["pihole.10.39.113.208.nip.io"],"path":"/admin","tls":[]}` | Configuration for the Ingress |
+| ingress.annotations | object | `{"kubernetes.io/ingress.class":"traefik"}` | Annotations for the ingress |
+| ingress.enabled | bool | `true` | Generate a Ingress resource |
+| maxSurge | int | `5` | The maximum number of Pods that can be created over the desired number of `ReplicaSet` during updating. |
 | maxUnavailable | int | `1` | The maximum number of Pods that can be unavailable during updating |
 | monitoring.podMonitor | object | `{"enabled":false}` | Preferably adding prometheus scrape annotations rather than enabling podMonitor. |
 | monitoring.podMonitor.enabled | bool | `false` | set this to true to enable podMonitor |
 | monitoring.sidecar | object | `{"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"ekofr/pihole-exporter","tag":"0.0.10"},"port":9617,"resources":{"limits":{"cpu":"200m","memory":"512Mi"},"requests":{"cpu":"300m","memory":"256Mi"}}}` | Sidecar configuration |
 | monitoring.sidecar.enabled | bool | `false` | set this to true to enable podMonitor as sidecar |
 | nodeSelector | object | `{}` |  |
-| persistentVolumeClaim | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":true,"size":"500Mi","storageClass":"longhorn"}` | `spec.PersitentVolumeClaim` configuration |
+| persistentVolumeClaim | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":true,"size":"4098Mi","storageClass":"longhorn"}` | `spec.PersitentVolumeClaim` configuration |
 | persistentVolumeClaim.annotations | object | `{}` | Annotations for the `PersitentVolumeClaim` |
 | persistentVolumeClaim.enabled | bool | `true` | set to true to use pvc |
 | podAnnotations | object | `{}` | Additional annotations for pods |
@@ -232,26 +232,25 @@ The following table lists the configurable parameters of the pihole chart and th
 | probes.readiness.enabled | bool | `true` | Generate a readiness probe |
 | regex | object | `{}` | list of blacklisted regex expressions to import during initial start of the container |
 | replicaCount | int | `1` | The number of replicas |
-| resources | object | `{}` | lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
-| serviceDhcp | object | `{"annotations":{"metallb.universe.tf/address-pool":"first-pool","metallb.universe.tf/allow-shared-ip":"pihole-svc"},"enabled":true,"externalTrafficPolicy":"Local","loadBalancerIP":"192.168.50.21","loadBalancerIPv6":"","type":"LoadBalancer"}` | Configuration for the DHCP service on port 67 |
+| resources | object | `{"limits":{"cpu":"3000m","memory":"1024Mi"},"requests":{"cpu":"500m","memory":"512Mi"}}` | lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
+| serviceDhcp | object | `{"annotations":{"metallb.universe.tf/address-pool":"first-pool","metallb.universe.tf/allow-shared-ip":"pihole-svc"},"enabled":false,"externalTrafficPolicy":"Local","loadBalancerIP":"192.168.50.23","loadBalancerIPv6":"","type":"LoadBalancer"}` | Configuration for the DHCP service on port 67 |
 | serviceDhcp.annotations | object | `{"metallb.universe.tf/address-pool":"first-pool","metallb.universe.tf/allow-shared-ip":"pihole-svc"}` | Annotations for the DHCP service |
-| serviceDhcp.enabled | bool | `true` | Generate a Service resource for DHCP traffic |
-| serviceDhcp.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
-| serviceDhcp.loadBalancerIP | string | `"192.168.50.21"` | A fixed `spec.loadBalancerIP` for the DHCP Service |
+| serviceDhcp.enabled | bool | `false` | Generate a Service resource for DHCP traffic |
+| serviceDhcp.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service externalTrafficPolicy: Local |
+| serviceDhcp.loadBalancerIP | string | `"192.168.50.23"` | A fixed `spec.loadBalancerIP` for the DHCP Service |
 | serviceDhcp.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service |
 | serviceDhcp.type | string | `"LoadBalancer"` | `spec.type` for the DHCP Service |
-| serviceDns | object | `{"annotations":{"metallb.universe.tf/address-pool":"first-pool","metallb.universe.tf/allow-shared-ip":"pihole-svc"},"externalTrafficPolicy":"Local","loadBalancerIP":"192.168.50.21","loadBalancerIPv6":"","mixedService":false,"nodePort":"","port":53,"type":"LoadBalancer"}` | Configuration for the DNS service on port 53 |
+| serviceDns | object | `{"annotations":{"metallb.universe.tf/address-pool":"first-pool","metallb.universe.tf/allow-shared-ip":"pihole-svc"},"externalTrafficPolicy":"Local","loadBalancerIP":"192.168.50.22","loadBalancerIPv6":"","mixedService":true,"port":53,"type":"LoadBalancer"}` | Configuration for the DNS service on port 53 |
 | serviceDns.annotations | object | `{"metallb.universe.tf/address-pool":"first-pool","metallb.universe.tf/allow-shared-ip":"pihole-svc"}` | Annotations for the DNS service |
-| serviceDns.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
-| serviceDns.loadBalancerIP | string | `"192.168.50.21"` | A fixed `spec.loadBalancerIP` for the DNS Service |
+| serviceDns.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service externalTrafficPolicy: Local |
+| serviceDns.loadBalancerIP | string | `"192.168.50.22"` | A fixed `spec.loadBalancerIP` for the DNS Service |
 | serviceDns.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 DNS Service |
-| serviceDns.mixedService | bool | `false` | deploys a mixed (TCP + UDP) Service instead of separate ones |
-| serviceDns.nodePort | string | `""` | Optional node port for the DNS service |
+| serviceDns.mixedService | bool | `true` | deploys a mixed (TCP + UDP) Service instead of separate ones |
 | serviceDns.port | int | `53` | The port of the DNS service |
 | serviceDns.type | string | `"LoadBalancer"` | `spec.type` for the DNS Service |
 | serviceWeb | object | `{"annotations":{"metallb.universe.tf/address-pool":"first-pool","metallb.universe.tf/allow-shared-ip":"pihole-svc"},"externalTrafficPolicy":"Local","http":{"enabled":true,"port":80},"https":{"enabled":true,"port":443},"loadBalancerIP":"192.168.50.21","loadBalancerIPv6":"","type":"LoadBalancer"}` | Configuration for the web interface service |
 | serviceWeb.annotations | object | `{"metallb.universe.tf/address-pool":"first-pool","metallb.universe.tf/allow-shared-ip":"pihole-svc"}` | Annotations for the DHCP service |
-| serviceWeb.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the web interface Service |
+| serviceWeb.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the web interface Service  externalTrafficPolicy: Local |
 | serviceWeb.http | object | `{"enabled":true,"port":80}` | Configuration for the HTTP web interface listener |
 | serviceWeb.http.enabled | bool | `true` | Generate a service for HTTP traffic |
 | serviceWeb.http.port | int | `80` | The port of the web HTTP service |
