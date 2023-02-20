@@ -174,6 +174,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | antiaff.avoidRelease | string | `"pihole1"` | Here you can set the pihole release (you set in `helm install <releasename> ...`) you want to avoid |
 | antiaff.enabled | bool | `false` | set to true to enable antiaffinity (example: 2 pihole DNS in the same cluster) |
 | antiaff.strict | bool | `true` | Here you can choose between preferred or required |
+| antiaff.namespaces | '[]' | list of namespaces to include in anti-affinity settings
 | blacklist | object | `{}` | list of blacklisted domains to import during initial start of the container |
 | customVolumes.config | object | `{}` | any volume type can be used here |
 | customVolumes.enabled | bool | `false` | set this to true to enable custom volumes |
