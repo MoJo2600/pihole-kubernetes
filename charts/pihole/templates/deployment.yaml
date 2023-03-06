@@ -53,6 +53,10 @@ spec:
                   operator: In
                   values:
                   - {{ .Values.antiaff.avoidRelease }}
+        {{- if .Values.antiaff.namespaces}}
+              namespaces:
+              {{- toYaml .Values.antiaff.namespaces | nindent 14 }}
+        {{- end }}
               topologyKey: "kubernetes.io/hostname"
       {{- end }}
       {{- if .Values.podDnsConfig.enabled }}

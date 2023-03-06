@@ -263,6 +263,8 @@ antiaff:
   avoidRelease: pihole1
   # -- Here you can choose between preferred or required
   strict: true
+  # -- Here you can pass namespaces to be part of those inclueded in anti-affinity
+  namespaces: []
 
 doh:
   # -- set to true to enabled DNS over HTTPs via cloudflared
