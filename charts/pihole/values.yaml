@@ -18,7 +18,7 @@ image:
   # -- the repostory to pull the image from
   repository: "pihole/pihole"
   # -- the docker tag, if left empty it will get it from the chart's appVersion
-  tag: "2023.02.2"
+  tag: "2023.03.1"
   # -- the pull policy
   pullPolicy: IfNotPresent
 
@@ -313,7 +313,7 @@ dnsmasq:
 
   # -- Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like
   additionalHostsEntries:
-   - 192.168.50.1 
+  # - 192.168.50.1 
   # - 192.168.0.4     host5
 
   # -- Static DHCP config
@@ -360,6 +360,9 @@ adlists:
    - https://raw.githubusercontent.com/blocklistproject/Lists/master/ads.txt
    - https://raw.githubusercontent.com/blocklistproject/Lists/master/ransomware.txt
    - https://raw.githubusercontent.com/blocklistproject/Lists/master/malware.txt
+   - https://blocklistproject.github.io/Lists/fraud.txt
+   - https://blocklistproject.github.io/Lists/scam.txt
+   - https://blocklistproject.github.io/Lists/porn.txt
 
 # -- list of whitelisted domains to import during initial start of the container
 whitelist: {}
