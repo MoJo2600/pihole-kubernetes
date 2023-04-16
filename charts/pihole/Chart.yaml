@@ -3,8 +3,8 @@ description: Installs pihole in kubernetes
 home: https://github.com/dfoulkes/pihole-kubernetes/tree/master/charts/pihole
 name: pihole
 
-appVersion: "2022.09.2"
-version: 2.3.0
+appVersion: "2023.03.1"
+version: 2.4.0
 
 sources:
   - https://github.com/dfoulkes/pihole-kubernetes/tree/master/charts/pihole
