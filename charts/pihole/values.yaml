@@ -380,7 +380,7 @@ hostNetwork: "false"
 privileged: "false"
 
 # linux capabilities container should run with
-capabilities: []
+capabilities: {}
   # add:
   # - NET_ADMIN
 
