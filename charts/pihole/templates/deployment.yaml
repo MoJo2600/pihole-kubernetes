@@ -68,6 +68,9 @@ spec:
       hostname: {{ .Values.hostname }}
       hostNetwork: {{ .Values.hostNetwork }}
       containers:
+        {{- if .Values.extraContainers }}
+        {{- toYaml .Values.extraContainers | nindent 8 }}
+        {{- end }}
         {{- if .Values.monitoring.sidecar.enabled }}
         - name: exporter
           image: "{{ .Values.monitoring.sidecar.image.repository }}:{{ .Values.monitoring.sidecar.image.tag }}"
