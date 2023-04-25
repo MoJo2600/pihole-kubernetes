@@ -399,6 +399,21 @@ extraVolumeMounts: {}
   #   mountPath: /etc/lighttpd/external.conf
   #   subPath: external.conf
 
+extraContainers: []
+  # - name: pihole-logwatcher
+  #   image: your-registry/pihole-logwatcher
+  #   imagePullPolicy: Always
+  #   resources:
+  #     requests:
+  #       cpu: 100m
+  #       memory: 5Mi
+  #     limits:
+  #       cpu: 100m
+  #       memory: 5Mi
+  #   volumeMounts:
+  #   - name: pihole-logs
+  #     mountPath: /var/log/pihole 
+
 # -- any extra kubernetes manifests you might want
 extraObjects: []
   # - apiVersion: v1
