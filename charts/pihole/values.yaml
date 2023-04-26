@@ -158,6 +158,12 @@ probes:
   # -- probes.liveness -- Configure the healthcheck for the ingress controller
   liveness:
     # -- Generate a liveness probe
+    # 'type' defaults to httpGet, can be set to 'command' to use a command type liveness probe.
+    type: httpGet
+    # command:
+    #   - /bin/bash
+    #   - -c
+    #   - /bin/true
     enabled: true
     initialDelaySeconds: 60
     failureThreshold: 10
