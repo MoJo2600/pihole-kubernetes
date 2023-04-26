@@ -193,13 +193,19 @@ spec:
             protocol: UDP
           {{- if .Values.probes.liveness.enabled }}
           livenessProbe:
+            {{- if eq .Values.probes.liveness.type "command" }}
+            exec:
+              command: {{ .Values.probes.liveness.command | required "An array of command(s) is required if 'type' is set to 'command'." | toYaml | nindent 16 }}
+            {{- else }}
             httpGet:
               path: /admin/index.php
               port: {{ .Values.probes.liveness.port }}
               scheme: {{ .Values.probes.liveness.scheme }}
+            {{- end }}
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
             timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            
           {{- end }}
           {{- if .Values.probes.readiness.enabled }}
           readinessProbe:
