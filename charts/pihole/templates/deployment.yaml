@@ -165,6 +165,10 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             privileged: {{ .Values.privileged }}
+          {{- if .Values.capabilities }}
+            capabilities:
+            {{- toYaml .Values.capabilities | nindent 14 }}
+          {{- end }}
           ports:
           - containerPort: {{ .Values.webHttp }}
             name: http

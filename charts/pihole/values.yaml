@@ -385,6 +385,11 @@ hostNetwork: "false"
 # -- should container run in privileged mode
 privileged: "false"
 
+# linux capabilities container should run with
+capabilities: {}
+  # add:
+  # - NET_ADMIN
+
 customVolumes:
   # -- set this to true to enable custom volumes
   enabled: false
