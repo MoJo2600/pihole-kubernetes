@@ -229,9 +229,11 @@ spec:
           - mountPath: /etc/addn-hosts
             name: custom-dnsmasq
             subPath: addn-hosts
+          {{- if .Values.dnsmasq.customCnameEntries }}
           - mountPath: /etc/dnsmasq.d/05-pihole-custom-cname.conf
             name: custom-dnsmasq
             subPath: 05-pihole-custom-cname.conf
+          {{- end }}
           {{- if .Values.adlists }}
           - mountPath: /etc/pihole/adlists.list
             name: adlists
