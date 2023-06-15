@@ -18,7 +18,7 @@ image:
   # -- the repostory to pull the image from
   repository: "pihole/pihole"
   # -- the docker tag, if left empty it will get it from the chart's appVersion
-  tag: "2023.03.1"
+  tag: "2024.05.2"
   # -- the pull policy
   pullPolicy: IfNotPresent
 
