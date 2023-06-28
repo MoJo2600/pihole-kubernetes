@@ -34,7 +34,6 @@ dnsHostPort:
 
 # -- Configuration for the DNS service on port 53
 serviceDns:
-
   # -- deploys a mixed (TCP + UDP) Service instead of separate ones
   mixedService: false
 
@@ -56,13 +55,13 @@ serviceDns:
   loadBalancerIPv6: ""
 
   # -- Annotations for the DNS service
-  annotations: {}
+  annotations:
+    {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
 # -- Configuration for the DHCP service on port 67
 serviceDhcp:
-
   # -- Generate a Service resource for DHCP traffic
   enabled: true
 
@@ -84,7 +83,8 @@ serviceDhcp:
   loadBalancerIPv6: ""
 
   # -- Annotations for the DHCP service
-  annotations: {}
+  annotations:
+    {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -92,7 +92,6 @@ serviceDhcp:
 serviceWeb:
   # -- Configuration for the HTTP web interface listener
   http:
-
     # -- Generate a service for HTTP traffic
     enabled: true
 
@@ -125,7 +124,8 @@ serviceWeb:
   loadBalancerIPv6: ""
 
   # -- Annotations for the DHCP service
-  annotations: {}
+  annotations:
+    {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -140,7 +140,8 @@ ingress:
   # ingressClassName: nginx
 
   # -- Annotations for the ingress
-  annotations: {}
+  annotations:
+    {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   path: /
@@ -183,7 +184,8 @@ probes:
 # -- choice for the user. This also increases chances charts run on environments with little
 # -- resources, such as Minikube. If you do want to specify resources, uncomment the following
 # -- lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-resources: {}
+resources:
+  {}
   # limits:
   #  cpu: 100m
   #  memory: 128Mi
@@ -247,11 +249,13 @@ admin:
   passwordKey: "password"
 
 # -- extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use
-extraEnvVars: {}
+extraEnvVars:
+  {}
   # TZ: UTC
 
 # -- extraEnvVarsSecret is a list of secrets to load in as environment variables.
-extraEnvVarsSecret: {}
+extraEnvVarsSecret:
+  {}
   # env_var:
   #   name: secret-name
   #   key: secret-key
@@ -280,7 +284,8 @@ doh:
   tag: latest
   pullPolicy: IfNotPresent
   # -- Here you can pass environment variables to the DoH container, for example:
-  envVars: {}
+  envVars:
+    {}
     # TUNNEL_DNS_UPSTREAM: "https://1.1.1.2/dns-query,https://1.0.0.2/dns-query"
 
   # -- Probes configuration
@@ -296,7 +301,7 @@ doh:
             - nslookup
             - -po=5053
             - cloudflare.com
-            - '127.0.0.1'
+            - "127.0.0.1"
       # -- defines the initial delay for the liveness probe
       initialDelaySeconds: 60
       # -- defines the failure threshold for the liveness probe
@@ -345,28 +350,33 @@ dnsmasq:
   #   - cname=cname record,dns record
 
 # -- list of adlists to import during initial start of the container
-adlists: {}
+adlists:
+  {}
   # If you want to provide blocklists, add them here.
   # - https://hosts-file.net/grm.txt
   # - https://reddestdream.github.io/Projects/MinimalHosts/etc/MinimalHostsBlocker/minimalhosts
 
 # -- list of whitelisted domains to import during initial start of the container
-whitelist: {}
+whitelist:
+  {}
   # If you want to provide whitelisted domains, add them here.
   # - clients4.google.com
 
 # -- list of blacklisted domains to import during initial start of the container
-blacklist: {}
+blacklist:
+  {}
   # If you want to have special domains blacklisted, add them here
   # - *.blackist.com
 
 # -- list of blacklisted regex expressions to import during initial start of the container
-regex: {}
+regex:
+  {}
   # Add regular expression blacklist items
   # - (^|\.)facebook\.com$
 
 # -- values that should be added to pihole-FTL.conf
-ftl: {}
+ftl:
+  {}
   # Add values for pihole-FTL.conf
   # MAXDBDAYS: 14
 
@@ -386,7 +396,8 @@ hostNetwork: "false"
 privileged: "false"
 
 # linux capabilities container should run with
-capabilities: {}
+capabilities:
+  {}
   # add:
   # - NET_ADMIN
 
@@ -394,23 +405,27 @@ customVolumes:
   # -- set this to true to enable custom volumes
   enabled: false
   # -- any volume type can be used here
-  config: {}
+  config:
+    {}
     # hostPath:
     #   path: "/mnt/data"
 
 # -- any extra volumes you might want
-extraVolumes: {}
+extraVolumes:
+  {}
   # external-conf:
   #   configMap:
   #     name: pi-hole-lighttpd-external-conf
 
 # -- any extra volume mounts you might want
-extraVolumeMounts: {}
+extraVolumeMounts:
+  {}
   # external-conf:
   #   mountPath: /etc/lighttpd/external.conf
   #   subPath: external.conf
 
-extraContainers: []
+extraContainers:
+  []
   # - name: pihole-logwatcher
   #   image: your-registry/pihole-logwatcher
   #   imagePullPolicy: Always
@@ -423,10 +438,11 @@ extraContainers: []
   #       memory: 5Mi
   #   volumeMounts:
   #   - name: pihole-logs
-  #     mountPath: /var/log/pihole 
+  #     mountPath: /var/log/pihole
 
 # -- any extra kubernetes manifests you might want
-extraObjects: []
+extraObjects:
+  []
   # - apiVersion: v1
   #   kind: ConfigMap
   #   metadata:
@@ -459,7 +475,8 @@ extraObjects: []
   #       }
 
 # -- Additional annotations for pods
-podAnnotations: {}
+podAnnotations:
+  {}
   # Example below allows Prometheus to scape on metric port (requires pihole-exporter sidecar enabled)
   # prometheus.io/port: '9617'
   # prometheus.io/scrape: 'true'
@@ -489,5 +506,5 @@ podDnsConfig:
   enabled: true
   policy: "None"
   nameservers:
-  - 127.0.0.1
-  - 8.8.8.8
+    - 127.0.0.1
+    - 8.8.8.8
