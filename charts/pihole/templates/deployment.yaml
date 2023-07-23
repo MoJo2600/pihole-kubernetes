@@ -53,6 +53,10 @@ spec:
                   operator: In
                   values:
                   - {{ .Values.antiaff.avoidRelease }}
+        {{- if .Values.antiaff.namespaces}}
+              namespaces:
+              {{- toYaml .Values.antiaff.namespaces | nindent 14 }}
+        {{- end }}
               topologyKey: "kubernetes.io/hostname"
       {{- end }}
       {{- if .Values.podDnsConfig.enabled }}
@@ -68,6 +72,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
+        {{- if .Values.extraContainers }}
+        {{- toYaml .Values.extraContainers | nindent 8 }}
+        {{- end }}
         {{- if .Values.monitoring.sidecar.enabled }}
         - name: exporter
           image: "{{ .Values.monitoring.sidecar.image.repository }}:{{ .Values.monitoring.sidecar.image.tag }}"
@@ -165,6 +172,10 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             privileged: {{ .Values.privileged }}
+          {{- if .Values.capabilities }}
+            capabilities:
+            {{- toYaml .Values.capabilities | nindent 14 }}
+          {{- end }}
           ports:
           - containerPort: {{ .Values.webHttp }}
             name: http
@@ -189,18 +200,24 @@ spec:
             protocol: UDP
           {{- if .Values.probes.liveness.enabled }}
           livenessProbe:
+            {{- if eq .Values.probes.liveness.type "command" }}
+            exec:
+              command: {{ .Values.probes.liveness.command | required "An array of command(s) is required if 'type' is set to 'command'." | toYaml | nindent 16 }}
+            {{- else }}
             httpGet:
-              path: /admin.index.php
+              path: /admin/index.php
               port: {{ .Values.probes.liveness.port }}
               scheme: {{ .Values.probes.liveness.scheme }}
+            {{- end }}
             initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
             timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            
           {{- end }}
           {{- if .Values.probes.readiness.enabled }}
           readinessProbe:
             httpGet:
-              path: /admin.index.php
+              path: /admin/index.php
               port: {{ .Values.probes.readiness.port }}
               scheme: {{ .Values.probes.readiness.scheme }}
             initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
@@ -219,9 +236,11 @@ spec:
           - mountPath: /etc/addn-hosts
             name: custom-dnsmasq
             subPath: addn-hosts
+          {{- if .Values.dnsmasq.customCnameEntries }}
           - mountPath: /etc/dnsmasq.d/05-pihole-custom-cname.conf
             name: custom-dnsmasq
             subPath: 05-pihole-custom-cname.conf
+          {{- end }}
           {{- if .Values.adlists }}
           - mountPath: /etc/pihole/adlists.list
             name: adlists

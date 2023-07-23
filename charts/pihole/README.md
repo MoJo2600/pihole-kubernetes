@@ -174,6 +174,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | antiaff.avoidRelease | string | `"pihole1"` | Here you can set the pihole release (you set in `helm install <releasename> ...`) you want to avoid |
 | antiaff.enabled | bool | `false` | set to true to enable antiaffinity (example: 2 pihole DNS in the same cluster) |
 | antiaff.strict | bool | `true` | Here you can choose between preferred or required |
+| antiaff.namespaces | '[]' | list of namespaces to include in anti-affinity settings
 | blacklist | object | `{}` | list of blacklisted domains to import during initial start of the container |
 | customVolumes.config | object | `{}` | any volume type can be used here |
 | customVolumes.enabled | bool | `false` | set this to true to enable custom volumes |
@@ -202,6 +203,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | extraEnvVars | object | `{}` | extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use |
 | extraEnvVarsSecret | object | `{}` | extraEnvVarsSecret is a list of secrets to load in as environment variables. |
 | extraInitContainers | list | `[]` | any initContainers you might want to run before starting pihole |
+| extraObjects | list | `[]` | any extra kubernetes manifests you might want |
 | extraVolumeMounts | object | `{}` | any extra volume mounts you might want |
 | extraVolumes | object | `{}` | any extra volumes you might want |
 | ftl | object | `{}` | values that should be added to pihole-FTL.conf |
@@ -229,8 +231,11 @@ The following table lists the configurable parameters of the pihole chart and th
 | podDnsConfig.nameservers[1] | string | `"8.8.8.8"` |  |
 | podDnsConfig.policy | string | `"None"` |  |
 | privileged | string | `"false"` | should container run in privileged mode |
-| probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5},"readiness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5}}` | Probes configuration |
+| capabilities | object | `{}` | Linux capabilities that container should run with |
+| probes | object | `{"liveness":{"type": "httpGet","enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5},"readiness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5}}` | Probes configuration |
 | probes.liveness.enabled | bool | `true` | Generate a liveness probe |
+| probes.liveness.type | string | `httpGet` | Defines the type of liveness probe. (httpGet, command) |
+| probes.liveness.command | list | [] | A list of commands to execute as a liveness probe (Requires `type` to be set to `command`) |
 | probes.readiness.enabled | bool | `true` | Generate a readiness probe |
 | regex | object | `{}` | list of blacklisted regex expressions to import during initial start of the container |
 | replicaCount | int | `1` | The number of replicas |
