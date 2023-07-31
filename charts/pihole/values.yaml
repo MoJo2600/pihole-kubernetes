@@ -481,6 +481,22 @@ podAnnotations:
   # prometheus.io/port: '9617'
   # prometheus.io/scrape: 'true'
 
+# -- any initContainers you might want to run before starting pihole
+extraInitContainers: []
+  # - name: copy-config
+  #   image: busybox
+  #   args:
+  #     - sh
+  #     - -c
+  #     - |
+  #       cp /etc/lighttpd-cm/external.conf /etc/lighttpd/
+  #       ls -l /etc/lighttpd/
+  #   volumeMounts:
+  #     - name: external-conf-cm
+  #       mountPath: /etc/lighttpd-cm/
+  #     - name: external-conf
+  #       mountPath: /etc/lighttpd/
+
 monitoring:
   # -- Preferably adding prometheus scrape annotations rather than enabling podMonitor.
   podMonitor:
