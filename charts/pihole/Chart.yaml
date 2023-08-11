@@ -3,8 +3,8 @@ description: Installs pihole in kubernetes
 home: https://github.com/dfoulkes/pihole-kubernetes/tree/master/charts/pihole
 name: pihole
 
-appVersion: "2022.09.2"
-version: 3.0.3
+appVersion: 2023.03.1
+version: 2.4.0
 
 sources:
   - https://github.com/dfoulkes/pihole-kubernetes/tree/master/charts/pihole
@@ -12,6 +12,7 @@ sources:
   - https://github.com/pi-hole
   - https://github.com/pi-hole/docker-pi-hole
 icon: https://i2.wp.com/pi-hole.net/wp-content/uploads/2016/12/Vortex-R.png
+
 maintainers:
   - name: MoJo2600
     email: christian.erhardt@mojo2k.de

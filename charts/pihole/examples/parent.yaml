@@ -18,7 +18,7 @@ image:
   # -- the repostory to pull the image from
   repository: "pihole/pihole"
   # -- the docker tag, if left empty it will get it from the chart's appVersion
-  tag: "2023.05.2"
+  tag: ""
   # -- the pull policy
   pullPolicy: IfNotPresent
 
@@ -36,10 +36,10 @@ dnsHostPort:
 serviceDns:
 
   # -- deploys a mixed (TCP + UDP) Service instead of separate ones
-  mixedService: true
+  mixedService: false
 
   # -- `spec.type` for the DNS Service
-  type: LoadBalancer
+  type: NodePort
 
   # -- The port of the DNS service
   port: 53
@@ -51,13 +51,12 @@ serviceDns:
   externalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the DNS Service
-  loadBalancerIP: "192.168.50.22"
+  loadBalancerIP: ""
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service
   loadBalancerIPv6: ""
 
   # -- Annotations for the DNS service
-  annotations: #{"metallb.universe.tf/allow-shared-ip": "pihole-svc"}
-     metallb.universe.tf/address-pool: "first-pool"
+  annotations: {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -65,10 +64,10 @@ serviceDns:
 serviceDhcp:
 
   # -- Generate a Service resource for DHCP traffic
-  enabled: false
+  enabled: true
 
   # -- `spec.type` for the DHCP Service
-  type: LoadBalancer
+  type: NodePort
 
   # -- The port of the DHCP service
   port: 67
@@ -80,13 +79,12 @@ serviceDhcp:
   externalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the DHCP Service
-  loadBalancerIP: "192.168.50.23"
+  loadBalancerIP: ""
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service
   loadBalancerIPv6: ""
 
   # -- Annotations for the DHCP service
-  annotations: 
-    metallb.universe.tf/address-pool: "first-pool"
+  annotations: {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -116,19 +114,18 @@ serviceWeb:
     nodePort: ""
 
   # -- `spec.type` for the web interface Service
-  type: LoadBalancer
+  type: ClusterIP
 
   # -- `spec.externalTrafficPolicy` for the web interface Service
   externalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the web interface Service
-  loadBalancerIP: "192.168.50.21"
+  loadBalancerIP: ""
   # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service
   loadBalancerIPv6: ""
 
   # -- Annotations for the DHCP service
-  annotations:
-    metallb.universe.tf/address-pool: "first-pool"
+  annotations: {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
@@ -137,20 +134,19 @@ virtualHost: pi.hole
 # -- Configuration for the Ingress
 ingress:
   # -- Generate a Ingress resource
-  enabled: true
+  enabled: false
 
   # -- Specify an ingressClassName
   # ingressClassName: nginx
 
   # -- Annotations for the ingress
-  annotations:
-    kubernetes.io/ingress.class: traefik
+  annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   path: /
   hosts:
     # virtualHost (default value is pi.hole) will be appended to the hosts
-    - pihole.192.168.50.21.nip.io
+    - chart-example.local
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -181,13 +177,13 @@ probes:
 # -- choice for the user. This also increases chances charts run on environments with little
 # -- resources, such as Minikube. If you do want to specify resources, uncomment the following
 # -- lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-resources: 
-   limits:
-    cpu: 3000m
-    memory: 1024Mi
-   requests:
-    cpu: 500m
-    memory: 512Mi
+resources: {}
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
 
 # -- `spec.PersitentVolumeClaim` configuration
 persistentVolumeClaim:
@@ -203,7 +199,7 @@ persistentVolumeClaim:
   accessModes:
     - ReadWriteOnce
 
-  size: "4098Mi"
+  size: "500Mi"
 
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -211,7 +207,7 @@ persistentVolumeClaim:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  storageClass: "longhorn"
+  # storageClass: "-"
 
   ## If subPath is set mount a sub folder of a volume instead of the root of the volume.
   ## This is especially handy for volume plugins that don't natively support sub mounting (like glusterfs).
@@ -255,9 +251,9 @@ extraEnvVarsSecret: {}
   #   key: secret-key
 
 # -- default upstream DNS 1 server to use
-DNS1: "192.64.36.1"
+DNS1: "8.8.8.8"
 # -- default upstream DNS 2 server to use
-DNS2: "172.64.36.2"
+DNS2: "8.8.4.4"
 
 antiaff:
   # -- set to true to enable antiaffinity (example: 2 pihole DNS in the same cluster)
@@ -270,14 +266,14 @@ antiaff:
 
 doh:
   # -- set to true to enabled DNS over HTTPs via cloudflared
-  enabled: true
+  enabled: false
   name: "cloudflared"
   repository: "crazymax/cloudflared"
   tag: latest
   pullPolicy: IfNotPresent
   # -- Here you can pass environment variables to the DoH container, for example:
-  envVars:
-          TUNNEL_DNS_UPSTREAM: "https://aufvfbzgbj.cloudflare-gateway.com/dns-query"
+  envVars: {}
+    # TUNNEL_DNS_UPSTREAM: "https://1.1.1.2/dns-query,https://1.0.0.2/dns-query"
 
   # -- Probes configuration
   probes:
@@ -307,14 +303,13 @@ dnsmasq:
   # - server=/bar.foo/192.168.178.11
 
   # -- Add custom dns entries to override the dns resolution. All lines will be added to the pihole dnsmasq configuration.
-  customDnsEntries: 
-    - address=/plex.foulkes.cloud/192.168.50.167
-    - address=/proxmox.foulkes.cloud/192.168.50.2
+  customDnsEntries: []
+  # - address=/foo.bar/192.168.178.10
   # - address=/bar.foo/192.168.178.11
 
   # -- Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like
-  additionalHostsEntries:
-  # - 192.168.50.1 
+  additionalHostsEntries: []
+  # - 192.168.0.3     host4
   # - 192.168.0.4     host5
 
   # -- Static DHCP config
@@ -342,28 +337,10 @@ dnsmasq:
   #   - cname=cname record,dns record
 
 # -- list of adlists to import during initial start of the container
-adlists: 
-   - https://reddestdream.github.io/Projects/MinimalHosts/etc/MinimalHostsBlocker/minimalhosts
-   - https://raw.githubusercontent.com/r-a-y/mobile-hosts/master/AdguardMobileSpyware.txt
-   - https://raw.githubusercontent.com/blocklistproject/Lists/master/phishing.txt
-   - https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt
-   - https://raw.githubusercontent.com/pirat28/IHateTracker/master/iHateTracker.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/CryptoWall-Ransomware-C2-Domain-blocklist.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/Locky-Ransomware-C2-Domain-Blocklist.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/Ransomware-Domain-Blocklist.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TeslaCrypt-Ransomware-C2-Domain-Blocklist.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TeslaCrypt-Ransomware-Payment-Sites-Domain-Blocklist.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TorrentLocker-Ransomware-C2-Domain-Blocklist.txt
-   - https://raw.githubusercontent.com/deathbybandaid/piholeparser/master/Subscribable-Lists/ParsedBlacklists/TorrentLocker-Ransomware-Payment-Sites-Domain-Blocklist.txt
-   - https://gitlab.com/Kurobeats/phishing_hosts/raw/master/hosts
-   - https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/master/src/hosts.txt
-   - https://raw.githubusercontent.com/blocklistproject/Lists/master/basic.txt
-   - https://raw.githubusercontent.com/blocklistproject/Lists/master/ads.txt
-   - https://raw.githubusercontent.com/blocklistproject/Lists/master/ransomware.txt
-   - https://raw.githubusercontent.com/blocklistproject/Lists/master/malware.txt
-   - https://blocklistproject.github.io/Lists/fraud.txt
-   - https://blocklistproject.github.io/Lists/scam.txt
-   - https://blocklistproject.github.io/Lists/porn.txt
+adlists: {}
+  # If you want to provide blocklists, add them here.
+  # - https://hosts-file.net/grm.txt
+  # - https://reddestdream.github.io/Projects/MinimalHosts/etc/MinimalHostsBlocker/minimalhosts
 
 # -- list of whitelisted domains to import during initial start of the container
 whitelist: {}
@@ -475,11 +452,10 @@ monitoring:
       pullPolicy: IfNotPresent
     resources:
       limits:
-       cpu: 2000m
-       memory: 1024Mi
-      requests:
-        cpu: 300m
-        memory: 256Mi
+        memory: 128Mi
+      # requests:
+      #  cpu: 100m
+      #  memory: 128Mi
 
 podDnsConfig:
   enabled: true

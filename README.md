@@ -87,6 +87,27 @@ Thanks goes to these wonderful people:
     <td align="center"><a href="https://github.com/consideRatio"><img src="https://avatars.githubusercontent.com/u/3837114?v=4" width="100px;" alt=""/><br /><sub><b>Erik Sundell</b></sub></a></td>
     <td align="center"><a href="https://github.com/Ornias1993"><img src="https://avatars.githubusercontent.com/u/7613738?v=4" width="100px;" alt=""/><br /><sub><b>Kjeld Schouten-Lebbing</b></sub></a></td>
   </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/mrwulf"><img src="https://avatars.githubusercontent.com/u/2494769?v=4" width="100px;" alt=""/><br /><sub><b>Brandon Wulf</b></sub></a></td>
+    <td align="center"><a href="https://github.com/DerRockWolf"><img src="https://avatars.githubusercontent.com/u/50499906?v=4" width="100px;" alt=""/><br /><sub><b>DerRockWolf</b></sub></a></td>
+    <td align="center"><a href="https://github.com/brnl"><img src="https://avatars.githubusercontent.com/u/3243133?v=4" width="100px;" alt=""/><br /><sub><b>brnl</b></sub></a></td>
+    <td align="center"><a href="https://rafaelgaspar.xyz/"><img src="https://avatars.githubusercontent.com/u/5567?v=4" width="100px;" alt=""/><br /><sub><b>Rafael Gaspar</b></sub></a></td>
+    <td align="center"><a href="https://chadimasri.com/"><img src="https://avatars.githubusercontent.com/u/1502811?v=4" width="100px;" alt=""/><br /><sub><b>Chadi El Masri</b></sub></a></td>
+    <td align="center"><a href="https://github.com/dfoulkes"><img src="https://avatars.githubusercontent.com/u/8113674?v=4" width="100px;" alt=""/><br /><sub><b>Dan Foulkes</b></sub></a></td>
+    <td align="center"><a href="https://github.com/george124816"><img src="https://avatars.githubusercontent.com/u/26443736?v=4" width="100px;" alt=""/><br /><sub><b>George Rodrigues</b></sub></a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://pascaliske.dev/"><img src="https://avatars.githubusercontent.com/u/7473880?v=4" width="100px;" alt=""/><br /><sub><b>Pascal Iske</b></sub></a></td>
+    <td align="center"><a href="https://www.reyth.dev/"><img src="https://avatars.githubusercontent.com/u/23526880?v=4" width="100px;" alt=""/><br /><sub><b>Theo REY</b></sub></a></td>
+    <td align="center"><a href="https://github.com/piwi3910"><img src="https://avatars.githubusercontent.com/u/12539757?v=4" width="100px;" alt=""/><br /><sub><b>Watteel Pascal</b></sub></a></td>
+    <td align="center"><a href="https://github.com/frittenlab"><img src="https://avatars.githubusercontent.com/u/29921946?v=4" width="100px;" alt=""/><br /><sub><b>simon</b></sub></a></td>
+    <td align="center"><a href="https://github.com/FernFerret"><img src="https://avatars.githubusercontent.com/u/72811?v=4" width="100px;" alt=""/><br /><sub><b>Eric</b></sub></a></td>
+    <td align="center"><a href="https://github.com/vince-vibin"><img src="https://avatars.githubusercontent.com/u/99386370?v=4" width="100px;" alt=""/><br /><sub><b>Vincent</b></sub></a></td>
+    <td align="center"><a href="https://github.com/Keydrain"><img src="https://avatars.githubusercontent.com/u/5723055?v=4" width="100px;" alt=""/><br /><sub><b>Clint</b></sub></a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/tamcore"><img src="https://avatars.githubusercontent.com/u/319917?v=4" width="100px;" alt=""/><br /><sub><b>Philipp B.</b></sub></a></td>
+  </tr>
 </table>
 
 <!-- markdownlint-restore -->
@@ -95,3 +116,4 @@ Thanks goes to these wonderful people:
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+

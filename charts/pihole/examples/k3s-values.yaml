@@ -1,0 +1,50 @@
+# This is the values.yaml I used on my k3s raspberrypi cluster
+
+# if you have a problem with serviceWeb Pods not building you might need to checkout this issue:
+# https://github.com/MoJo2600/pihole-kubernetes/issues/230
+
+ingress:
+  enabled: true
+
+persistentVolumeClaim:
+  enabled: true
+
+serviceWeb:
+  loadBalancerIP: 192.168.178.201
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+  type: LoadBalancer
+
+serviceDns:
+  loadBalancerIP: 192.168.178.201
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+  type: LoadBalancer
+
+serviceDhcp:
+  loadBalancerIP: 192.168.178.201
+  annotations:
+    metallb.universe.tf/allow-shared-ip: pihole-svc
+  type: LoadBalancer
+
+podDnsConfig:
+  enabled: true
+  policy: "None"
+  nameservers:
+  - 127.0.0.1
+  - 8.8.8.8
+
+#! use an existing secret in a prod env
+adminPassword: "0n4BQ2l7Dbu3ViYgd4wu"
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+extraEnvVars: {
+  DNSMASQ_USER: "root"
+}
