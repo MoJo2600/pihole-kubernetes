@@ -18,7 +18,7 @@ image:
   # -- the repostory to pull the image from
   repository: "pihole/pihole"
   # -- the docker tag, if left empty it will get it from the chart's appVersion
-  tag: "2022.11.1"
+  tag: "2023.05.2"
   # -- the pull policy
   pullPolicy: IfNotPresent
 
@@ -288,8 +288,9 @@ dnsmasq:
   # - server=/bar.foo/192.168.178.11
 
   # -- Add custom dns entries to override the dns resolution. All lines will be added to the pihole dnsmasq configuration.
-  customDnsEntries: []
-  # - address=/foo.bar/192.168.178.10
+  customDnsEntries: 
+    - address=/plex.foulkes.cloud/192.168.50.167
+    - address=/proxmox.foulkes.cloud/192.168.50.2
   # - address=/bar.foo/192.168.178.11
 
   # -- Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like
