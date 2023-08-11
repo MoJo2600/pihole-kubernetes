@@ -310,6 +310,7 @@ dnsmasq:
   customDnsEntries: 
     - address=/plex.foulkes.cloud/192.168.50.167
     - address=/proxmox.foulkes.cloud/192.168.50.2
+    - address=/nas.foulkes.cloud/192.168.50.114
   # - address=/bar.foo/192.168.178.11
 
   # -- Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like
