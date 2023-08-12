@@ -247,8 +247,9 @@ admin:
 # -- extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use
 extraEnvVars: 
     REV_SERVER: "true"
-    REV_SERVER_DOMAIN: "192.168.50.1"
-    REV_SERVER_TARGET: "192.168.50.0/23"
+    REV_SERVER_DOMAIN: "local"
+    REV_SERVER_CIDR: "192.168.50.0/23"
+    REV_SERVER_TARGET: "192.168.50.1"
   # TZ: UTC
 
 # -- extraEnvVarsSecret is a list of secrets to load in as environment variables.
