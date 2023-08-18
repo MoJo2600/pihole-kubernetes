@@ -9,7 +9,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 {{- if .Values.serviceDhcp.extraLabels }}
-{{ toYaml .Values.servicesDhcp.extraLabels }}
+{{ toYaml .Values.servicesDhcp.extraLabels | indent 4  }}
 {{- end }}
 {{- if .Values.serviceDhcp.annotations }}
   annotations:

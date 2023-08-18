@@ -8,7 +8,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 {{- if .Values.serviceWeb.extraLabels }}
-{{ toYaml .Values.serviceWeb.extraLabels }}
+{{ toYaml .Values.serviceWeb.extraLabels | indent 4 }}
 {{- end }}
 {{- if .Values.serviceWeb.annotations }}
   annotations:
