@@ -7,6 +7,9 @@ metadata:
     chart: {{ template "pihole.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+{{- if .Values.serviceWeb.extraLabels }}
+{{ toYaml .Values.serviceWeb.extraLabels }}
+{{- end }}
 {{- if .Values.serviceWeb.annotations }}
   annotations:
 {{ toYaml .Values.serviceWeb.annotations | indent 4 }}

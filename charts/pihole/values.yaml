@@ -60,6 +60,10 @@ serviceDns:
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
 
+  # -- Labels for the DNS service
+  extraLabels:
+    {}
+
 # -- Configuration for the DHCP service on port 67
 serviceDhcp:
   # -- Generate a Service resource for DHCP traffic
@@ -87,6 +91,9 @@ serviceDhcp:
     {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
+  # -- Labels for the DHCP service
+  extraLabels:
+    {}
 
 # -- Configuration for the web interface service
 serviceWeb:
@@ -128,6 +135,10 @@ serviceWeb:
     {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
+
+  # -- Labels for the web interface service
+  extraLabels:
+    {}
 
 virtualHost: pi.hole
 
