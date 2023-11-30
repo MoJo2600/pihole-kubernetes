@@ -482,7 +482,8 @@ podAnnotations:
   # prometheus.io/scrape: 'true'
 
 # -- any initContainers you might want to run before starting pihole
-extraInitContainers: []
+extraInitContainers:
+  []
   # - name: copy-config
   #   image: busybox
   #   args:
@@ -524,3 +525,12 @@ podDnsConfig:
   nameservers:
     - 127.0.0.1
     - 8.8.8.8
+
+# -- configure a Pod Disruption Budget
+podDisruptionBudget:
+  # -- set to true to enable creating the PDB
+  enabled: false
+  # -- minimum number of pods Kubernetes should try to have running at all times
+  minAvailable: 1
+  # -- maximum number of pods Kubernetes will allow to be unavailable. Cannot set both `minAvailable` and `maxAvailable`
+  # maxUnavailable: 1
