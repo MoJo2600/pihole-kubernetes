@@ -49,11 +49,6 @@ serviceDns:
   # -- `spec.externalTrafficPolicy` for the DHCP Service
   externalTrafficPolicy: Local
 
-  # -- A fixed `spec.loadBalancerIP` for the DNS Service
-  loadBalancerIP: ""
-  # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service
-  loadBalancerIPv6: ""
-
   # -- Annotations for the DNS service
   annotations:
     {}
@@ -76,11 +71,6 @@ serviceDhcp:
 
   # -- `spec.externalTrafficPolicy` for the DHCP Service
   externalTrafficPolicy: Local
-
-  # -- A fixed `spec.loadBalancerIP` for the DHCP Service
-  loadBalancerIP: ""
-  # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service
-  loadBalancerIPv6: ""
 
   # -- Annotations for the DHCP service
   annotations:
@@ -117,11 +107,6 @@ serviceWeb:
 
   # -- `spec.externalTrafficPolicy` for the web interface Service
   externalTrafficPolicy: Local
-
-  # -- A fixed `spec.loadBalancerIP` for the web interface Service
-  loadBalancerIP: ""
-  # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service
-  loadBalancerIPv6: ""
 
   # -- Annotations for the DHCP service
   annotations:

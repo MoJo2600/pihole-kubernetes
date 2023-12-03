@@ -20,9 +20,6 @@ spec:
   - IPv6
   ipFamilyPolicy: PreferDualStack
   {{- end }}
-  {{- if .Values.serviceDhcp.loadBalancerIP }}
-  loadBalancerIP: {{ .Values.serviceDhcp.loadBalancerIP }}
-  {{- end }}
   {{- if or (eq .Values.serviceDhcp.type "NodePort") (eq .Values.serviceDhcp.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceDhcp.externalTrafficPolicy }}
   {{- end }}
@@ -57,9 +54,6 @@ spec:
   ipFamilies:
   - IPv6
   ipFamilyPolicy: SingleStack
-  {{- if .Values.serviceDhcp.loadBalancerIPv6 }}
-  loadBalancerIP: {{ .Values.serviceDhcp.loadBalancerIPv6 }}
-  {{- end }}
   {{- if or (eq .Values.serviceDhcp.type "NodePort") (eq .Values.serviceDhcp.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceDhcp.externalTrafficPolicy }}
   {{- end }}
