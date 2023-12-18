@@ -167,6 +167,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | DNS2 | string | `"8.8.4.4"` | default upstream DNS 2 server to use |
 | adlists | object | `{}` | list of adlists to import during initial start of the container |
 | admin | object | `{"existingSecret":"","passwordKey":"password"}` | Use an existing secret for the admin password. |
+| admin.enabled | bool | `true` | If set to false admin password will be disabled, adminPassword specified above and the pre-existing secret (if specified) will be ignored. |
 | admin.existingSecret | string | `""` | Specify an existing secret to use as admin password |
 | admin.passwordKey | string | `"password"` | Specify the key inside the secret to use |
 | adminPassword | string | `"admin"` | Administrator password when not using an existing secret (see below) |
