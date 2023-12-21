@@ -29,6 +29,7 @@ spec:
         checksum.config.whitelist: {{ include (print $.Template.BasePath "/configmap-whitelist.yaml") . | sha256sum | trunc 63 }}
         checksum.config.dnsmasqConfig: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum | trunc 63 }}
         checksum.config.staticDhcpConfig: {{ include (print $.Template.BasePath "/configmap-static-dhcp.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.cmdlist: {{ include (print $.Template.BasePath "/configmap-cmdlist.yaml") . | sha256sum | trunc 63 }}
 {{- with .Values.podAnnotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
@@ -224,6 +225,16 @@ spec:
             failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
           {{- end }}
+          {{- if .Values.cmdlist }}
+          # Using bash for the convenience of source          
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - 'bash'
+                  - '-c'
+                  - 'until pihole status | grep enabled >> /var/log/cmdlist.log 2>&1; do echo Waiting for pihole; sleep 2; done; sleep 20; source /etc/pihole/cmdlist.sh >> /var/log/cmdlist.log 2>&1'  
+          {{ end }}
           volumeMounts:
           - mountPath: /etc/pihole
             name: config
@@ -261,6 +272,11 @@ spec:
             name: whitelist
             subPath: whitelist.txt
           {{- end }}
+          {{- if .Values.cmdlist }}
+          - mountPath: /etc/pihole/cmdlist.sh
+            name: cmdlist
+            subPath: cmdlist.sh
+          {{- end }}
           {{- if .Values.dnsmasq.staticDhcpEntries }}
           - mountPath: /etc/dnsmasq.d/04-pihole-static-dhcp.conf
             name: static-dhcp
@@ -271,7 +287,7 @@ spec:
 {{- toYaml $value | nindent 12 }}
           {{- end }}
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+{{ toYaml .Values.resources | indent 12 }}  
     {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
@@ -334,6 +350,12 @@ spec:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-regex
         name: regex
+      {{- end }}
+      {{- if .Values.cmdlist }}
+      - configMap:
+          defaultMode: 420
+          name: {{ template "pihole.fullname" . }}-cmdlist
+        name: cmdlist
       {{- end }}
       {{- range $key, $value := .Values.extraVolumes }}
       - name: {{ $key }}

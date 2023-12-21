@@ -1,0 +1,56 @@
+{{ if .Values.cmdlist }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "pihole.fullname" . }}-cmdlist
+  labels:
+    app: {{ template "pihole.name" . }}
+    chart: {{ template "pihole.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  cmdlist.sh: |
+    # List of pihole commands to configure / reconfigure permit and deny lists
+  {{- if eq .Values.cmdlist.alwaysNuke true }}
+    pihole -w --nuke --noreload 
+    pihole -b --nuke --noreload 
+    pihole --white-wild --nuke --noreload 
+    pihole --wild --nuke --noreload 
+    pihole --white-regex --nuke --noreload 
+    pihole --regex --nuke --noreload 
+    pihole restartdns reload
+    sleep 5
+  {{- end }}
+  {{- if .Values.cmdlist.permit }}
+    {{- range .Values.cmdlist.permit }}
+    pihole -w --noreload {{ . }} --comment "Added by pihole Helm chart"
+    {{- end }}
+  {{- end }}
+  {{- if .Values.cmdlist.deny }}
+    {{- range .Values.cmdlist.deny }}
+    pihole -b --noreload {{ . }} --comment "Added by pihole Helm chart"
+    {{- end }}
+  {{- end }}
+  {{- if .Values.cmdlist.permitWild }}
+    {{- range .Values.cmdlist.permitWild }}
+    pihole --white-wild --noreload {{ . }} --comment "Added by pihole Helm chart"
+    {{- end }}
+  {{- end }}
+  {{- if .Values.cmdlist.denyWild }}
+    {{- range .Values.cmdlist.denyWild }}
+    pihole --wild --noreload {{ . }} --comment "Added by pihole Helm chart"
+    {{- end }}
+  {{- end }}
+  {{- if .Values.cmdlist.permitRegex }}
+    {{- range .Values.cmdlist.permitRegex }}
+    pihole --white-regex --noreload '{{ . }}' --comment "Added by pihole Helm chart"
+    {{- end }}
+  {{- end }}
+  {{- if .Values.cmdlist.denyRegex }}
+    {{- range .Values.cmdlist.denyRegex }}
+    pihole --regex --noreload '{{ . }}' --comment "Added by pihole Helm chart"
+    {{- end }}
+  {{- end }}
+    pihole restartdns reload
+    # End of list
+{{ end }}

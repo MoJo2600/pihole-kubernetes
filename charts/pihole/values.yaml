@@ -374,6 +374,42 @@ regex:
   # Add regular expression blacklist items
   # - (^|\.)facebook\.com$
 
+# -- An alternate method of configuration using pihole cmd script rather than reading legacy files at startup
+# This will allow for permit wildcards which can't be done with the old config manner
+cmdlist:
+
+  # alwaysNuke will delete all existing list content before loading this configuration
+  # This will also delete any permit and denies you have added with the legacy method
+  # This is set false by default, but true is recommended if you are using this config method and not the old one
+  alwaysNuke: false
+
+  # Standard Permit List
+  permit: []
+  # - example.com
+
+  # Standard Deny List
+  deny: []
+  # - example.com
+
+  # Wildcard Permit List
+  # These will be converted by Pihole into regex allowing the domain and it's subdomains
+  # So the below example will end up as regex permit liek '(^|\.)permitwildexample\.com$''
+  permitWild: []
+  # - permitwildexample.com
+
+  # Wildcard Deny List
+  # These will be converted by Pihole into regex as above
+  denyWild: []
+  # - denywildexample.com
+
+  # Regex Permit List
+  permitRegex: []
+  # - (^|\.)permitregexexample\.com$
+
+  # Regex Deny List
+  denyRegex: []
+  # - (^|\.)denyregexexample\.com$
+
 # -- values that should be added to pihole-FTL.conf
 ftl:
   {}
