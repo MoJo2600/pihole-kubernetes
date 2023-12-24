@@ -226,7 +226,9 @@ spec:
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
           {{- end }}
           {{- if .Values.cmdlist }}
-          # Using bash for the convenience of source          
+          # Using bash for the convenience of sourc
+          # This is not a very elegant way of checking that the DB is ready and isn't still being initialised
+          # but I couldn't find a more reliable way...         
           lifecycle:
             postStart:
               exec:
@@ -234,7 +236,7 @@ spec:
                   - 'bash'
                   - '-c'
                   # - 'until pihole status | grep enabled >> /var/log/cmdlist.log 2>&1; do echo Waiting for pihole; sleep 2; done; sleep 20; source /etc/pihole/cmdlist.sh >> /var/log/cmdlist.log 2>&1'
-                  - 'until [ grep 'file renamed while open' /var/log/pihole/FTL.log ] ; do echo Waiting for pihole >> /var/log/cmdlist.log; sleep 2; done; sleep 20; source /etc/pihole/cmdlist.sh >> /var/log/cmdlist.log 2>&1'  
+                  - 'until [ grep "file renamed while open" /var/log/pihole/FTL.log ] ; do echo Waiting for pihole >> /var/log/cmdlist.log; sleep 2; done; sleep 20; source /etc/pihole/cmdlist.sh >> /var/log/cmdlist.log 2>&1'  
           {{ end }}
           volumeMounts:
           - mountPath: /etc/pihole
