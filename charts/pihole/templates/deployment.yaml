@@ -233,7 +233,8 @@ spec:
                 command:
                   - 'bash'
                   - '-c'
-                  - 'until pihole status | grep enabled >> /var/log/cmdlist.log 2>&1; do echo Waiting for pihole; sleep 2; done; sleep 20; source /etc/pihole/cmdlist.sh >> /var/log/cmdlist.log 2>&1'  
+                  # - 'until pihole status | grep enabled >> /var/log/cmdlist.log 2>&1; do echo Waiting for pihole; sleep 2; done; sleep 20; source /etc/pihole/cmdlist.sh >> /var/log/cmdlist.log 2>&1'
+                  - 'until [ -f /etc/pihole/versions ] ; do echo Waiting for pihole >> /var/log/cmdlist.log; sleep 2; done; sleep 20; source /etc/pihole/cmdlist.sh >> /var/log/cmdlist.log 2>&1'  
           {{ end }}
           volumeMounts:
           - mountPath: /etc/pihole
