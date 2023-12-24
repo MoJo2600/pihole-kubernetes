@@ -10,6 +10,9 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
   cmdlist.sh: |
+    #!/usr/bin/env bash
+    # shellcheck disable=SC1090
+
     # List of pihole commands to configure / reconfigure permit and deny lists
   {{- if eq .Values.cmdlist.alwaysNuke true }}
     pihole -w --nuke --noreload 
