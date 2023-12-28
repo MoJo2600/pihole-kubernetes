@@ -17,6 +17,9 @@ spec:
   {{- if .Values.serviceDns.loadBalancerIP }}
   loadBalancerIP: {{ .Values.serviceDns.loadBalancerIP }}
   {{- end }}
+  {{- if .Values.serviceDns.clusterIP }}
+  clusterIP: {{ .Values.serviceDns.clusterIP }}
+  {{- end }}
   {{- if or (eq .Values.serviceDns.type "NodePort") (eq .Values.serviceDns.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceDns.externalTrafficPolicy }}
   {{- end }}
