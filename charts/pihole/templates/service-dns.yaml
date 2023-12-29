@@ -26,6 +26,10 @@ spec:
   internalTrafficPolicy: {{ .Values.serviceDns.internalTrafficPolicy }}
     {{- end }}
   {{- end }}
+  {{- if .Values.serviceDns.externalIPs  }}
+  externalIPs:
+    {{- toYaml .Values.serviceDns.externalIPs | nindent 8 }}
+  {{- end }}
   ports:
     - port: {{ .Values.serviceDns.port }}
       targetPort: dns
