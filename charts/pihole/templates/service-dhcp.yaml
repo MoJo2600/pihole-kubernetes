@@ -25,6 +25,9 @@ spec:
   {{- end }}
   {{- if or (eq .Values.serviceDhcp.type "NodePort") (eq .Values.serviceDhcp.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceDhcp.externalTrafficPolicy }}
+    {{- if .Values.serviceDhcp.internalTrafficPolicy }}
+  internalTrafficPolicy: {{ .Values.serviceDhcp.internalTrafficPolicy }}
+    {{- end }}
   {{- end }}
   ports:
     - port: {{ .Values.serviceDhcp.port }}

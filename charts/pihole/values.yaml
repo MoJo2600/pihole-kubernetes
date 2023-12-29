@@ -46,8 +46,12 @@ serviceDns:
   # -- Optional node port for the DNS service
   nodePort: ""
 
-  # -- `spec.externalTrafficPolicy` for the DHCP Service
+  # -- `spec.externalTrafficPolicy` for the DNS Service
   externalTrafficPolicy: Local
+
+  # -- 'spec.internalTrafficPolicy' for the DNS Service
+  # Optional - will default to Cluster if not specified
+  # internalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the DNS Service
   loadBalancerIP: ""
@@ -76,6 +80,10 @@ serviceDhcp:
 
   # -- `spec.externalTrafficPolicy` for the DHCP Service
   externalTrafficPolicy: Local
+
+  # -- 'spec.internalTrafficPolicy' for the DHCP Service
+  # Optional - will default to Cluster if not specified
+  # internalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the DHCP Service
   loadBalancerIP: ""
@@ -117,6 +125,10 @@ serviceWeb:
 
   # -- `spec.externalTrafficPolicy` for the web interface Service
   externalTrafficPolicy: Local
+
+  # -- 'spec.internalTrafficPolicy' for the web interface Service
+  # Optional - will default to Cluster if not specified
+  # internalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the web interface Service
   loadBalancerIP: ""

@@ -22,6 +22,9 @@ spec:
   {{- end }}
   {{- if or (eq .Values.serviceDns.type "NodePort") (eq .Values.serviceDns.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceDns.externalTrafficPolicy }}
+    {{- if .Values.serviceDns.internalTrafficPolicy }}
+  internalTrafficPolicy: {{ .Values.serviceDns.internalTrafficPolicy }}
+    {{- end }}
   {{- end }}
   ports:
     - port: {{ .Values.serviceDns.port }}
