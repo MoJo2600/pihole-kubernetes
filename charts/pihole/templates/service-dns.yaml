@@ -17,8 +17,18 @@ spec:
   {{- if .Values.serviceDns.loadBalancerIP }}
   loadBalancerIP: {{ .Values.serviceDns.loadBalancerIP }}
   {{- end }}
+  {{- if .Values.serviceDns.clusterIP }}
+  clusterIP: {{ .Values.serviceDns.clusterIP }}
+  {{- end }}
   {{- if or (eq .Values.serviceDns.type "NodePort") (eq .Values.serviceDns.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceDns.externalTrafficPolicy }}
+    {{- if .Values.serviceDns.internalTrafficPolicy }}
+  internalTrafficPolicy: {{ .Values.serviceDns.internalTrafficPolicy }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.serviceDns.externalIPs  }}
+  externalIPs:
+    {{- toYaml .Values.serviceDns.externalIPs | nindent 8 }}
   {{- end }}
   ports:
     - port: {{ .Values.serviceDns.port }}
