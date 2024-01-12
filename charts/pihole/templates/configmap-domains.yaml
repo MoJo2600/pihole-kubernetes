@@ -1,20 +1,20 @@
-{{ if .Values.cmdlist }}
+{{ if .Values.domains }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "pihole.fullname" . }}-cmdlist
+  name: {{ template "pihole.fullname" . }}-domains
   labels:
     app: {{ template "pihole.name" . }}
     chart: {{ template "pihole.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-  cmdlist.sh: |
+  domains.sh: |
     #!/usr/bin/env bash
     # shellcheck disable=SC1090
 
     # List of pihole commands to configure / reconfigure permit and deny lists
-  {{- if eq .Values.cmdlist.alwaysNuke true }}
+  {{- if eq .Values.domains.alwaysNuke true }}
     pihole -w --nuke --noreload 
     pihole -b --nuke --noreload 
     pihole --white-wild --nuke --noreload 
@@ -24,33 +24,33 @@ data:
     pihole restartdns reload
     sleep 5
   {{- end }}
-  {{- if .Values.cmdlist.permit }}
-    {{- range .Values.cmdlist.permit }}
+  {{- if .Values.domains.permit }}
+    {{- range .Values.domains.permit }}
     pihole -w --noreload {{ . }} --comment "Added by pihole Helm chart"
     {{- end }}
   {{- end }}
-  {{- if .Values.cmdlist.deny }}
-    {{- range .Values.cmdlist.deny }}
+  {{- if .Values.domains.deny }}
+    {{- range .Values.domains.deny }}
     pihole -b --noreload {{ . }} --comment "Added by pihole Helm chart"
     {{- end }}
   {{- end }}
-  {{- if .Values.cmdlist.permitWild }}
-    {{- range .Values.cmdlist.permitWild }}
+  {{- if .Values.domains.permitWildcard }}
+    {{- range .Values.domains.permitWildcard }}
     pihole --white-wild --noreload {{ . }} --comment "Added by pihole Helm chart"
     {{- end }}
   {{- end }}
-  {{- if .Values.cmdlist.denyWild }}
-    {{- range .Values.cmdlist.denyWild }}
+  {{- if .Values.domains.denyWildcard }}
+    {{- range .Values.domains.denyWildcard }}
     pihole --wild --noreload {{ . }} --comment "Added by pihole Helm chart"
     {{- end }}
   {{- end }}
-  {{- if .Values.cmdlist.permitRegex }}
-    {{- range .Values.cmdlist.permitRegex }}
+  {{- if .Values.domains.permitRegex }}
+    {{- range .Values.domains.permitRegex }}
     pihole --white-regex --noreload '{{ . }}' --comment "Added by pihole Helm chart"
     {{- end }}
   {{- end }}
-  {{- if .Values.cmdlist.denyRegex }}
-    {{- range .Values.cmdlist.denyRegex }}
+  {{- if .Values.domains.denyRegex }}
+    {{- range .Values.domains.denyRegex }}
     pihole --regex --noreload '{{ . }}' --comment "Added by pihole Helm chart"
     {{- end }}
   {{- end }}

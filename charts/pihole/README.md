@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.9.3](https://img.shields.io/badge/Version-2.9.3-informational?style=flat-square) ![AppVersion: 2022.09.1](https://img.shields.io/badge/AppVersion-2022.09.1-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 2.21.0](https://img.shields.io/badge/Version-2.21.0-informational?style=flat-square) ![AppVersion: 2023.11.0](https://img.shields.io/badge/AppVersion-2023.11.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -173,9 +173,10 @@ The following table lists the configurable parameters of the pihole chart and th
 | affinity | object | `{}` |  |
 | antiaff.avoidRelease | string | `"pihole1"` | Here you can set the pihole release (you set in `helm install <releasename> ...`) you want to avoid |
 | antiaff.enabled | bool | `false` | set to true to enable antiaffinity (example: 2 pihole DNS in the same cluster) |
+| antiaff.namespaces | list | `[]` | Here you can pass namespaces to be part of those inclueded in anti-affinity |
 | antiaff.strict | bool | `true` | Here you can choose between preferred or required |
-| antiaff.namespaces | '[]' | list of namespaces to include in anti-affinity settings
 | blacklist | object | `{}` | list of blacklisted domains to import during initial start of the container |
+| capabilities | object | `{}` |  |
 | customVolumes.config | object | `{}` | any volume type can be used here |
 | customVolumes.enabled | bool | `false` | set this to true to enable custom volumes |
 | dnsHostPort.enabled | bool | `false` | set this to true to enable dnsHostPort |
@@ -199,7 +200,9 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.pullPolicy | string | `"IfNotPresent"` |  |
 | doh.repository | string | `"crazymax/cloudflared"` |  |
 | doh.tag | string | `"latest"` |  |
+| domains | object | `{"alwaysNuke":false,"deny":[],"denyRegex":[],"denyWildcard":[],"permit":[],"permitRegex":[],"permitWildcard":[]}` | An alternate method of configuration using pihole cmd script rather than reading legacy files at startup This will allow for permit wildcards which can't be done with the old config manner |
 | dualStack.enabled | bool | `false` | set this to true to enable creation of DualStack services or creation of separate IPv6 services if `serviceDns.type` is set to `"LoadBalancer"` |
+| extraContainers | list | `[]` |  |
 | extraEnvVars | object | `{}` | extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use |
 | extraEnvVarsSecret | object | `{}` | extraEnvVarsSecret is a list of secrets to load in as environment variables. |
 | extraInitContainers | list | `[]` | any initContainers you might want to run before starting pihole |
@@ -226,16 +229,16 @@ The following table lists the configurable parameters of the pihole chart and th
 | persistentVolumeClaim.annotations | object | `{}` | Annotations for the `PersitentVolumeClaim` |
 | persistentVolumeClaim.enabled | bool | `false` | set to true to use pvc |
 | podAnnotations | object | `{}` | Additional annotations for pods |
+| podDisruptionBudget | object | `{"enabled":false,"minAvailable":1}` | configure a Pod Disruption Budget |
+| podDisruptionBudget.enabled | bool | `false` | set to true to enable creating the PDB |
+| podDisruptionBudget.minAvailable | int | `1` | minimum number of pods Kubernetes should try to have running at all times |
 | podDnsConfig.enabled | bool | `true` |  |
 | podDnsConfig.nameservers[0] | string | `"127.0.0.1"` |  |
 | podDnsConfig.nameservers[1] | string | `"8.8.8.8"` |  |
 | podDnsConfig.policy | string | `"None"` |  |
 | privileged | string | `"false"` | should container run in privileged mode |
-| capabilities | object | `{}` | Linux capabilities that container should run with |
-| probes | object | `{"liveness":{"type": "httpGet","enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5},"readiness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5}}` | Probes configuration |
-| probes.liveness.enabled | bool | `true` | Generate a liveness probe |
-| probes.liveness.type | string | `httpGet` | Defines the type of liveness probe. (httpGet, command) |
-| probes.liveness.command | list | [] | A list of commands to execute as a liveness probe (Requires `type` to be set to `command`) |
+| probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5,"type":"httpGet"},"readiness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5}}` | Probes configuration |
+| probes.liveness.type | string | `"httpGet"` | Generate a liveness probe 'type' defaults to httpGet, can be set to 'command' to use a command type liveness probe. |
 | probes.readiness.enabled | bool | `true` | Generate a readiness probe |
 | regex | object | `{}` | list of blacklisted regex expressions to import during initial start of the container |
 | replicaCount | int | `1` | The number of replicas |
@@ -251,7 +254,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceDhcp.type | string | `"NodePort"` | `spec.type` for the DHCP Service |
 | serviceDns | object | `{"annotations":{},"externalTrafficPolicy":"Local","loadBalancerIP":"","loadBalancerIPv6":"","mixedService":false,"nodePort":"","port":53,"type":"NodePort"}` | Configuration for the DNS service on port 53 |
 | serviceDns.annotations | object | `{}` | Annotations for the DNS service |
-| serviceDns.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
+| serviceDns.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DNS Service |
 | serviceDns.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DNS Service |
 | serviceDns.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 DNS Service |
 | serviceDns.mixedService | bool | `false` | deploys a mixed (TCP + UDP) Service instead of separate ones |
@@ -399,4 +402,4 @@ Thanks goes to these wonderful people:
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.10.0](https://github.com/norwoodj/helm-docs/releases/v1.10.0)
+Autogenerated from chart metadata using [helm-docs v1.12.0](https://github.com/norwoodj/helm-docs/releases/v1.12.0)

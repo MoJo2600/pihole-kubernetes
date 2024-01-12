@@ -388,7 +388,7 @@ regex:
 
 # -- An alternate method of configuration using pihole cmd script rather than reading legacy files at startup
 # This will allow for permit wildcards which can't be done with the old config manner
-cmdlist:
+domains:
 
   # alwaysNuke will delete all existing list content before loading this configuration
   # This will also delete any permit and denies you have added with the legacy method
@@ -405,14 +405,14 @@ cmdlist:
 
   # Wildcard Permit List
   # These will be converted by Pihole into regex allowing the domain and it's subdomains
-  # So the below example will end up as regex permit liek '(^|\.)permitwildexample\.com$''
-  permitWild: []
-  # - permitwildexample.com
+  # So the below example will end up as regex permit liek '(^|\.)permitWildcardexample\.com$''
+  permitWildcard: []
+  # - permitWildcardexample.com
 
   # Wildcard Deny List
   # These will be converted by Pihole into regex as above
-  denyWild: []
-  # - denywildexample.com
+  denyWildcard: []
+  # - denyWildcardexample.com
 
   # Regex Permit List
   permitRegex: []
