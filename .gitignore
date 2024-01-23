@@ -1,2 +1,3 @@
-values.yaml
-node_modules/
+/values.yaml
+**/node_modules/
+.cr-release-packages/
