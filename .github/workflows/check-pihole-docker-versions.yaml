@@ -44,7 +44,7 @@ jobs:
           echo "New pihole version: ${{ steps.version-check.outputs.latest_pihole_version }}"
           V="${{ steps.version-check.outputs.latest_pihole_version }}" yq -i '.appVersion |= env(V)' charts/pihole/Chart.yaml
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v5
         if: ${{ steps.version-check.outputs.new_version == 'true' }}
         with:
           commit_message: 'feat: Bump pihole version to ${{ steps.version-check.outputs.latest_pihole_version }}'

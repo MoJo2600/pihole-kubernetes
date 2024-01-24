@@ -162,7 +162,9 @@ probes:
     #   - -c
     #   - /bin/true
     enabled: true
+    # -- wait time before trying the liveness probe
     initialDelaySeconds: 60
+    # -- threshold until the probe is considered failing
     failureThreshold: 10
     timeoutSeconds: 5
     port: http
