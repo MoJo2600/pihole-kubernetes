@@ -13,6 +13,5 @@
     "include-v-in-tag": false,
     "tag-separator": "-",
     "pull-request-title-pattern": "chore${scope}: release${component}-${version}",
-    "bootstrap-sha": "85231b7fbba9a61dce700d975d0ccd83cae5b297",
-    "release-as": "2.22.0"
+    "bootstrap-sha": "85231b7fbba9a61dce700d975d0ccd83cae5b297"
 }
