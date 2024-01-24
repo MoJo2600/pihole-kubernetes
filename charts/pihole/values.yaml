@@ -43,6 +43,23 @@ serviceDns:
   # -- The port of the DNS service
   port: 53
 
+  # -- Configuration for TCP port mapping
+  tcp:
+    # -- Create a tcp port mapping
+    enabled: true
+    # -- External port to use for TCP only
+    port: 53
+    # -- Extra annotations for TCP service
+    annotations: {}
+  # -- Configuration for UDP port mapping
+  udp:
+    # -- Create a udp port mapping
+    enabled: true
+    # -- External port to use for UDP only
+    port: 53
+    # -- Extra annotations for UDP service
+    annotations: {}
+
   # -- Optional node port for the DNS service
   nodePort: ""
 

@@ -1,4 +1,4 @@
-{{- if not .Values.serviceDns.mixedService }}
+{{- if and (not .Values.serviceDns.mixedService) (.Values.serviceDns.udp.enabled) }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -8,9 +8,14 @@ metadata:
     chart: {{ template "pihole.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-{{- if .Values.serviceDns.annotations }}
+{{- if or .Values.serviceDns.annotations .Values.serviceDns.udp.annotations }}
   annotations:
+{{- if .Values.serviceDns.annotations }}
 {{ toYaml .Values.serviceDns.annotations | indent 4 }}
+{{- end }}
+{{- if .Values.serviceDns.udp.annotations }}
+{{ toYaml .Values.serviceDns.upd.annotations | indent 4 }}
+{{- end }}
 {{- end }}
 spec:
   type: {{ .Values.serviceDns.type }}
@@ -27,7 +32,7 @@ spec:
   externalTrafficPolicy: {{ .Values.serviceDns.externalTrafficPolicy }}
   {{- end }}
   ports:
-    - port: {{ .Values.serviceDns.port }}
+    - port: {{ .Values.serviceDns.udp.port | default .Values.serviceDns.port }}
       targetPort: dns-udp
       {{- if and (.Values.serviceDns.nodePort) (eq .Values.serviceDns.type "NodePort") }}
       nodePort: {{ .Values.serviceDns.nodePort }}
@@ -48,9 +53,14 @@ metadata:
     chart: {{ template "pihole.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-{{- if .Values.serviceDns.annotations }}
+{{- if or .Values.serviceDns.annotations .Values.serviceDns.udp.annotations }}
   annotations:
+{{- if .Values.serviceDns.annotations }}
 {{ toYaml .Values.serviceDns.annotations | indent 4 }}
+{{- end }}
+{{- if .Values.serviceDns.udp.annotations }}
+{{ toYaml .Values.serviceDns.udp.annotations | indent 4 }}
+{{- end }}
 {{- end }}
 spec:
   type: {{ .Values.serviceDns.type }}
@@ -64,7 +74,7 @@ spec:
   externalTrafficPolicy: {{ .Values.serviceDns.externalTrafficPolicy }}
   {{- end }}
   ports:
-    - port: {{ .Values.serviceDns.port }}
+    - port: {{ .Values.serviceDns.udp.port | default .Values.serviceDns.port }}
       targetPort: dns-udp
       protocol: UDP
       name: dns-udp
