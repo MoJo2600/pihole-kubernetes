@@ -166,6 +166,7 @@ probes:
     initialDelaySeconds: 60
     # -- threshold until the probe is considered failing
     failureThreshold: 10
+    # -- timeout in seconds
     timeoutSeconds: 5
     port: http
     scheme: HTTP
