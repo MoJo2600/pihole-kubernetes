@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.22.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-v2.28.0...pihole-2.22.0) (2024-02-16)
+
+
+### Features
+
+* add support for service extraLabels ([#266](https://github.com/MoJo2600/pihole-kubernetes/issues/266)) ([4a09a58](https://github.com/MoJo2600/pihole-kubernetes/commit/4a09a5839e35d075598343bdf138161cf4ed5da7))
+* Bump pihole version to 2024.02.0 ([#283](https://github.com/MoJo2600/pihole-kubernetes/issues/283)) ([f9ec0af](https://github.com/MoJo2600/pihole-kubernetes/commit/f9ec0af000d6e4724010e5c18004896031485450))
+* Change to trigger a new Release ([#280](https://github.com/MoJo2600/pihole-kubernetes/issues/280)) ([dea65aa](https://github.com/MoJo2600/pihole-kubernetes/commit/dea65aa7d2e17336c63cb4ee8fdbb5f13eceaab6))
+
 ## [2.28.0](https://github.com/MoJo2600/pihole-kubernetes-githubactions/compare/pihole-2.27.15...pihole-2.28.0) (2024-01-22)
 
 
