@@ -2,9 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.21.0](https://img.shields.io/badge/Version-2.21.0-informational?style=flat-square) ![AppVersion: 2024.01.0](https://img.shields.io/badge/AppVersion-2024.01.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
+![Version: 2.22.0](https://img.shields.io/badge/Version-2.22.0-informational?style=flat-square) ![AppVersion: 2024.02.0](https://img.shields.io/badge/AppVersion-2024.02.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->[![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ## Source Code
 
@@ -182,6 +180,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | customVolumes.enabled | bool | `false` | set this to true to enable custom volumes |
 | dnsHostPort.enabled | bool | `false` | set this to true to enable dnsHostPort |
 | dnsHostPort.port | int | `53` | default port for this pod |
+| dnsmasq | object | `{"additionalHostsEntries":[],"customCnameEntries":[],"customDnsEntries":[],"customSettings":null,"staticDhcpEntries":[],"upstreamServers":[]}` | DNS MASQ settings |
 | dnsmasq.additionalHostsEntries | list | `[]` | Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like |
 | dnsmasq.customCnameEntries | list | `[]` | Here we specify custom cname entries that should point to `A` records or elements in customDnsEntries array. The format should be:  - cname=cname.foo.bar,foo.bar  - cname=cname.bar.foo,bar.foo  - cname=cname record,dns record |
 | dnsmasq.customDnsEntries | list | `[]` | Add custom dns entries to override the dns resolution. All lines will be added to the pihole dnsmasq configuration. |
@@ -190,7 +189,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | dnsmasq.upstreamServers | list | `[]` | Add upstream dns servers. All lines will be added to the pihole dnsmasq configuration |
 | doh.enabled | bool | `false` | set to true to enabled DNS over HTTPs via cloudflared |
 | doh.envVars | object | `{}` | Here you can pass environment variables to the DoH container, for example: |
-| doh.name | string | `"cloudflared"` |  |
+| doh.name | string | `"cloudflared"` | name |
 | doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5}}` | Probes configuration |
 | doh.probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5}` | Configure the healthcheck for the doh container |
 | doh.probes.liveness.enabled | bool | `true` | set to true to enable liveness probe |
@@ -198,8 +197,8 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.probes.liveness.initialDelaySeconds | int | `60` | defines the initial delay for the liveness probe |
 | doh.probes.liveness.probe | object | `{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}}` | customize the liveness probe |
 | doh.probes.liveness.timeoutSeconds | int | `5` | defines the timeout in secondes for the liveness probe |
-| doh.pullPolicy | string | `"IfNotPresent"` |  |
-| doh.repository | string | `"crazymax/cloudflared"` |  |
+| doh.pullPolicy | string | `"IfNotPresent"` | Pull policy |
+| doh.repository | string | `"crazymax/cloudflared"` | repository |
 | doh.tag | string | `"latest"` |  |
 | dualStack.enabled | bool | `false` | set this to true to enable creation of DualStack services or creation of separate IPv6 services if `serviceDns.type` is set to `"LoadBalancer"` |
 | extraContainers | list | `[]` |  |
@@ -224,10 +223,12 @@ The following table lists the configurable parameters of the pihole chart and th
 | monitoring.podMonitor.enabled | bool | `false` | set this to true to enable podMonitor |
 | monitoring.sidecar | object | `{"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"ekofr/pihole-exporter","tag":"v0.3.0"},"port":9617,"resources":{"limits":{"memory":"128Mi"}}}` | Sidecar configuration |
 | monitoring.sidecar.enabled | bool | `false` | set this to true to enable podMonitor as sidecar |
-| nodeSelector | object | `{}` |  |
+| monitoring.sidecar.image.repository | string | `"ekofr/pihole-exporter"` | the repository to use |
+| nodeSelector | object | `{}` | Node selector values |
 | persistentVolumeClaim | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"size":"500Mi"}` | `spec.PersitentVolumeClaim` configuration |
 | persistentVolumeClaim.annotations | object | `{}` | Annotations for the `PersitentVolumeClaim` |
 | persistentVolumeClaim.enabled | bool | `false` | set to true to use pvc |
+| persistentVolumeClaim.size | string | `"500Mi"` | volume claim size |
 | podAnnotations | object | `{}` | Additional annotations for pods |
 | podDisruptionBudget | object | `{"enabled":false,"minAvailable":1}` | configure a Pod Disruption Budget |
 | podDisruptionBudget.enabled | bool | `false` | set to true to enable creating the PDB |
@@ -238,32 +239,42 @@ The following table lists the configurable parameters of the pihole chart and th
 | podDnsConfig.policy | string | `"None"` |  |
 | privileged | string | `"false"` | should container run in privileged mode |
 | probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5,"type":"httpGet"},"readiness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5}}` | Probes configuration |
+| probes.liveness.failureThreshold | int | `10` | threshold until the probe is considered failing |
+| probes.liveness.initialDelaySeconds | int | `60` | wait time before trying the liveness probe |
+| probes.liveness.timeoutSeconds | int | `5` | timeout in seconds |
 | probes.liveness.type | string | `"httpGet"` | Generate a liveness probe 'type' defaults to httpGet, can be set to 'command' to use a command type liveness probe. |
 | probes.readiness.enabled | bool | `true` | Generate a readiness probe |
+| probes.readiness.failureThreshold | int | `3` | The failure threshold |
+| probes.readiness.initialDelaySeconds | int | `60` | Initial delay to wait for readiness check |
+| probes.readiness.port | string | `"http"` | The port |
+| probes.readiness.timeoutSeconds | int | `5` | The timeout in seconds |
 | regex | object | `{}` | list of blacklisted regex expressions to import during initial start of the container |
 | replicaCount | int | `1` | The number of replicas |
 | resources | object | `{}` | lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
-| serviceDhcp | object | `{"annotations":{},"enabled":true,"externalTrafficPolicy":"Local","loadBalancerIP":"","loadBalancerIPv6":"","nodePort":"","port":67,"type":"NodePort"}` | Configuration for the DHCP service on port 67 |
+| serviceDhcp | object | `{"annotations":{},"enabled":true,"externalTrafficPolicy":"Local","extraLabels":{},"loadBalancerIP":"","loadBalancerIPv6":"","nodePort":"","port":67,"type":"NodePort"}` | Configuration for the DHCP service on port 67 |
 | serviceDhcp.annotations | object | `{}` | Annotations for the DHCP service |
 | serviceDhcp.enabled | bool | `true` | Generate a Service resource for DHCP traffic |
 | serviceDhcp.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
+| serviceDhcp.extraLabels | object | `{}` | Labels for the DHCP service |
 | serviceDhcp.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DHCP Service |
 | serviceDhcp.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service |
 | serviceDhcp.nodePort | string | `""` | Optional node port for the DHCP service |
 | serviceDhcp.port | int | `67` | The port of the DHCP service |
 | serviceDhcp.type | string | `"NodePort"` | `spec.type` for the DHCP Service |
-| serviceDns | object | `{"annotations":{},"externalTrafficPolicy":"Local","loadBalancerIP":"","loadBalancerIPv6":"","mixedService":false,"nodePort":"","port":53,"type":"NodePort"}` | Configuration for the DNS service on port 53 |
+| serviceDns | object | `{"annotations":{},"externalTrafficPolicy":"Local","extraLabels":{},"loadBalancerIP":"","loadBalancerIPv6":"","mixedService":false,"nodePort":"","port":53,"type":"NodePort"}` | Configuration for the DNS service on port 53 |
 | serviceDns.annotations | object | `{}` | Annotations for the DNS service |
 | serviceDns.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
+| serviceDns.extraLabels | object | `{}` | Labels for the DNS service |
 | serviceDns.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DNS Service |
 | serviceDns.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 DNS Service |
 | serviceDns.mixedService | bool | `false` | deploys a mixed (TCP + UDP) Service instead of separate ones |
 | serviceDns.nodePort | string | `""` | Optional node port for the DNS service |
 | serviceDns.port | int | `53` | The port of the DNS service |
 | serviceDns.type | string | `"NodePort"` | `spec.type` for the DNS Service |
-| serviceWeb | object | `{"annotations":{},"externalTrafficPolicy":"Local","http":{"enabled":true,"nodePort":"","port":80},"https":{"enabled":true,"nodePort":"","port":443},"loadBalancerIP":"","loadBalancerIPv6":"","type":"ClusterIP"}` | Configuration for the web interface service |
+| serviceWeb | object | `{"annotations":{},"externalTrafficPolicy":"Local","extraLabels":{},"http":{"enabled":true,"nodePort":"","port":80},"https":{"enabled":true,"nodePort":"","port":443},"loadBalancerIP":"","loadBalancerIPv6":"","type":"ClusterIP"}` | Configuration for the web interface service |
 | serviceWeb.annotations | object | `{}` | Annotations for the DHCP service |
 | serviceWeb.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the web interface Service |
+| serviceWeb.extraLabels | object | `{}` | Labels for the web interface service |
 | serviceWeb.http | object | `{"enabled":true,"nodePort":"","port":80}` | Configuration for the HTTP web interface listener |
 | serviceWeb.http.enabled | bool | `true` | Generate a service for HTTP traffic |
 | serviceWeb.http.nodePort | string | `""` | Optional node port for the web HTTP service |
@@ -276,7 +287,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceWeb.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 web interface Service |
 | serviceWeb.type | string | `"ClusterIP"` | `spec.type` for the web interface Service |
 | strategyType | string | `"RollingUpdate"` | The `spec.strategyTpye` for updates |
-| tolerations | list | `[]` |  |
+| tolerations | list | `[]` | Toleration |
 | topologySpreadConstraints | list | `[]` | Specify a priorityClassName priorityClassName: "" Reference: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/ |
 | virtualHost | string | `"pi.hole"` |  |
 | webHttp | string | `"80"` | port the container should use to expose HTTP traffic |
