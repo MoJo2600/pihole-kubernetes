@@ -1,0 +1,16 @@
+{{ if .Values.dnsmasq.customDnsEntries }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "pihole.fullname" . }}-custom-dns
+  labels:
+    app: {{ template "pihole.name" . }}
+    chart: {{ template "pihole.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  custom.list: |
+  {{- range .Values.dnsmasq.customDnsEntries }}
+    {{ .address }} {{ .domain }}
+  {{- end }}
+{{ end }}

@@ -29,6 +29,7 @@ spec:
         checksum.config.whitelist: {{ include (print $.Template.BasePath "/configmap-whitelist.yaml") . | sha256sum | trunc 63 }}
         checksum.config.dnsmasqConfig: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum | trunc 63 }}
         checksum.config.staticDhcpConfig: {{ include (print $.Template.BasePath "/configmap-static-dhcp.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.customDnsConfig: {{ include (print $.Template.BasePath "/configmap-custom-dns.yaml") . | sha256sum | trunc 63 }}
 {{- with .Values.podAnnotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
@@ -244,10 +245,20 @@ spec:
           - mountPath: /etc/addn-hosts
             name: custom-dnsmasq
             subPath: addn-hosts
+          {{- if .Values.dnsmasq.staticDhcpEntries }}
+          - mountPath: /etc/dnsmasq.d/04-pihole-static-dhcp.conf
+            name: static-dhcp
+            subPath: pihole-static-dhcp.conf
+          {{- end }}
           {{- if .Values.dnsmasq.customCnameEntries }}
           - mountPath: /etc/dnsmasq.d/05-pihole-custom-cname.conf
             name: custom-dnsmasq
             subPath: 05-pihole-custom-cname.conf
+          {{- end }}
+          {{- if .Values.dnsmasq.customDnsEntries }}
+          - mountPath: /etc/pihole/custom.list
+            name: custom-dns
+            subPath: custom.list
           {{- end }}
           {{- if .Values.adlists }}
           - mountPath: /etc/pihole/adlists.list
@@ -268,11 +279,6 @@ spec:
           - mountPath: /etc/pihole/whitelist.txt
             name: whitelist
             subPath: whitelist.txt
-          {{- end }}
-          {{- if .Values.dnsmasq.staticDhcpEntries }}
-          - mountPath: /etc/dnsmasq.d/04-pihole-static-dhcp.conf
-            name: static-dhcp
-            subPath: pihole-static-dhcp.conf
           {{- end }}
           {{- range $key, $value := .Values.extraVolumeMounts }}
           - name: {{ $key }}
@@ -330,6 +336,12 @@ spec:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-static-dhcp
         name: static-dhcp
+      {{- end }}
+      {{- if .Values.dnsmasq.customDnsEntries }}
+      - configMap:
+          defaultMode: 420
+          name: {{ template "pihole.fullname" . }}-custom-dns
+        name: custom-dns
       {{- end }}
       {{- if .Values.blacklist }}
       - configMap:
