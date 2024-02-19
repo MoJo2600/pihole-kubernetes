@@ -325,9 +325,19 @@ dnsmasq:
 
   # -- Add custom dns entries to override the dns resolution. All lines will be added to the pihole dnsmasq configuration.
   customDnsEntries: []
-  # - address=/foo.bar/192.168.178.10
-  # - address=/bar.foo/192.168.178.11
+  # - domain: foo.bar
+  #   address: 192.168.178.10
+  # - domain: bar.foo
+  #   address: 192.168.178.11
 
+  # -- Here we specify custom cname entries that should point to `A` records or
+  # elements in customDnsEntries array.
+  customCnameEntries: []
+  # - domain: cname.foo.bar
+  #   target: foo.bar
+  # - domain: cname.bar.foo
+  #   target: bar.foo
+  
   # -- Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like
   additionalHostsEntries: []
   # - 192.168.0.3     host4
@@ -342,20 +352,6 @@ dnsmasq:
   customSettings:
   # otherSettings:
   # - rebind-domain-ok=/plex.direct/
-
-  # -- Here we specify custom cname entries that should point to `A` records or
-  # elements in customDnsEntries array.
-  # The format should be:
-  #  - cname=cname.foo.bar,foo.bar
-  #  - cname=cname.bar.foo,bar.foo
-  #  - cname=cname record,dns record
-  customCnameEntries: []
-  # Here we specify custom cname entries that should point to `A` records or
-  # elements in customDnsEntries array.
-  # The format should be:
-  #   - cname=cname.foo.bar,foo.bar
-  #   - cname=cname.bar.foo,bar.foo
-  #   - cname=cname record,dns record
 
 # -- list of adlists to import during initial start of the container
 adlists: {}

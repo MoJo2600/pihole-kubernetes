@@ -9,24 +9,24 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
   02-custom.conf: |
-    addn-hosts=/etc/addn-hosts
-  {{- range .Values.dnsmasq.upstreamServers }}
-    {{ . }}
-  {{- end }}
-  {{- range .Values.dnsmasq.customDnsEntries }}
-    {{ . }}
-  {{- end }}
-  {{- if .Values.serviceDns.loadBalancerIP }}
-    dhcp-option=6,{{ .Values.serviceDns.loadBalancerIP }}
-  {{- end }}
-  {{- range .Values.dnsmasq.customSettings }}
-    {{ . }}
-  {{- end }}
+      addn-hosts=/etc/addn-hosts
+    {{- range .Values.dnsmasq.upstreamServers }}
+      {{ . }}
+    {{- end }}
+    {{- range .Values.dnsmasq.customDnsEntries }}
+      address=/{{ .domain }}/{{ .address }}
+    {{- end }}
+    {{- if .Values.serviceDns.loadBalancerIP }}
+      dhcp-option=6,{{ .Values.serviceDns.loadBalancerIP }}
+    {{- end }}
+    {{- range .Values.dnsmasq.customSettings }}
+      {{ . }}
+    {{- end }}
   addn-hosts: |
-  {{- range .Values.dnsmasq.additionalHostsEntries }}
-    {{ . }}
-  {{- end }}
+    {{- range .Values.dnsmasq.additionalHostsEntries }}
+      {{ . }}
+    {{- end }}
   05-pihole-custom-cname.conf: |
-  {{- range .Values.dnsmasq.customCnameEntries }}
-    {{ . }}
-  {{- end }}
+    {{- range .Values.dnsmasq.customCnameEntries }}
+      cname={{ .domain }},{{ .target }}
+    {{- end }}
