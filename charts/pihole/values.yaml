@@ -265,7 +265,7 @@ admin:
   existingSecret: ""
   # -- Specify the key inside the secret to use
   passwordKey: "password"
-  # -- Specify annotations to be added to the secret
+  # -- Specify [annotations](docs/Values.md#admin.annotations) to be added to the secret
   annotations:
     # reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
     # reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "external-dns"
