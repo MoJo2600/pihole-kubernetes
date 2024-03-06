@@ -69,3 +69,19 @@ admin:
     reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
     reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "external-dns"
 ```
+
+For Reflector to work we also need to create the mirror (target) secret in ExternalDNS' namespace like this:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  # Change this to match the secretRef used in the ExternalDNS deployment:
+  name: pihole-password
+  # Change this to ExternalDNS' namespace:
+  namespace: external-dns
+  annotations:
+    # Change this to address the pihole password secret: 'namespace/secret-name':
+    reflector.v1.k8s.emberstack.com/reflects: "pihole/pihole-password"
+data: {}  # Will be overwritten by Reflector
+```
