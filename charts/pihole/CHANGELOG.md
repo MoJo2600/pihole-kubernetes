@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.22.1](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.22.0...pihole-2.22.1) (2024-03-06)
+
+
+### Bug Fixes
+
+* invalid web service manifest generation ([#288](https://github.com/MoJo2600/pihole-kubernetes/issues/288)) ([b1019dc](https://github.com/MoJo2600/pihole-kubernetes/commit/b1019dcdd2b3f42ba05dbca8b687ee2627d92411))
+* Update Chart.yaml ([#291](https://github.com/MoJo2600/pihole-kubernetes/issues/291)) ([f10c1fc](https://github.com/MoJo2600/pihole-kubernetes/commit/f10c1fca167346de4fbd6681cfebd08cae7c13df))
+
 ## [2.22.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-v2.28.0...pihole-2.22.0) (2024-02-16)
 
 
