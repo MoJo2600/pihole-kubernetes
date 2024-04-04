@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.23.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.22.0...pihole-2.23.0) (2024-04-04)
+
+
+### Features
+
+* Add optional annotations to the password secret ([#287](https://github.com/MoJo2600/pihole-kubernetes/issues/287)) ([b71d543](https://github.com/MoJo2600/pihole-kubernetes/commit/b71d54321e4c78f2640e0bbd979f3ebe840b2660))
+* bump pihole version to 2024.03.2 Bump program version [Workflow Run]: https://github.com/MoJo2600/pihole-kubernetes/actions/runs/8555143588 ([#294](https://github.com/MoJo2600/pihole-kubernetes/issues/294)) ([6e9bd88](https://github.com/MoJo2600/pihole-kubernetes/commit/6e9bd882a0df505468bcdee2a3a476e2fb39058d))
+
+
+### Bug Fixes
+
+* invalid web service manifest generation ([#288](https://github.com/MoJo2600/pihole-kubernetes/issues/288)) ([b1019dc](https://github.com/MoJo2600/pihole-kubernetes/commit/b1019dcdd2b3f42ba05dbca8b687ee2627d92411))
+* Update Chart.yaml ([#291](https://github.com/MoJo2600/pihole-kubernetes/issues/291)) ([f10c1fc](https://github.com/MoJo2600/pihole-kubernetes/commit/f10c1fca167346de4fbd6681cfebd08cae7c13df))
+
 ## [2.22.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-v2.28.0...pihole-2.22.0) (2024-02-16)
 
 
