@@ -243,7 +243,7 @@ spec:
                 command:
                   - 'bash'
                   - '-c'
-                  - 'until grep "Enabling blocking" /var/log/pihole/FTL.log ; do echo Waiting for pihole >> /var/log/domains.log; sleep 2; done; sleep 20; source /etc/pihole/domains.sh >> /var/log/domains.log 2>&1'  
+                  - 'until grep "file renamed while open" /var/log/pihole/FTL.log ; do echo Waiting for pihole >> /var/log/domains.log; sleep 2; done; sleep 20; source /etc/pihole/domains.sh >> /var/log/domains.log 2>&1'  
           {{ end }}
           volumeMounts:
           - mountPath: /etc/pihole
