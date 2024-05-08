@@ -1,0 +1,80 @@
+name: "Helm Chart Releaser"
+description: "Host a Helm charts repo on GitHub Pages"
+author: "The Helm authors"
+branding:
+  color: blue
+  icon: anchor
+inputs:
+  version:
+    description: "The chart-releaser version to use (default: v1.5.0)"
+    required: false
+    default: v1.5.0
+  config:
+    description: "The relative path to the chart-releaser config file"
+    required: false
+  charts_dir:
+    description: The charts directory
+    required: false
+    default: charts
+  install_dir:
+    description: "Where to install the cr tool"
+    required: false
+  install_only:
+    description: "Just install cr tool"
+    required: false
+  skip_packaging:
+    description: "Skip the packaging option (do your custom packaging before running this action)"
+    required: false
+  skip_existing:
+    description: "Skip package upload if release exists"
+    required: false
+  mark_as_latest:
+    description: Mark the created GitHub release as 'latest'
+    required: false
+    default: true
+
+runs:
+  using: composite
+  steps:
+    - run: |
+        owner=$(cut -d '/' -f 1 <<< "$GITHUB_REPOSITORY")
+        repo=$(cut -d '/' -f 2 <<< "$GITHUB_REPOSITORY")
+
+        args=(--owner "$owner" --repo "$repo")
+        args+=(--charts-dir "${{ inputs.charts_dir }}")
+
+        if [[ -n "${{ inputs.version }}" ]]; then
+            args+=(--version "${{ inputs.version }}")
+        fi
+
+        if [[ -n "${{ inputs.config }}" ]]; then
+            args+=(--config "${{ inputs.config }}")
+        fi
+
+        if [[ -z "${{ inputs.install_dir }}" ]]; then
+          install="$RUNNER_TOOL_CACHE/cr/${{ inputs.version }}/$(uname -m)"
+          echo "$install" >> "$GITHUB_PATH"
+          args+=(--install-dir "$install")
+        else
+          echo ${{ inputs.install_dir }} >> "$GITHUB_PATH"
+          args+=(--install-dir "${{ inputs.install_dir }}")
+        fi
+
+        if [[ -n "${{ inputs.install_only }}" ]]; then
+            args+=(--install-only "${{ inputs.install_only }}")
+        fi
+
+        if [[ -n "${{ inputs.skip_packaging }}" ]]; then
+            args+=(--skip-packaging "${{ inputs.skip_packaging }}")
+        fi
+
+        if [[ -n "${{ inputs.skip_existing }}" ]]; then
+            args+=(--skip-existing "${{ inputs.skip_existing }}")
+        fi
+
+        if [[ -n "${{ inputs.mark_as_latest }}" ]]; then
+            args+=(--mark-as-latest "${{ inputs.mark_as_latest }}")
+        fi
+
+        "$GITHUB_ACTION_PATH/cr.sh" "${args[@]}"
+      shell: bash

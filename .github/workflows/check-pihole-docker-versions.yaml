@@ -1,0 +1,70 @@
+name: Check for new pihole version
+
+on:
+  schedule:
+    - cron:  '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  docker:
+    name: Check for new pihole version
+
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: ✨ Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 👀 Looking for a new version
+        id: version-check
+        run: |
+          CURRENT_PIHOLE_VERSION=$(cat charts/pihole/Chart.yaml | yq .appVersion)
+          curl -s 'https://registry.hub.docker.com/v2/repositories/pihole/pihole/tags/' > version.json
+          LATEST_PIHOLE_DIGEST=$(cat version.json | jq -r '.results[] | select(.name == "latest") | .digest')
+          LATEST_PIHOLE_VERSION=$(cat version.json | jq -r --arg v "$LATEST_PIHOLE_DIGEST" '.results[] | select(.digest==$v) | select(.name!="latest") | .name')
+          rm version.json
+          echo $CURRENT_PIHOLE_VERSION
+          echo $LATEST_PIHOLE_DIGEST
+          echo $LATEST_PIHOLE_VERSION
+          echo "latest_pihole_version=$LATEST_PIHOLE_VERSION" >> "$GITHUB_OUTPUT"
+          [[ "$LATEST_PIHOLE_VERSION" == "$CURRENT_PIHOLE_VERSION" ]] && echo "new_version=false" || echo "new_version=true" >> "$GITHUB_OUTPUT"
+
+      - name: Debug
+        run: |
+          echo ${{ steps.version-check.outputs.new_version }}
+          echo ${{ steps.version-check.outputs.new_version == true }}
+          echo ${{ steps.version-check.outputs.new_version == 'true' }}
+
+      - name: Update version
+        id: update-version
+        if: ${{ steps.version-check.outputs.new_version == 'true' }}
+        run: |
+          echo "New pihole version: ${{ steps.version-check.outputs.latest_pihole_version }}"
+          V="${{ steps.version-check.outputs.latest_pihole_version }}" yq -i '.appVersion |= env(V)' charts/pihole/Chart.yaml
+      
+      - name: 📢 Create Pull Request
+        id: create-pr
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ github.token }}
+          commit-message: >-
+            feat: bump pihole version to ${{ steps.version-check.outputs.latest_pihole_version }}
+
+            Bump program version
+
+            [Workflow Run]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          branch: deps/version-bump
+          title: "feat: bump pihole version to ${{ steps.version-check.outputs.latest_pihole_version }}"
+          body: >-
+            Bumps the version of the program to ${{ steps.version-check.outputs.latest_pihole_version }}. 
+            
+            See details in [workflow run].
+
+            [Workflow Run]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          author: github-actions <github-actions@github.com>
+          committer: github-actions <github-actions@github.com>
+          signoff: true
+
+

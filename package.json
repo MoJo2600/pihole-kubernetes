@@ -23,6 +23,6 @@
   },
   "homepage": "https://github.com/MoJo2600/pihole-kubernetes#readme",
   "devDependencies": {
-    "all-contributors-cli": "^6.20.0"
+    "all-contributors-cli": "^6.26.1"
   }
 }
