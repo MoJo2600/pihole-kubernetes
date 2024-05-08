@@ -521,6 +521,105 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "ebCrypto",
+      "name": "ebCrypto",
+      "avatar_url": "https://avatars.githubusercontent.com/u/44279886?v=4",
+      "profile": "https://github.com/ebCrypto",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "kenlasko",
+      "name": "Ken Lasko",
+      "avatar_url": "https://avatars.githubusercontent.com/u/44060527?v=4",
+      "profile": "https://ucdialplans.com/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "mbund",
+      "name": "Mark Bundschuh",
+      "avatar_url": "https://avatars.githubusercontent.com/u/25110595?v=4",
+      "profile": "https://github.com/mbund",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ekeih",
+      "name": "Max Rosin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3430656?v=4",
+      "profile": "https://fotoallerlei.com/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "yzeng1314",
+      "name": "Yang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6365365?v=4",
+      "profile": "https://github.com/yzeng1314",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "dwarf-king-hreidmar",
+      "name": "dwarf-king-hreidmar",
+      "avatar_url": "https://avatars.githubusercontent.com/u/45319558?v=4",
+      "profile": "https://github.com/dwarf-king-hreidmar",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "s94santos",
+      "name": "s94santos",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10950164?v=4",
+      "profile": "https://github.com/s94santos",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "adamrdavid",
+      "name": "Adam David",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1854876?v=4",
+      "profile": "https://github.com/adamrdavid",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "bkonicek",
+      "name": "Ben Konicek",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7397530?v=4",
+      "profile": "https://github.com/bkonicek",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Gabisonfire",
+      "name": "Gabisonfire",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6416239?v=4",
+      "profile": "https://github.com/Gabisonfire",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "giolekva",
+      "name": "Giorgi Lekveishvili",
+      "avatar_url": "https://avatars.githubusercontent.com/u/124899?v=4",
+      "profile": "https://github.com/giolekva",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

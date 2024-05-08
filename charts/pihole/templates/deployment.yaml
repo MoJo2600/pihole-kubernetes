@@ -89,10 +89,14 @@ spec:
             - name: PIHOLE_PORT
               value: "{{ .Values.webHttp }}"
             - name: PIHOLE_PASSWORD
+              {{- if .Values.admin.enabled }}
               valueFrom:
                 secretKeyRef:
                   key: {{ .Values.admin.passwordKey | default "password" }}
                   name: {{ .Values.admin.existingSecret | default (include "pihole.password-secret" .) }}
+              {{- else }}
+              value: ""
+              {{- end }}
           resources:
 {{ toYaml .Values.monitoring.sidecar.resources | indent 12 }}
           ports:
@@ -138,10 +142,14 @@ spec:
           - name: VIRTUAL_HOST
             value: {{ .Values.virtualHost }}
           - name: WEBPASSWORD
+            {{- if .Values.admin.enabled }}
             valueFrom:
               secretKeyRef:
                 key: {{ .Values.admin.passwordKey | default "password" }}
                 name: {{ .Values.admin.existingSecret | default (include "pihole.password-secret" .) }}
+            {{- else }}
+            value: ""
+            {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
           - name: {{ $key | quote }}
             value: {{ $value | quote }}

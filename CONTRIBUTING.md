@@ -2,21 +2,25 @@
 
 This charts project accepts contributions via GitHub pull requests. This document outlines the process to help get your contribution accepted.
 
+Any type of contribution is welcome; from new features, bug fixes, [tests](#testing) or documentation improvements.
+
+## How to Contribute
+
+1. Fork this repository, develop, and test your changes.
+2. Please [allow edits from maintainers](https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork) so small changes can be added if necessary.
+3. Ensure your Chart changes follow the [technical](#technical-requirements) and [documentation](#documentation-requirements) guidelines, described below.
+4. Submit a pull request.
+
 ### Reporting a Bug in Helm
 
-This repository is used by Chart developers for maintaining the official charts for Kubernetes Helm. If your issue is in the Helm tool itself, please use the issue tracker in the [helm/helm](https://github.com/helm/helm) repository.
-
-## How to Contribute to an Existing Chart
-
-1. Fork this repository, develop and test your Chart changes.
-1. Please [allow edits from maintainers](https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork) so small changes can be added if necessary.
-1. Ensure your Chart changes follow the [technical](#technical-requirements) and [documentation](#documentation-requirements) guidelines, described below.
-1. Submit a pull request.
+This repository is used by Chart developers for maintaining the inofficial pihole helm chart. If your issue is in the Helm tool itself, please use the issue tracker in the [helm/helm](https://github.com/helm/helm) repository.
 
 ### Technical Requirements
 
-* All Chart dependencies should also be submitted independently
-* Must pass the linter (`helm lint`)
+When submitting a PR make sure that it:
+
+* Must pass CI jobs for linting and test the changes on top of different k8s platforms. (Automatically done by the CI/CD pipeline).
+* Must follow [Helm best practices](https://helm.sh/docs/chart_best_practices/).
 * Must successfully launch with default values (`helm install .`)
     * All pods go to the running state (or NOTES.txt provides further instructions if a required value is missing e.g. [minecraft](https://github.com/helm/charts/blob/master/stable/minecraft/templates/NOTES.txt#L3))
     * All services have at least one endpoint
@@ -37,16 +41,39 @@ This repository is used by Chart developers for maintaining the official charts 
   (especially for [labels](https://helm.sh/docs/chart_best_practices/labels/)
   and [values](https://helm.sh/docs/chart_best_practices/values/))
 
+#### Sign Your Work
+
+The sign-off is a simple line at the end of the explanation for a commit. All commits needs to be signed. Your signature certifies that you wrote the patch or otherwise have the right to contribute the material. The rules are pretty simple, you only need to certify the guidelines from [developercertificate.org](https://developercertificate.org/).
+
+Then you just add a line to every git commit message:
+
+```text
+Signed-off-by: Joe Smith <joe.smith@example.com>
+```
+
+Use your real name (sorry, no pseudonyms or anonymous contributions.)
+
+If you set your `user.name` and `user.email` git configs, you can sign your commit automatically with `git commit -s`.
+
+Note: If your git config information is set properly then viewing the `git log` information for your commit will look something like this:
+
+```text
+Author: Joe Smith <joe.smith@example.com>
+Date:   Thu Feb 2 11:41:15 2018 -0800
+
+    Update README
+
+    Signed-off-by: Joe Smith <joe.smith@example.com>
+```
+
+Notice the `Author` and `Signed-off-by` lines match. If they don't your PR will be rejected by the automated DCO check.
+
 ### Documentation Requirements
 
-* Please update the `README.md.gotmpl` file and not the `README.md`, as the `README.md` is automatically generated with helm-docs
+* A chart's `README.md` must include configuration options. The tables of parameters are automatically generated based on the metadata information from the `values.yaml` file.
 * Please update `NOTES.txt` if necessary, including:
     * Any relevant post-installation information for the Chart
     * Instructions on how to access the application or service provided by the Chart
-
-### Add yourself to the list of contributors
-
-See the documentation on how to use the bot [here](https://allcontributors.org/docs/en/bot/usage)
 
 ### Merge Approval and Release Process
 

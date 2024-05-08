@@ -1,3 +1,4 @@
+{{- if or .Values.serviceWeb.http.enabled .Values.serviceWeb.https.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -7,6 +8,9 @@ metadata:
     chart: {{ template "pihole.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+{{- if .Values.serviceWeb.extraLabels }}
+{{ toYaml .Values.serviceWeb.extraLabels | indent 4 }}
+{{- end }}
 {{- if .Values.serviceWeb.annotations }}
   annotations:
 {{ toYaml .Values.serviceWeb.annotations | indent 4 }}
@@ -99,4 +103,5 @@ spec:
   selector:
     app: {{ template "pihole.name" . }}
     release: {{ .Release.Name }}
+{{- end }}
 {{- end }}
