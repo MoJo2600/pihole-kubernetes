@@ -2,7 +2,7 @@ apiVersion: v1
 description: Installs pihole in kubernetes
 home: https://github.com/MoJo2600/pihole-kubernetes/tree/main/charts/pihole
 name: pihole
-appVersion: "2024.05.0"
+appVersion: "2024.06.0"
 # Do not touch will be updated during release
 version: 2.24.0
 sources:
