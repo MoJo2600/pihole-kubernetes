@@ -1,1 +1,44 @@
-test test asdfas
+Pi-hole Helm Chart Deployment
+
+1. Pi-hole Deployment Information:
+   - Release Name: {{ .Release.Name }}
+   - Namespace: {{ .Release.Namespace }}
+   - Chart Name: {{ .Chart.Name }}
+   - Chart Version: {{ .Chart.Version }}
+
+2. Pi-hole Service Information:
+   - Service Name: {{ template "pihole.fullname" . }}-web
+   - Service Type: ClusterIP
+   - Service Port: 80/443 TCP
+
+   - Service Name: {{ template "pihole.fullname" . }}-dns-tcp
+   - Service Type: NodePort
+   - Service Port: 53 TCP
+
+   - Service Name: {{ template "pihole.fullname" . }}-dns-udp
+   - Service Type: NodePort
+   - Service Port: 53 UDP
+
+   - Service Name: {{ template "pihole.fullname" . }}-dhcp
+   - Service Type: NodePort
+   - Service Port: 67 UDP
+
+3. Accessing Pi-hole:
+   !!! This chart does not create a Loadbalancer for pihole by default. Please
+   create a configuration that is tailored to your setup. Especially the DNS
+   and DHCP services are system services that require a dedicated setup based
+   on your system !!!
+
+   Find more information in the wiki:
+   https://github.com/MoJo2600/pihole-kubernetes/wiki/Pi%E2%80%90hole
+
+4. Useful Commands:
+   - Check the Pi-hole Deployment Status:
+     helm status {{ .Release.Name }}
+
+   - Get Detailed Information about the Pi-hole Deployment:
+     helm get all {{ .Release.Name }}
+
+5. Clean Up:
+   - To uninstall/delete the Pi-hole deployment, run:
+     helm uninstall {{ .Release.Name }}
