@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.26.1](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.26.0...pihole-2.26.1) (2024-07-26)
+
+
+### Bug Fixes
+
+* Update Notes.txt ([#309](https://github.com/MoJo2600/pihole-kubernetes/issues/309)) ([0c98981](https://github.com/MoJo2600/pihole-kubernetes/commit/0c9898127323effa124aef86f492c3935d8bc017)), closes [#307](https://github.com/MoJo2600/pihole-kubernetes/issues/307)
+
 ## [2.26.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.25.0...pihole-2.26.0) (2024-07-18)
 
 
