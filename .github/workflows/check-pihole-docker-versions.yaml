@@ -46,7 +46,7 @@ jobs:
       
       - name: 📢 Create Pull Request
         id: create-pr
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ github.token }}
           commit-message: >-
