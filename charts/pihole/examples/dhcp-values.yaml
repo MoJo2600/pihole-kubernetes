@@ -56,4 +56,5 @@ extraEnvVars:
   DHCP_START: 192.168.1.64  # Choose a reasonable start.
   DHCP_END: 192.168.1.254  # Choose a reasonable end.
   DHCP_ROUTER: 192.168.1.1  # Make sure this matches your gateway
+  FTLCONF_LOCAL_IPV4: 192.168.1.10  # Set to the LAN IP address of your Pi-hole host
   INTERFACE: enp0s31f6  # Make sure this matches your hosts network interface
