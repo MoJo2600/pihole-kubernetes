@@ -355,8 +355,8 @@ dnsmasq:
 
   # -- Other options
   customSettings:
-  # otherSettings:
-  # - rebind-domain-ok=/plex.direct/
+  # otherSettings: |
+  #   rebind-domain-ok=/plex.direct/
 
   # -- Here we specify custom cname entries that should point to `A` records or
   # elements in customDnsEntries array.
