@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.26.2](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.26.1...pihole-2.26.2) (2024-10-27)
+
+
+### Bug Fixes
+
+* wrong customSettings.otherSettings exmaple in values.yaml ([#319](https://github.com/MoJo2600/pihole-kubernetes/issues/319)) ([67a0e3f](https://github.com/MoJo2600/pihole-kubernetes/commit/67a0e3fce49f9899bd92f1fad3ed96ae1148b78e)), closes [#318](https://github.com/MoJo2600/pihole-kubernetes/issues/318)
+
 ## [2.26.1](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.26.0...pihole-2.26.1) (2024-07-26)
 
 
