@@ -1,0 +1,60 @@
+---
+# Start from this example if you also want to deploy the DHCP server.
+#
+# Sources:
+# - https://github.com/pi-hole/docker-pi-hole?tab=readme-ov-file#running-dhcp-from-docker-pi-hole
+# - https://askubuntu.com/a/1333865
+#
+# IMPORTANT!!! You must start by disabling `systemd-resolved`'s DNS Stub
+# resolver:
+#
+# 1. Edit `cat /etc/systemd/resolved.conf`.
+# 2. Change `#DNSStubListener=yes` to `DNSStubListener=no`.
+# 3. Type:
+#    sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+#    sudo systemctl daemon-reload
+#    sudo systemctl restart systemd-resolved.service
+
+# Optional. Rather arbitrary resource settings. These work for me.
+# Take them or leave them, as you see fit.
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Optional. Persist DHCP leases and configuration.
+persistentVolumeClaim:
+  enabled: true
+  size: "10Mi"
+
+# Optional. Give the gateway and the pihole pretty DNS entries.
+# pi.hole is the default virtualhost for the web interface.
+dnsmasq:
+  customDnsEntries:
+    - address=/gateway.lan/192.168.1.1
+    - address=/blacky.lan/192.168.1.10
+    - address=/pi.hole/192.168.1.10
+
+# Mandatory. Allow DHCP to listen to broadcasts.
+capabilities:
+  add:
+    - NET_ADMIN
+
+# Mandatory. Allow DHCP broadcasts won't be heard via the CNI.
+hostNetwork: true
+
+# Optional.
+adminPassword: oqij234poij  # UGLY!!! Consider using an existing secret
+
+# Mandatory. Configures the DHCP server, so you don't have to click around in
+# the web UI.
+extraEnvVars:
+  DHCP_ACTIVE: true
+  DHCP_START: 192.168.1.64  # Choose a reasonable start.
+  DHCP_END: 192.168.1.254  # Choose a reasonable end.
+  DHCP_ROUTER: 192.168.1.1  # Make sure this matches your gateway
+  FTLCONF_LOCAL_IPV4: 192.168.1.10  # Set to the LAN IP address of your Pi-hole host
+  INTERFACE: enp0s31f6  # Make sure this matches your hosts network interface
