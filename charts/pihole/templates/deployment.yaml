@@ -224,10 +224,15 @@ spec:
           {{- end }}
           {{- if .Values.probes.readiness.enabled }}
           readinessProbe:
+            {{- if eq .Values.probes.readiness.type "command" }}
+            exec:
+              command: {{ .Values.probes.readiness.command | required "An array of command(s) is required if 'type' is set to 'command'." | toYaml | nindent 16 }}
+            {{- else }}
             httpGet:
               path: /admin/index.php
               port: {{ .Values.probes.readiness.port }}
               scheme: {{ .Values.probes.readiness.scheme }}
+            {{- end }}
             initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
             failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
