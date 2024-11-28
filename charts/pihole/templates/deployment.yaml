@@ -4,6 +4,7 @@ metadata:
   name: {{ template "pihole.fullname" . }}
   labels:
     app: {{ template "pihole.name" . }}
+    app.kubernetes.io/name: {{ template "pihole.name" . }}
     chart: {{ template "pihole.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -34,6 +35,7 @@ spec:
 {{- end }}
       labels:
         app: {{ template "pihole.name" . }}
+        app.kubernetes.io/name: {{ template "pihole.name" . }}
         release: {{ .Release.Name }}
     spec:
       {{- if .Values.antiaff.enabled }}
