@@ -183,14 +183,19 @@ probes:
     scheme: HTTP
   readiness:
     # -- Generate a readiness probe
+    # 'type' defaults to httpGet, can be set to 'command' to use a command type readiness probe.
+    type: httpGet
+    # command:
+    #   - /bin/bash
+    #   - -c
+    #   - /bin/true
     enabled: true
-    # -- Initial delay to wait for readiness check
+    # -- wait time before trying the readiness probe
     initialDelaySeconds: 60
-    # -- The failure threshold
-    failureThreshold: 3
-    # -- The timeout in seconds
+    # -- threshold until the probe is considered failing
+    failureThreshold: 10
+    # -- timeout in seconds
     timeoutSeconds: 5
-    # -- The port
     port: http
     scheme: HTTP
 
