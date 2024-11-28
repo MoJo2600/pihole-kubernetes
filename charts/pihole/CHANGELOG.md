@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.27.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.26.2...pihole-2.27.0) (2024-11-28)
+
+
+### Features
+
+* add command option to set up readiness probe. ([#323](https://github.com/MoJo2600/pihole-kubernetes/issues/323)) ([f5c6ad3](https://github.com/MoJo2600/pihole-kubernetes/commit/f5c6ad3661a2a87e5014aff6c617ea0367177b24))
+* add the label app.kubernetes.io/name to deployment and services ([#321](https://github.com/MoJo2600/pihole-kubernetes/issues/321)) ([61ab00d](https://github.com/MoJo2600/pihole-kubernetes/commit/61ab00d1f7fe0cfabfc426bf484cec46fff6ed11))
+* configurable pathType for the ingress resource ([#317](https://github.com/MoJo2600/pihole-kubernetes/issues/317)) ([d3c09bc](https://github.com/MoJo2600/pihole-kubernetes/commit/d3c09bc0a6addc487ceda44b516e0714c06c1875))
+
 ## [2.26.2](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.26.1...pihole-2.26.2) (2024-10-27)
 
 
