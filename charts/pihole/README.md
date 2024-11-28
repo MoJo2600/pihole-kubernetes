@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.26.2](https://img.shields.io/badge/Version-2.26.2-informational?style=flat-square) ![AppVersion: 2024.07.0](https://img.shields.io/badge/AppVersion-2024.07.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->[![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)<!-- ALL-CONTRIBUTORS-BADGE:END -->
+![Version: 2.27.0](https://img.shields.io/badge/Version-2.27.0-informational?style=flat-square) ![AppVersion: 2024.07.0](https://img.shields.io/badge/AppVersion-2024.07.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->[![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ## Source Code
 
@@ -239,16 +239,15 @@ The following table lists the configurable parameters of the pihole chart and th
 | podDnsConfig.nameservers[1] | string | `"8.8.8.8"` |  |
 | podDnsConfig.policy | string | `"None"` |  |
 | privileged | string | `"false"` | should container run in privileged mode |
-| probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5,"type":"httpGet"},"readiness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5}}` | Probes configuration |
+| probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5,"type":"httpGet"},"readiness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5,"type":"httpGet"}}` | Probes configuration |
 | probes.liveness.failureThreshold | int | `10` | threshold until the probe is considered failing |
 | probes.liveness.initialDelaySeconds | int | `60` | wait time before trying the liveness probe |
 | probes.liveness.timeoutSeconds | int | `5` | timeout in seconds |
 | probes.liveness.type | string | `"httpGet"` | Generate a liveness probe 'type' defaults to httpGet, can be set to 'command' to use a command type liveness probe. |
-| probes.readiness.enabled | bool | `true` | Generate a readiness probe |
-| probes.readiness.failureThreshold | int | `3` | The failure threshold |
-| probes.readiness.initialDelaySeconds | int | `60` | Initial delay to wait for readiness check |
-| probes.readiness.port | string | `"http"` | The port |
-| probes.readiness.timeoutSeconds | int | `5` | The timeout in seconds |
+| probes.readiness.failureThreshold | int | `10` | threshold until the probe is considered failing |
+| probes.readiness.initialDelaySeconds | int | `60` | wait time before trying the readiness probe |
+| probes.readiness.timeoutSeconds | int | `5` | timeout in seconds |
+| probes.readiness.type | string | `"httpGet"` | Generate a readiness probe 'type' defaults to httpGet, can be set to 'command' to use a command type readiness probe. |
 | regex | object | `{}` | list of blacklisted regex expressions to import during initial start of the container |
 | replicaCount | int | `1` | The number of replicas |
 | resources | object | `{}` | lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
