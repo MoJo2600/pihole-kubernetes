@@ -112,6 +112,12 @@ spec:
           imagePullPolicy: {{ .Values.doh.pullPolicy }}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
+          {{- if .Values.doh.command }}
+          command:
+            {{- range $key, $value := .Values.doh.command }}
+            - {{ $value }}
+            {{- end }}
+          {{- end }}
           resources:
             limits:
               memory: 128Mi

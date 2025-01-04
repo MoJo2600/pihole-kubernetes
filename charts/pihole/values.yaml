@@ -315,7 +315,8 @@ doh:
   # -- Here you can pass environment variables to the DoH container, for example:
   envVars: {}
     # TUNNEL_DNS_UPSTREAM: "https://1.1.1.2/dns-query,https://1.0.0.2/dns-query"
-
+  # -- Custom command to the DoH container
+  command: []
   # -- Probes configuration
   probes:
     # -- Configure the healthcheck for the doh container
