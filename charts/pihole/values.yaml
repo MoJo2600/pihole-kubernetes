@@ -336,7 +336,26 @@ doh:
       failureThreshold: 10
       # -- defines the timeout in secondes for the liveness probe
       timeoutSeconds: 5
-
+    readiness:
+      # -- set to true to enable readiness probe
+      enabled: true
+      # -- customize the readiness probe
+      probe:
+        exec:
+          command:
+            - nslookup
+            - -po=5053
+            - cloudflare.com
+            - "127.0.0.1"
+      # -- defines the initial delay for the readiness probe
+      initialDelaySeconds: 60
+      # -- defines the failure threshold for the readiness probe
+      failureThreshold: 10
+      # -- defines the timeout in secondes for the readiness probe
+      timeoutSeconds: 5
+  monitoring:
+    podMonitor:
+      enabled: false
 # -- DNS MASQ settings
 dnsmasq:
   # -- Add upstream dns servers. All lines will be added to the pihole dnsmasq configuration

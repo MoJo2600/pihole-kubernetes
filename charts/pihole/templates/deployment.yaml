@@ -136,6 +136,13 @@ spec:
             failureThreshold: {{ .Values.doh.probes.liveness.failureThreshold }}
             timeoutSeconds: {{ .Values.doh.probes.liveness.timeoutSeconds }}
           {{- end }}
+          {{- if .Values.doh.probes.readiness.enabled }}
+          readinessProbe:
+{{ toYaml .Values.doh.probes.readiness.probe | indent 12 }}
+            initialDelaySeconds: {{ .Values.doh.probes.readiness.initialDelaySeconds }}
+            failureThreshold: {{ .Values.doh.probes.readiness.failureThreshold }}
+            timeoutSeconds: {{ .Values.doh.probes.readiness.timeoutSeconds }}
+          {{- end }}
         {{- end }}
         - name: {{ .Chart.Name }}
           env:
