@@ -511,6 +511,10 @@ extraObjects: []
   #         }
   #       }
 
+# -- Additional annotations for the deployment
+deploymentAnnotations: {}
+  # reloader.stakater.com/auto: "true"
+
 # -- Additional annotations for pods
 podAnnotations: {}
   # Example below allows Prometheus to scape on metric port (requires pihole-exporter sidecar enabled)
