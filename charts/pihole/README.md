@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.27.0](https://img.shields.io/badge/Version-2.27.0-informational?style=flat-square) ![AppVersion: 2024.07.0](https://img.shields.io/badge/AppVersion-2024.07.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->[![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)<!-- ALL-CONTRIBUTORS-BADGE:END -->
+![Version: 2.28.0](https://img.shields.io/badge/Version-2.28.0-informational?style=flat-square) ![AppVersion: 2024.07.0](https://img.shields.io/badge/AppVersion-2024.07.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->[![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ## Source Code
 
@@ -179,6 +179,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | capabilities | object | `{}` |  |
 | customVolumes.config | object | `{}` | any volume type can be used here |
 | customVolumes.enabled | bool | `false` | set this to true to enable custom volumes |
+| deploymentAnnotations | object | `{}` | Additional annotations for the deployment |
 | dnsHostPort.enabled | bool | `false` | set this to true to enable dnsHostPort |
 | dnsHostPort.port | int | `53` | default port for this pod |
 | dnsmasq | object | `{"additionalHostsEntries":[],"customCnameEntries":[],"customDnsEntries":[],"customSettings":null,"staticDhcpEntries":[],"upstreamServers":[]}` | DNS MASQ settings |
@@ -188,16 +189,23 @@ The following table lists the configurable parameters of the pihole chart and th
 | dnsmasq.customSettings | string | `nil` | Other options |
 | dnsmasq.staticDhcpEntries | list | `[]` | Static DHCP config |
 | dnsmasq.upstreamServers | list | `[]` | Add upstream dns servers. All lines will be added to the pihole dnsmasq configuration |
+| doh.command | list | `[]` | Custom command to the DoH container |
 | doh.enabled | bool | `false` | set to true to enabled DNS over HTTPs via cloudflared |
 | doh.envVars | object | `{}` | Here you can pass environment variables to the DoH container, for example: |
+| doh.monitoring.podMonitor.enabled | bool | `false` |  |
 | doh.name | string | `"cloudflared"` | name |
-| doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5}}` | Probes configuration |
+| doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5},"readiness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5}}` | Probes configuration |
 | doh.probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5}` | Configure the healthcheck for the doh container |
 | doh.probes.liveness.enabled | bool | `true` | set to true to enable liveness probe |
 | doh.probes.liveness.failureThreshold | int | `10` | defines the failure threshold for the liveness probe |
 | doh.probes.liveness.initialDelaySeconds | int | `60` | defines the initial delay for the liveness probe |
 | doh.probes.liveness.probe | object | `{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}}` | customize the liveness probe |
 | doh.probes.liveness.timeoutSeconds | int | `5` | defines the timeout in secondes for the liveness probe |
+| doh.probes.readiness.enabled | bool | `true` | set to true to enable readiness probe |
+| doh.probes.readiness.failureThreshold | int | `10` | defines the failure threshold for the readiness probe |
+| doh.probes.readiness.initialDelaySeconds | int | `60` | defines the initial delay for the readiness probe |
+| doh.probes.readiness.probe | object | `{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}}` | customize the readiness probe |
+| doh.probes.readiness.timeoutSeconds | int | `5` | defines the timeout in secondes for the readiness probe |
 | doh.pullPolicy | string | `"IfNotPresent"` | Pull policy |
 | doh.repository | string | `"crazymax/cloudflared"` | repository |
 | doh.tag | string | `"latest"` |  |
