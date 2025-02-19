@@ -160,7 +160,7 @@ spec:
             value: "{{ .Values.webHttp }}"
           - name: VIRTUAL_HOST
             value: {{ .Values.virtualHost }}
-          - name: WEBPASSWORD
+          - name: FTLCONF_webserver_api_password
             {{- if .Values.admin.enabled }}
             valueFrom:
               secretKeyRef:
@@ -187,7 +187,7 @@ spec:
             value: "127.0.0.1#5053"
           {{- else }}
           {{- if .Values.DNS1 }}
-          - name: 'PIHOLE_DNS_'
+          - name: 'FTLCONF_dns_upstreams'
             value: {{ if .Values.DNS2 }}{{ ( printf "%v;%v" .Values.DNS1 .Values.DNS2 ) | squote }}{{ else }}{{ .Values.DNS1 | squote }}{{ end }}
          {{- end }}
          {{- end }}
