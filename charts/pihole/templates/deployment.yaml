@@ -232,7 +232,7 @@ spec:
               command: {{ .Values.probes.liveness.command | required "An array of command(s) is required if 'type' is set to 'command'." | toYaml | nindent 16 }}
             {{- else }}
             httpGet:
-              path: /admin/index.php
+              path: /admin
               port: {{ .Values.probes.liveness.port }}
               scheme: {{ .Values.probes.liveness.scheme }}
             {{- end }}
@@ -248,7 +248,7 @@ spec:
               command: {{ .Values.probes.readiness.command | required "An array of command(s) is required if 'type' is set to 'command'." | toYaml | nindent 16 }}
             {{- else }}
             httpGet:
-              path: /admin/index.php
+              path: /admin
               port: {{ .Values.probes.readiness.port }}
               scheme: {{ .Values.probes.readiness.scheme }}
             {{- end }}
