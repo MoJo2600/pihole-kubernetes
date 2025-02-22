@@ -276,9 +276,15 @@ admin:
     # reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
     # reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "external-dns"
 
-# -- extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use
+# -- extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use. You can use either scalars or project cm, secrets or pod fields via valueFrom
 extraEnvVars: {}
   # TZ: UTC
+  # Project a variable
+  # SOME_VAR:
+  #   valueFrom:
+  #     configMapKeyRef:
+  #       key: some-var
+  #       name: my-config-map
 
 # -- extraEnvVarsSecret is a list of secrets to load in as environment variables.
 extraEnvVarsSecret: {}
@@ -419,10 +425,15 @@ regex: {}
   # Add regular expression blacklist items
   # - (^|\.)facebook\.com$
 
-# -- values that should be added to pihole-FTL.conf
+# -- values that should be added to pihole-FTL.conf. You can use either scalars or project cm, secrets or pod fields via valueFrom
 ftl: {}
   # Add values for pihole-FTL.conf
   # MAXDBDAYS: 14
+  # Project a variable
+  # LOCAL_IPV4:
+  #   valueFrom:
+  #     fieldRef:
+  #       fieldPath: status.podIP
 
 # -- port the container should use to expose HTTP traffic
 webHttp: "80"
