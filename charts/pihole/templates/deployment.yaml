@@ -171,7 +171,11 @@ spec:
             {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
           - name: {{ $key | quote }}
+            {{- if kindIs "map" $value }}
+            {{- toYaml $value | nindent 12 }}
+            {{- else }}
             value: {{ $value | quote }}
+            {{- end }}
           {{- end }}
           {{- range $key, $value := .Values.extraEnvVarsSecret }}
           - name: {{ $key | quote }}
@@ -193,7 +197,11 @@ spec:
          {{- end }}
          {{- range $key, $value := .Values.ftl }}
           - name: 'FTLCONF_{{ $key }}'
+            {{- if kindIs "map" $value }}
+            {{- toYaml $value | nindent 12 }}
+            {{- else }}
             value: {{ $value | quote }}
+            {{- end }}
          {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
