@@ -181,9 +181,7 @@ spec:
                 name: {{ $value.name | quote }}
           {{- end }}
           {{- if .Values.doh.enabled }}
-          - name: 'DNS1'
-            value: "127.0.0.1#5053"
-          - name: DNS2
+          - name: 'FTLCONF_dns_upstreams'
             value: "127.0.0.1#5053"
           {{- else }}
           {{- if .Values.DNS1 }}
