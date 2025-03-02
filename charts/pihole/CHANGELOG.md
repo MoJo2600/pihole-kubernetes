@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.28.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.27.0...pihole-2.28.0) (2025-03-02)
+
+
+### Features
+
+* add custom deployment annotation option ([#332](https://github.com/MoJo2600/pihole-kubernetes/issues/332)) ([bc8f720](https://github.com/MoJo2600/pihole-kubernetes/commit/bc8f720a9343e8b61fea68b67a2aa4f9ca56c0f4))
+* allow to override the command of the cloudflared container. ([#331](https://github.com/MoJo2600/pihole-kubernetes/issues/331)) ([02cff49](https://github.com/MoJo2600/pihole-kubernetes/commit/02cff4992313488524f0883946bb6e425be8be77))
+* PiHole v6 Support ([#343](https://github.com/MoJo2600/pihole-kubernetes/issues/343)) ([8112b80](https://github.com/MoJo2600/pihole-kubernetes/commit/8112b800b98eb6ff23aa19d074b56acd72e1066b))
+* support doh readiness and podmonitor ([#335](https://github.com/MoJo2600/pihole-kubernetes/issues/335)) ([2c5aaf5](https://github.com/MoJo2600/pihole-kubernetes/commit/2c5aaf592b10d69ce674e87833edb82ad4954110))
+
 ## [2.27.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.26.2...pihole-2.27.0) (2024-11-28)
 
 
