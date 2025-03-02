@@ -181,7 +181,8 @@ The following table lists the configurable parameters of the pihole chart and th
 | customVolumes.enabled | bool | `false` | set this to true to enable custom volumes |
 | dnsHostPort.enabled | bool | `false` | set this to true to enable dnsHostPort |
 | dnsHostPort.port | int | `53` | default port for this pod |
-| dnsmasq | object | `{"additionalHostsEntries":[],"customCnameEntries":[],"customDnsEntries":[],"customSettings":null,"staticDhcpEntries":[],"upstreamServers":[]}` | DNS MASQ settings |
+| dnsmasq | object | `{"enableCustomDnsmasq":true, "additionalHostsEntries":[],"customCnameEntries":[],"customDnsEntries":[],"customSettings":null,"staticDhcpEntries":[],"upstreamServers":[]}` | DNS MASQ settings |
+| dnsmasq.enableCustomDnsMasq | bool | `true` | set this to enable any custom DNSMASQ.d files to be read on load |
 | dnsmasq.additionalHostsEntries | list | `[]` | Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like |
 | dnsmasq.customCnameEntries | list | `[]` | Here we specify custom cname entries that should point to `A` records or elements in customDnsEntries array. The format should be:  - cname=cname.foo.bar,foo.bar  - cname=cname.bar.foo,bar.foo  - cname=cname record,dns record |
 | dnsmasq.customDnsEntries | list | `[]` | Add custom dns entries to override the dns resolution. All lines will be added to the pihole dnsmasq configuration. |
