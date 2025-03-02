@@ -161,7 +161,7 @@ spec:
           - name: VIRTUAL_HOST
             value: {{ .Values.virtualHost }}
           - name: FTLCONF_misc_etc_dnsmasq_d
-            value: {{ ne .Values.dnsmasq.enableCustomDnsMasq false }}
+            value: {{ ne .Values.dnsmasq.enableCustomDnsMasq false | quote }}
           - name: FTLCONF_webserver_api_password
             {{- if .Values.admin.enabled }}
             valueFrom:
