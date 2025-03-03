@@ -156,7 +156,7 @@ spec:
         {{- end }}
         - name: {{ .Chart.Name }}
           env:
-          - name: 'WEB_PORT'
+          - name: 'FTLCONF_webserver_port'
             value: "{{ .Values.webHttp }}"
           - name: VIRTUAL_HOST
             value: {{ .Values.virtualHost }}
