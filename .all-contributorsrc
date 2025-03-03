@@ -620,6 +620,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "paimonsoror",
+      "name": "Paimon Sorornejad",
+      "avatar_url": "https://avatars.githubusercontent.com/u/935046?v=4",
+      "profile": "https://github.com/paimonsoror",
+      "contributions" : [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
