@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.28.0](https://img.shields.io/badge/Version-2.28.0-informational?style=flat-square) ![AppVersion: 2025.02.7](https://img.shields.io/badge/AppVersion-2025.02.7-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->[![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)<!-- ALL-CONTRIBUTORS-BADGE:END -->
+![Version: 2.29.0](https://img.shields.io/badge/Version-2.29.0-informational?style=flat-square) ![AppVersion: 2025.03.0](https://img.shields.io/badge/AppVersion-2025.03.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->[![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ## Source Code
 
@@ -212,13 +212,13 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.tag | string | `"latest"` |  |
 | dualStack.enabled | bool | `false` | set this to true to enable creation of DualStack services or creation of separate IPv6 services if `serviceDns.type` is set to `"LoadBalancer"` |
 | extraContainers | list | `[]` |  |
-| extraEnvVars | object | `{}` | extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use |
+| extraEnvVars | object | `{}` | extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use. You can use either scalars or project cm, secrets or pod fields via valueFrom |
 | extraEnvVarsSecret | object | `{}` | extraEnvVarsSecret is a list of secrets to load in as environment variables. |
 | extraInitContainers | list | `[]` | any initContainers you might want to run before starting pihole |
 | extraObjects | list | `[]` | any extra kubernetes manifests you might want |
 | extraVolumeMounts | object | `{}` | any extra volume mounts you might want |
 | extraVolumes | object | `{}` | any extra volumes you might want |
-| ftl | object | `{}` | values that should be added to pihole-FTL.conf |
+| ftl | object | `{}` | values that should be added to pihole-FTL.conf. You can use either scalars or project cm, secrets or pod fields via valueFrom |
 | hostNetwork | string | `"false"` | should the container use host network |
 | hostname | string | `""` | hostname of pod |
 | image.pullPolicy | string | `"IfNotPresent"` | the pull policy |
