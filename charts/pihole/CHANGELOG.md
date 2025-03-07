@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.29.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.28.0...pihole-2.29.0) (2025-03-07)
+
+
+### Features
+
+* allow for env map values ([#339](https://github.com/MoJo2600/pihole-kubernetes/issues/339)) ([f6fcb06](https://github.com/MoJo2600/pihole-kubernetes/commit/f6fcb06d4c5d3a5fd41e08d8dbcc7e3fbba68a85))
+* bump pihole version to 2025.03.0 ([#352](https://github.com/MoJo2600/pihole-kubernetes/issues/352)) ([83dd678](https://github.com/MoJo2600/pihole-kubernetes/commit/83dd67801fe07f872a12301a96f087b8e9d0f2f1))
+
 ## [2.28.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.27.0...pihole-2.28.0) (2025-03-02)
 
 
