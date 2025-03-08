@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.29.1](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.29.0...pihole-2.29.1) (2025-03-08)
+
+
+### Bug Fixes
+
+* revert liveness and readiness probe back to http ([#357](https://github.com/MoJo2600/pihole-kubernetes/issues/357)) ([bbb557b](https://github.com/MoJo2600/pihole-kubernetes/commit/bbb557b1730c31cec5401d99c9962613e376358a)), closes [#356](https://github.com/MoJo2600/pihole-kubernetes/issues/356)
+* updated pihole exporter to v1.0.0 ([#351](https://github.com/MoJo2600/pihole-kubernetes/issues/351)) ([04d4e90](https://github.com/MoJo2600/pihole-kubernetes/commit/04d4e9047e3cbe6d1d0dade813367beb6291777c))
+
 ## [2.29.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.28.0...pihole-2.29.0) (2025-03-07)
 
 
