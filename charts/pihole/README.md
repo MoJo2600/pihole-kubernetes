@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.29.0](https://img.shields.io/badge/Version-2.29.0-informational?style=flat-square) ![AppVersion: 2025.03.0](https://img.shields.io/badge/AppVersion-2025.03.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->[![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)<!-- ALL-CONTRIBUTORS-BADGE:END -->
+![Version: 2.29.1](https://img.shields.io/badge/Version-2.29.1-informational?style=flat-square) ![AppVersion: 2025.03.0](https://img.shields.io/badge/AppVersion-2025.03.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->[![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ## Source Code
 
@@ -231,7 +231,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | maxUnavailable | int | `1` | The maximum number of Pods that can be unavailable during updating |
 | monitoring.podMonitor | object | `{"enabled":false}` | Preferably adding prometheus scrape annotations rather than enabling podMonitor. |
 | monitoring.podMonitor.enabled | bool | `false` | set this to true to enable podMonitor |
-| monitoring.sidecar | object | `{"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"ekofr/pihole-exporter","tag":"v0.3.0"},"port":9617,"resources":{"limits":{"memory":"128Mi"}}}` | Sidecar configuration |
+| monitoring.sidecar | object | `{"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"ekofr/pihole-exporter","tag":"v1.0.0"},"port":9617,"resources":{"limits":{"memory":"128Mi"}}}` | Sidecar configuration |
 | monitoring.sidecar.enabled | bool | `false` | set this to true to enable podMonitor as sidecar |
 | monitoring.sidecar.image.repository | string | `"ekofr/pihole-exporter"` | the repository to use |
 | nodeSelector | object | `{}` | Node selector values |
@@ -248,7 +248,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | podDnsConfig.nameservers[1] | string | `"8.8.8.8"` |  |
 | podDnsConfig.policy | string | `"None"` |  |
 | privileged | string | `"false"` | should container run in privileged mode |
-| probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"https","scheme":"HTTPS","timeoutSeconds":5,"type":"httpGet"},"readiness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"https","scheme":"HTTPS","timeoutSeconds":5,"type":"httpGet"}}` | Probes configuration |
+| probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5,"type":"httpGet"},"readiness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5,"type":"httpGet"}}` | Probes configuration |
 | probes.liveness.failureThreshold | int | `10` | threshold until the probe is considered failing |
 | probes.liveness.initialDelaySeconds | int | `60` | wait time before trying the liveness probe |
 | probes.liveness.timeoutSeconds | int | `5` | timeout in seconds |
