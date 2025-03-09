@@ -441,6 +441,9 @@ ftl: {}
 # -- port the container should use to expose HTTP traffic
 webHttp: "80"
 
+# -- port the pihole wbserver should use to expose HTTP/HTTPS traffic
+webserver_port: "80o,443os,[::]:80o,[::]:443os"
+
 # -- port the container should use to expose HTTPS traffic
 webHttps: "443"
 

@@ -157,7 +157,7 @@ spec:
         - name: {{ .Chart.Name }}
           env:
           - name: 'FTLCONF_webserver_port'
-            value: "{{ .Values.webHttp }}"
+            value: "{{ .Values.werbserver_port }}"
           - name: VIRTUAL_HOST
             value: {{ .Values.virtualHost }}
           - name: FTLCONF_misc_etc_dnsmasq_d

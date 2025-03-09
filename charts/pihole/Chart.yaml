@@ -4,7 +4,7 @@ home: https://github.com/MoJo2600/pihole-kubernetes/tree/main/charts/pihole
 name: pihole
 appVersion: "2025.03.0"
 # Do not touch will be updated during release
-version: 2.29.1
+version: 2.29.2
 sources:
   - https://github.com/MoJo2600/pihole-kubernetes/tree/main/charts/pihole
   - https://pi-hole.net/
