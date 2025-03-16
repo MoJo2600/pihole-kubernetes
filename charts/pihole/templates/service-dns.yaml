@@ -31,7 +31,7 @@ spec:
     - port: {{ .Values.serviceDns.port }}
       targetPort: dns
       {{- if .Values.serviceDns.nodePort }}
-      nodePort: {{ .Values.serviceDns.nodePort }}
+      nodePort: {{ .Values.serviceDns.nodePort | add1 }}
       {{- end }}
       protocol: TCP
       name: dns
