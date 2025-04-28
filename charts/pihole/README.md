@@ -272,7 +272,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceDhcp.type | string | `"NodePort"` | `spec.type` for the DHCP Service |
 | serviceDns | object | `{"annotations":{},"externalTrafficPolicy":"Local","extraLabels":{},"loadBalancerIP":"","loadBalancerIPv6":"","mixedService":false,"nodePort":"","port":53,"type":"NodePort"}` | Configuration for the DNS service on port 53 |
 | serviceDns.annotations | object | `{}` | Annotations for the DNS service |
-| serviceDns.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
+| serviceDns.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DNS Service |
 | serviceDns.extraLabels | object | `{}` | Labels for the DNS service |
 | serviceDns.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DNS Service |
 | serviceDns.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 DNS Service |

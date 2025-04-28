@@ -46,13 +46,15 @@ serviceDns:
   # -- Optional node port for the DNS service
   nodePort: ""
 
-  # -- `spec.externalTrafficPolicy` for the DHCP Service
+  # -- `spec.externalTrafficPolicy` for the DNS Service
   externalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the DNS Service
   loadBalancerIP: ""
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service
   loadBalancerIPv6: ""
+  # -- A `spec.loadBalancerClass` for the DNS Service
+  loadBalancerClass: ""
 
   # -- Annotations for the DNS service
   annotations: {}
@@ -84,6 +86,8 @@ serviceDhcp:
   loadBalancerIP: ""
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service
   loadBalancerIPv6: ""
+  # -- A `spec.loadBalancerClass` for the DHCP Service
+  loadBalancerClass: ""
 
   # -- Annotations for the DHCP service
   annotations: {}
@@ -127,6 +131,8 @@ serviceWeb:
   loadBalancerIP: ""
   # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service
   loadBalancerIPv6: ""
+  # -- A `spec.loadBalancerClass` for the web interface Service
+  loadBalancerClass: ""
 
   # -- Annotations for the DHCP service
   annotations: {}
