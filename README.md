@@ -1,211 +1,149 @@
-# Chart Testing
+# mojo2600.github.io
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Go Report Card](https://goreportcard.com/badge/github.com/helm/chart-testing)](https://goreportcard.com/report/github.com/helm/chart-testing)
-![ci](https://github.com/helm/chart-testing/workflows/ci/badge.svg)
+[Helm](https://helm.sh) repo for different charts which can be installed on [Kubernetes](https://kubernetes.io)
 
-`ct` is the tool for testing Helm charts.
-It is meant to be used for linting and testing pull requests.
-It automatically detects charts changed against the target branch.
+Further documentation including chart keys, types, and default values is at https://hub.helm.sh/charts/mojo2600/pihole
 
-## Installation
+### Add Helm repository
 
-### Prerequisites
+To install the repo just run:
 
-It is recommended to use the provided Docker image which can be [found on Quay](https://quay.io/repository/helmpack/chart-testing).
-It comes with all necessary tools installed.
-
-* [Helm](http://helm.sh)
-* [Git](https://git-scm.com) (2.17.0 or later)
-* [Yamllint](https://github.com/adrienverge/yamllint)
-* [Yamale](https://github.com/23andMe/Yamale)
-* [Kubectl](https://kubernetes.io/docs/reference/kubectl/overview/)
-
-### Binary Distribution
-
-Download the release distribution for your OS from the Releases page:
-
-https://github.com/helm/chart-testing/releases
-
-Unpack the `ct` binary, add it to your PATH, and you are good to go!
-
-### Docker Image
-
-A Docker image is available at `quay.io/helmpack/chart-testing` with list of
-available tags [here](https://quay.io/repository/helmpack/chart-testing?tab=tags).
-
-### Homebrew
-
-```console
-$ brew install chart-testing
+```bash
+helm repo add mojo2600 https://mojo2600.github.io/pihole-kubernetes/
+helm repo update
 ```
 
-## Usage
+### Helm Charts
 
-See documentation for individual commands:
+* [pihole](https://mojo2600.github.io/pihole-kubernetes)
 
-* [ct](doc/ct.md)
-* [ct install](doc/ct_install.md)
-* [ct lint](doc/ct_lint.md)
-* [ct lint-and-install](doc/ct_lint-and-install.md)
-* [ct list-changed](doc/ct_list-changed.md)
-* [ct version](doc/ct_version.md)
-
-For a more extensive how-to guide, please see:
-
-* [charts-repo-actions-demo](https://github.com/helm/charts-repo-actions-demo)
-
-## Configuration
-
-`ct` is a command-line application.
-All command-line flags can also be set via environment variables or config file.
-Environment variables must be prefixed with `CT_`.
-Underscores must be used instead of hyphens.
-
-CLI flags, environment variables, and a config file can be mixed.
-The following order of precedence applies:
-
-1. CLI flags
-1. Environment variables
-1. Config file
-
-Note that linting requires config file for [yamllint](https://github.com/adrienverge/yamllint) and [yamale](https://github.com/23andMe/Yamale).
-If not specified, these files are search in the current directory, the `.ct` directory in current directory, `$HOME/.ct`, and `/etc/ct`, in that order.
-Samples are provided in the [etc](etc) folder.
-
-### Examples
-
-The following example show various way of configuring the same thing:
-
-#### CLI
-
-#### Remote repo
-
-With remote repo:
-
-    ct install --remote upstream --chart-dirs stable,incubator --build-id pr-42
-
-#### Local repo
-
-If you have a chart in current directory and ct installed on the host then you can run:
-
-    ct install --chart-dirs . --charts .
-
-With docker it works with:
-
-    docker run -it --network host --workdir=/data --volume ~/.kube/config:/root/.kube/config:ro --volume $(pwd):/data quay.io/helmpack/chart-testing:v3.7.1 ct install --chart-dirs . --charts .
-
-Notice that `workdir` param is important and must be the same as volume mounted.
+  ```bash
+  helm install your-release mojo2600/pihole
+  ```
 
 
-#### Environment Variables
+## Contributors ✨
 
-    export CT_REMOTE=upstream
-    export CT_CHART_DIRS=stable,incubator
-    export CT_BUILD_ID
+Thanks goes to these wonderful people:
 
-    ct install
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://www.mojo2k.de"><img src="https://avatars1.githubusercontent.com/u/2462817?v=4" width="100px;" alt=""/><br /><sub><b>Christian Erhardt</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://billimek.com/"><img src="https://avatars0.githubusercontent.com/u/6393612?v=4" width="100px;" alt=""/><br /><sub><b>Jeff Billimek</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/imle"><img src="https://avatars3.githubusercontent.com/u/4809109?v=4" width="100px;" alt=""/><br /><sub><b>Steven Imle</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jetersen"><img src="https://avatars2.githubusercontent.com/u/1661688?v=4" width="100px;" alt=""/><br /><sub><b>Joseph Petersen</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/SiM22"><img src="https://avatars2.githubusercontent.com/u/5759618?v=4" width="100px;" alt=""/><br /><sub><b>Simon Garcia</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/AndyG-0"><img src="https://avatars1.githubusercontent.com/u/29743443?v=4" width="100px;" alt=""/><br /><sub><b>Andy Gilbreath</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/northerngit"><img src="https://avatars0.githubusercontent.com/u/4513272?v=4" width="100px;" alt=""/><br /><sub><b>James Wilson</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jskswamy"><img src="https://avatars2.githubusercontent.com/u/232449?v=4" width="100px;" alt=""/><br /><sub><b>Krishnaswamy Subramanian</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/luqasn"><img src="https://avatars2.githubusercontent.com/u/274902?v=4" width="100px;" alt=""/><br /><sub><b>Lucas Romero</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/konturn"><img src="https://avatars0.githubusercontent.com/u/35545508?v=4" width="100px;" alt=""/><br /><sub><b>konturn</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/tdorsey"><img src="https://avatars3.githubusercontent.com/u/1218404?v=4" width="100px;" alt=""/><br /><sub><b>tdorsey</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/alesz"><img src="https://avatars0.githubusercontent.com/u/12436980?v=4" width="100px;" alt=""/><br /><sub><b>Ales Zelenik</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/dtourde"><img src="https://avatars1.githubusercontent.com/u/49169262?v=4" width="100px;" alt=""/><br /><sub><b>Damien TOURDE</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/putz612"><img src="https://avatars3.githubusercontent.com/u/952758?v=4" width="100px;" alt=""/><br /><sub><b>Jason Sievert</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/joshua-nord"><img src="https://avatars2.githubusercontent.com/u/1181300?v=4" width="100px;" alt=""/><br /><sub><b>joshua-nord</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://maximilianbo.de/"><img src="https://avatars3.githubusercontent.com/u/9051309?v=4" width="100px;" alt=""/><br /><sub><b>Maximilian Bode</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/raackley"><img src="https://avatars0.githubusercontent.com/u/1700688?v=4" width="100px;" alt=""/><br /><sub><b>raackley</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/StoicPerlman"><img src="https://avatars1.githubusercontent.com/u/3152359?v=4" width="100px;" alt=""/><br /><sub><b>Sam Kleiner</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://arpankapoor.com/"><img src="https://avatars3.githubusercontent.com/u/3677810?v=4" width="100px;" alt=""/><br /><sub><b>Arpan Kapoor</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/chrodriguez"><img src="https://avatars1.githubusercontent.com/u/1460882?v=4" width="100px;" alt=""/><br /><sub><b>Christian Rodriguez</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://dave-cahill.com/"><img src="https://avatars0.githubusercontent.com/u/361096?v=4" width="100px;" alt=""/><br /><sub><b>Dave Cahill</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/golgoth31"><img src="https://avatars2.githubusercontent.com/u/5741421?v=4" width="100px;" alt=""/><br /><sub><b>golgoth31</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://greg.jeanmart.me/"><img src="https://avatars3.githubusercontent.com/u/506784?v=4" width="100px;" alt=""/><br /><sub><b>Greg Jeanmart</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ballj"><img src="https://avatars1.githubusercontent.com/u/38097813?v=4" width="100px;" alt=""/><br /><sub><b>Joseph Ball</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://www.oneko.org/"><img src="https://avatars2.githubusercontent.com/u/4233214?v=4" width="100px;" alt=""/><br /><sub><b>Karlos</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/dza89"><img src="https://avatars0.githubusercontent.com/u/20373984?v=4" width="100px;" alt=""/><br /><sub><b>dza89</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mikewhitley"><img src="https://avatars0.githubusercontent.com/u/52802633?v=4" width="100px;" alt=""/><br /><sub><b>mikewhitley</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Vashiru"><img src="https://avatars2.githubusercontent.com/u/11370057?v=4" width="100px;" alt=""/><br /><sub><b>Vashiru</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/sam-kleiner"><img src="https://avatars.githubusercontent.com/u/63059772?v=4" width="100px;" alt=""/><br /><sub><b>sam-kleiner</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/alexgorbatchev/"><img src="https://avatars.githubusercontent.com/u/65633?v=4" width="100px;" alt=""/><br /><sub><b>Alex Gorbatchev</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/c-yco"><img src="https://avatars.githubusercontent.com/u/355591?v=4" width="100px;" alt=""/><br /><sub><b>Alexander Rabenstein</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://tibbon.com/"><img src="https://avatars.githubusercontent.com/u/82880?v=4" width="100px;" alt=""/><br /><sub><b>David Fisher</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/utkuozdemir"><img src="https://avatars.githubusercontent.com/u/1465819?v=4" width="100px;" alt=""/><br /><sub><b>Utku Özdemir</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://mor.re/"><img src="https://avatars.githubusercontent.com/u/7683567?v=4" width="100px;" alt=""/><br /><sub><b>Morre Meyer</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/johnsondnz"><img src="https://avatars.githubusercontent.com/u/7608966?v=4" width="100px;" alt=""/><br /><sub><b>Donald Johnson</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://winston.milli.ng/"><img src="https://avatars.githubusercontent.com/u/6162814?v=4" width="100px;" alt=""/><br /><sub><b>Winston R. Milling</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/larivierec"><img src="https://avatars.githubusercontent.com/u/3633214?v=4" width="100px;" alt=""/><br /><sub><b>Christopher Larivière</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://sievenpiper.co/"><img src="https://avatars.githubusercontent.com/u/1131882?v=4" width="100px;" alt=""/><br /><sub><b>Justin Sievenpiper</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/beastob"><img src="https://avatars.githubusercontent.com/u/76816315?v=4" width="100px;" alt=""/><br /><sub><b>beastob</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://niftyside.io/"><img src="https://avatars.githubusercontent.com/u/653739?v=4" width="100px;" alt=""/><br /><sub><b>Daniel Mühlbachler-Pietrzykowski</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/consideRatio"><img src="https://avatars.githubusercontent.com/u/3837114?v=4" width="100px;" alt=""/><br /><sub><b>Erik Sundell</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Ornias1993"><img src="https://avatars.githubusercontent.com/u/7613738?v=4" width="100px;" alt=""/><br /><sub><b>Kjeld Schouten-Lebbing</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mrwulf"><img src="https://avatars.githubusercontent.com/u/2494769?v=4" width="100px;" alt=""/><br /><sub><b>Brandon Wulf</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/DerRockWolf"><img src="https://avatars.githubusercontent.com/u/50499906?v=4" width="100px;" alt=""/><br /><sub><b>DerRockWolf</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/brnl"><img src="https://avatars.githubusercontent.com/u/3243133?v=4" width="100px;" alt=""/><br /><sub><b>brnl</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://rafaelgaspar.xyz/"><img src="https://avatars.githubusercontent.com/u/5567?v=4" width="100px;" alt=""/><br /><sub><b>Rafael Gaspar</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://chadimasri.com/"><img src="https://avatars.githubusercontent.com/u/1502811?v=4" width="100px;" alt=""/><br /><sub><b>Chadi El Masri</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/dfoulkes"><img src="https://avatars.githubusercontent.com/u/8113674?v=4" width="100px;" alt=""/><br /><sub><b>Dan Foulkes</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/george124816"><img src="https://avatars.githubusercontent.com/u/26443736?v=4" width="100px;" alt=""/><br /><sub><b>George Rodrigues</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://pascaliske.dev/"><img src="https://avatars.githubusercontent.com/u/7473880?v=4" width="100px;" alt=""/><br /><sub><b>Pascal Iske</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.reyth.dev/"><img src="https://avatars.githubusercontent.com/u/23526880?v=4" width="100px;" alt=""/><br /><sub><b>Theo REY</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/piwi3910"><img src="https://avatars.githubusercontent.com/u/12539757?v=4" width="100px;" alt=""/><br /><sub><b>Watteel Pascal</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/frittenlab"><img src="https://avatars.githubusercontent.com/u/29921946?v=4" width="100px;" alt=""/><br /><sub><b>simon</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/vince-vibin"><img src="https://avatars.githubusercontent.com/u/99386370?v=4" width="100px;" alt=""/><br /><sub><b>Vincent</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Keydrain"><img src="https://avatars.githubusercontent.com/u/5723055?v=4" width="100px;" alt=""/><br /><sub><b>Clint</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/tamcore"><img src="https://avatars.githubusercontent.com/u/319917?v=4" width="100px;" alt=""/><br /><sub><b>Philipp B.</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ebCrypto"><img src="https://avatars.githubusercontent.com/u/44279886?v=4" width="100px;" alt=""/><br /><sub><b>ebCrypto</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://ucdialplans.com/"><img src="https://avatars.githubusercontent.com/u/44060527?v=4" width="100px;" alt=""/><br /><sub><b>Ken Lasko</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mbund"><img src="https://avatars.githubusercontent.com/u/25110595?v=4" width="100px;" alt=""/><br /><sub><b>Mark Bundschuh</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://fotoallerlei.com/"><img src="https://avatars.githubusercontent.com/u/3430656?v=4" width="100px;" alt=""/><br /><sub><b>Max Rosin</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/yzeng1314"><img src="https://avatars.githubusercontent.com/u/6365365?v=4" width="100px;" alt=""/><br /><sub><b>Yang</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/dwarf-king-hreidmar"><img src="https://avatars.githubusercontent.com/u/45319558?v=4" width="100px;" alt=""/><br /><sub><b>dwarf-king-hreidmar</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/s94santos"><img src="https://avatars.githubusercontent.com/u/10950164?v=4" width="100px;" alt=""/><br /><sub><b>s94santos</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/adamrdavid"><img src="https://avatars.githubusercontent.com/u/1854876?v=4" width="100px;" alt=""/><br /><sub><b>Adam David</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/bkonicek"><img src="https://avatars.githubusercontent.com/u/7397530?v=4" width="100px;" alt=""/><br /><sub><b>Ben Konicek</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Gabisonfire"><img src="https://avatars.githubusercontent.com/u/6416239?v=4" width="100px;" alt=""/><br /><sub><b>Gabisonfire</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/giolekva"><img src="https://avatars.githubusercontent.com/u/124899?v=4" width="100px;" alt=""/><br /><sub><b>Giorgi Lekveishvili</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/paimonsoror"><img src="https://avatars.githubusercontent.com/u/935046?v=4" width="100px;" alt=""/><br /><sub><b>Paimon Sorornejad</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mivek"><img src="https://avatars.githubusercontent.com/u/9912558?v=4" width="100px;" alt=""/><br /><sub><b>Jean-Kevin KPADEY</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/aogier"><img src="https://avatars.githubusercontent.com/u/321364?v=4" width="100px;" alt=""/><br /><sub><b>Alessandro Ogier</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Luukvdm"><img src="https://avatars.githubusercontent.com/u/25098818?v=4" width="100px;" alt=""/><br /><sub><b>Luuk v/d Maagdenberg</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/sunsided"><img src="https://avatars.githubusercontent.com/u/495335?v=4" width="100px;" alt=""/><br /><sub><b>Markus Mayer</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/prfj"><img src="https://avatars.githubusercontent.com/u/37109548?v=4" width="100px;" alt=""/><br /><sub><b>Paulo Jesus</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://blog.bergpb.dev/"><img src="https://avatars.githubusercontent.com/u/11005963?v=4" width="100px;" alt=""/><br /><sub><b>Lindemberg Barbosa</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://ricardobaltazar.com/"><img src="https://avatars.githubusercontent.com/u/1923140?v=4" width="100px;" alt=""/><br /><sub><b>Ricardo Baltazar Chaves</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/wolviecb"><img src="https://avatars.githubusercontent.com/u/13783824?v=4" width="100px;" alt=""/><br /><sub><b>Thomas Andrade</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/alexinthesky"><img src="https://avatars.githubusercontent.com/u/14876221?v=4" width="100px;" alt=""/><br /><sub><b>Alexandre Chappaz</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/cristiklein"><img src="https://avatars.githubusercontent.com/u/1660833?v=4" width="100px;" alt=""/><br /><sub><b>Cristian Klein</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://flouret.com/"><img src="https://avatars.githubusercontent.com/u/9397098?v=4" width="100px;" alt=""/><br /><sub><b>JP Flouret</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/fernferret"><img src="https://avatars.githubusercontent.com/u/72811?v=4" width="100px;" alt=""/><br /><sub><b>Eric</b></sub></a></td>
+    </tr>
+  </tbody>
+</table>
 
-#### Config File
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
 
-`config.yaml`:
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
-```yaml
-remote: upstream
-chart-dirs:
-  - stable
-  - incubator
-build-id: pr-42
-```
-
-#### Config Usage
-
-    ct install --config config.yaml
-
-
-`ct` supports any format [Viper](https://github.com/spf13/viper) can read, i. e. JSON, TOML, YAML, HCL, and Java properties files.
-
-Notice that if no config file is specified, then `ct.yaml` (or any of the supported formats) is loaded from the current directory, `$HOME/.ct`, or `/etc/ct`, in that order, if found.
-
-
-#### Using private chart repositories
-
-When adding chart-repos you can specify additional arguments for the `helm repo add` command using `helm-repo-extra-args` on a per-repo basis.
-You can also specify OCI registries which will be added using the `helm registry login` command, they also support the `helm-repo-extra-args` for authentication.
-This could for example be used to authenticate a private chart repository.
-
-`config.yaml`:
-
-```yaml
-chart-repos:
-  - incubator=https://incubator.io
-  - basic-auth=https://private.com
-  - ssl-repo=https://self-signed.ca
-  - oci-registry=oci://nice-oci-registry.pt
-helm-repo-extra-args:
-  - ssl-repo=--ca-file ./my-ca.crt
-```
-
-    ct install --config config.yaml --helm-repo-extra-args "basic-auth=--username user --password secret"
-
-## Building from Source
-
-`ct` is built using Go 1.13 or higher.
-
-`build.sh` is used to build and release the tool.
-It uses [Goreleaser](https://goreleaser.com/) under the covers.
-
-Note: on MacOS you will need `GNU Coreutils readlink`.
-You can install it with:
-
-```console
-brew install coreutils
-```
-
-Then add `gnubin` to your `$PATH`, with:
-
-```console
-echo 'export PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"' >> ~/.bash_profile
-bash --login
-```
-
-To use the build script:
-
-```console
-$ ./build.sh -h
-Usage: build.sh <options>
-
-Build ct using Goreleaser.
-
-    -h, --help      Display help
-    -d, --debug     Display verbose output and run Goreleaser with --debug
-    -r, --release   Create a release using Goreleaser. This includes the creation
-                    of a GitHub release and building and pushing the Docker image.
-                    If this flag is not specified, Goreleaser is run with --snapshot
-```
-
-## Releasing
-
-### Prepare Release
-
-Before a release is created, versions have to be updated in the examples.
-A pull request needs to be created for this, which should be merged right before the release is cut.
-Here's a previous one for reference: https://github.com/helm/chart-testing/pull/89
-
-### Create Release
-
-The release workflow is [dispatched from github actions](https://github.com/helm/chart-testing/actions)
-Versions must start with a lower-case `v`, e. g. `v3.7.1`.
-
-## Supported versions
-
-The previous MAJOR version will be supported for three months after each new MAJOR release.
-
-Within this support window, pull requests for the previous MAJOR version should be made against the previous release branch.
-For example, if the current MAJOR version is `v2`, the pull request base branch should be `release-v1`.
-
-## Upgrading
-
-When upgrading from `< v2.0.0` you will also need to change the usage in your scripts.
-This is because, while the [v2.0.0](https://github.com/helm/chart-testing/releases/tag/v2.0.0) release has parity with `v1`, it was refactored from a bash library to Go so there are minor syntax differences.
-Compare [v1 usage](https://github.com/helm/chart-testing/tree/release-v1#usage) with this (`v2`) version's README [usage](#usage) section above.
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
