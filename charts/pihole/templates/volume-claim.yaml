@@ -14,6 +14,9 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
   name: {{ template "pihole.fullname" . }}
+  {{- if .Release.Namespace }}
+  namespace: {{ .Release.Namespace | quote }}
+  {{- end }}
 spec:
   accessModes:
 {{ toYaml .Values.persistentVolumeClaim.accessModes | indent 4 }}
