@@ -53,6 +53,8 @@ serviceDns:
   loadBalancerIP: ""
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service
   loadBalancerIPv6: ""
+  # -- `spec.loadBalancerClass` for the DNS Service. Only used if type is LoadBalancer.
+  loadBalancerClass: ""
 
   # -- Annotations for the DNS service
   annotations: {}
@@ -84,6 +86,8 @@ serviceDhcp:
   loadBalancerIP: ""
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service
   loadBalancerIPv6: ""
+  # -- `spec.loadBalancerClass` for the DHCP Service. Only used if type is LoadBalancer.
+  loadBalancerClass: ""
 
   # -- Annotations for the DHCP service
   annotations: {}
@@ -127,6 +131,8 @@ serviceWeb:
   loadBalancerIP: ""
   # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service
   loadBalancerIPv6: ""
+  # -- `spec.loadBalancerClass` for the web interface Service. Only used if type is LoadBalancer.
+  loadBalancerClass: ""
 
   # -- Annotations for the DHCP service
   annotations: {}
