@@ -2,7 +2,9 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.23.0](https://img.shields.io/badge/Version-2.23.0-informational?style=flat-square) ![AppVersion: 2024.03.2](https://img.shields.io/badge/AppVersion-2024.03.2-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->[![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)<!-- ALL-CONTRIBUTORS-BADGE:END -->
+![Version: 2.30.0](https://img.shields.io/badge/Version-2.30.0-informational?style=flat-square) ![AppVersion: 2025.04.0](https://img.shields.io/badge/AppVersion-2025.04.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ## Source Code
 
@@ -179,50 +181,59 @@ The following table lists the configurable parameters of the pihole chart and th
 | capabilities | object | `{}` |  |
 | customVolumes.config | object | `{}` | any volume type can be used here |
 | customVolumes.enabled | bool | `false` | set this to true to enable custom volumes |
+| deploymentAnnotations | object | `{}` | Additional annotations for the deployment |
 | dnsHostPort.enabled | bool | `false` | set this to true to enable dnsHostPort |
 | dnsHostPort.port | int | `53` | default port for this pod |
-| dnsmasq | object | `{"additionalHostsEntries":[],"customCnameEntries":[],"customDnsEntries":[],"customSettings":null,"staticDhcpEntries":[],"upstreamServers":[]}` | DNS MASQ settings |
+| dnsmasq | object | `{"additionalHostsEntries":[],"customCnameEntries":[],"customDnsEntries":[],"customSettings":null,"enableCustomDnsMasq":true,"staticDhcpEntries":[],"upstreamServers":[]}` | DNS MASQ settings |
 | dnsmasq.additionalHostsEntries | list | `[]` | Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like |
 | dnsmasq.customCnameEntries | list | `[]` | Here we specify custom cname entries that should point to `A` records or elements in customDnsEntries array. The format should be:  - cname=cname.foo.bar,foo.bar  - cname=cname.bar.foo,bar.foo  - cname=cname record,dns record |
 | dnsmasq.customDnsEntries | list | `[]` | Add custom dns entries to override the dns resolution. All lines will be added to the pihole dnsmasq configuration. |
 | dnsmasq.customSettings | string | `nil` | Other options |
+| dnsmasq.enableCustomDnsMasq | bool | `true` | Load custom user configuration files from /etc/dnsmasq.d |
 | dnsmasq.staticDhcpEntries | list | `[]` | Static DHCP config |
 | dnsmasq.upstreamServers | list | `[]` | Add upstream dns servers. All lines will be added to the pihole dnsmasq configuration |
+| doh.command | list | `[]` | Custom command to the DoH container |
 | doh.enabled | bool | `false` | set to true to enabled DNS over HTTPs via cloudflared |
 | doh.envVars | object | `{}` | Here you can pass environment variables to the DoH container, for example: |
+| doh.monitoring.podMonitor.enabled | bool | `false` |  |
 | doh.name | string | `"cloudflared"` | name |
-| doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5}}` | Probes configuration |
+| doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5},"readiness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5}}` | Probes configuration |
 | doh.probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5}` | Configure the healthcheck for the doh container |
 | doh.probes.liveness.enabled | bool | `true` | set to true to enable liveness probe |
 | doh.probes.liveness.failureThreshold | int | `10` | defines the failure threshold for the liveness probe |
 | doh.probes.liveness.initialDelaySeconds | int | `60` | defines the initial delay for the liveness probe |
 | doh.probes.liveness.probe | object | `{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}}` | customize the liveness probe |
 | doh.probes.liveness.timeoutSeconds | int | `5` | defines the timeout in secondes for the liveness probe |
+| doh.probes.readiness.enabled | bool | `true` | set to true to enable readiness probe |
+| doh.probes.readiness.failureThreshold | int | `10` | defines the failure threshold for the readiness probe |
+| doh.probes.readiness.initialDelaySeconds | int | `60` | defines the initial delay for the readiness probe |
+| doh.probes.readiness.probe | object | `{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}}` | customize the readiness probe |
+| doh.probes.readiness.timeoutSeconds | int | `5` | defines the timeout in secondes for the readiness probe |
 | doh.pullPolicy | string | `"IfNotPresent"` | Pull policy |
 | doh.repository | string | `"crazymax/cloudflared"` | repository |
 | doh.tag | string | `"latest"` |  |
 | dualStack.enabled | bool | `false` | set this to true to enable creation of DualStack services or creation of separate IPv6 services if `serviceDns.type` is set to `"LoadBalancer"` |
 | extraContainers | list | `[]` |  |
-| extraEnvVars | object | `{}` | extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use |
+| extraEnvVars | object | `{}` | extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use. You can use either scalars or project cm, secrets or pod fields via valueFrom |
 | extraEnvVarsSecret | object | `{}` | extraEnvVarsSecret is a list of secrets to load in as environment variables. |
 | extraInitContainers | list | `[]` | any initContainers you might want to run before starting pihole |
 | extraObjects | list | `[]` | any extra kubernetes manifests you might want |
 | extraVolumeMounts | object | `{}` | any extra volume mounts you might want |
 | extraVolumes | object | `{}` | any extra volumes you might want |
-| ftl | object | `{}` | values that should be added to pihole-FTL.conf |
+| ftl | object | `{}` | values that should be added to pihole-FTL.conf. You can use either scalars or project cm, secrets or pod fields via valueFrom |
 | hostNetwork | string | `"false"` | should the container use host network |
 | hostname | string | `""` | hostname of pod |
 | image.pullPolicy | string | `"IfNotPresent"` | the pull policy |
 | image.repository | string | `"pihole/pihole"` | the repostory to pull the image from |
 | image.tag | string | `""` | the docker tag, if left empty it will get it from the chart's appVersion |
-| ingress | object | `{"annotations":{},"enabled":false,"hosts":["chart-example.local"],"path":"/","tls":[]}` | Configuration for the Ingress |
+| ingress | object | `{"annotations":{},"enabled":false,"hosts":["chart-example.local"],"path":"/","pathType":"ImplementationSpecific","tls":[]}` | Configuration for the Ingress |
 | ingress.annotations | object | `{}` | Annotations for the ingress |
 | ingress.enabled | bool | `false` | Generate a Ingress resource |
 | maxSurge | int | `1` | The maximum number of Pods that can be created over the desired number of `ReplicaSet` during updating. |
 | maxUnavailable | int | `1` | The maximum number of Pods that can be unavailable during updating |
 | monitoring.podMonitor | object | `{"enabled":false}` | Preferably adding prometheus scrape annotations rather than enabling podMonitor. |
 | monitoring.podMonitor.enabled | bool | `false` | set this to true to enable podMonitor |
-| monitoring.sidecar | object | `{"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"ekofr/pihole-exporter","tag":"v0.3.0"},"port":9617,"resources":{"limits":{"memory":"128Mi"}}}` | Sidecar configuration |
+| monitoring.sidecar | object | `{"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"ekofr/pihole-exporter","tag":"v1.0.0"},"port":9617,"resources":{"limits":{"memory":"128Mi"}}}` | Sidecar configuration |
 | monitoring.sidecar.enabled | bool | `false` | set this to true to enable podMonitor as sidecar |
 | monitoring.sidecar.image.repository | string | `"ekofr/pihole-exporter"` | the repository to use |
 | nodeSelector | object | `{}` | Node selector values |
@@ -239,16 +250,15 @@ The following table lists the configurable parameters of the pihole chart and th
 | podDnsConfig.nameservers[1] | string | `"8.8.8.8"` |  |
 | podDnsConfig.policy | string | `"None"` |  |
 | privileged | string | `"false"` | should container run in privileged mode |
-| probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5,"type":"httpGet"},"readiness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5}}` | Probes configuration |
+| probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5,"type":"httpGet"},"readiness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5,"type":"httpGet"}}` | Probes configuration |
 | probes.liveness.failureThreshold | int | `10` | threshold until the probe is considered failing |
 | probes.liveness.initialDelaySeconds | int | `60` | wait time before trying the liveness probe |
 | probes.liveness.timeoutSeconds | int | `5` | timeout in seconds |
 | probes.liveness.type | string | `"httpGet"` | Generate a liveness probe 'type' defaults to httpGet, can be set to 'command' to use a command type liveness probe. |
-| probes.readiness.enabled | bool | `true` | Generate a readiness probe |
-| probes.readiness.failureThreshold | int | `3` | The failure threshold |
-| probes.readiness.initialDelaySeconds | int | `60` | Initial delay to wait for readiness check |
-| probes.readiness.port | string | `"http"` | The port |
-| probes.readiness.timeoutSeconds | int | `5` | The timeout in seconds |
+| probes.readiness.failureThreshold | int | `10` | threshold until the probe is considered failing |
+| probes.readiness.initialDelaySeconds | int | `60` | wait time before trying the readiness probe |
+| probes.readiness.timeoutSeconds | int | `5` | timeout in seconds |
+| probes.readiness.type | string | `"httpGet"` | Generate a readiness probe 'type' defaults to httpGet, can be set to 'command' to use a command type readiness probe. |
 | regex | object | `{}` | list of blacklisted regex expressions to import during initial start of the container |
 | replicaCount | int | `1` | The number of replicas |
 | resources | object | `{}` | lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
@@ -398,25 +408,41 @@ Thanks goes to these wonderful people:
       <td align="center" valign="top" width="14.28%"><a href="https://www.reyth.dev/"><img src="https://avatars.githubusercontent.com/u/23526880?v=4" width="100px;" alt=""/><br /><sub><b>Theo REY</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/piwi3910"><img src="https://avatars.githubusercontent.com/u/12539757?v=4" width="100px;" alt=""/><br /><sub><b>Watteel Pascal</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/frittenlab"><img src="https://avatars.githubusercontent.com/u/29921946?v=4" width="100px;" alt=""/><br /><sub><b>simon</b></sub></a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/FernFerret"><img src="https://avatars.githubusercontent.com/u/72811?v=4" width="100px;" alt=""/><br /><sub><b>Eric</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/vince-vibin"><img src="https://avatars.githubusercontent.com/u/99386370?v=4" width="100px;" alt=""/><br /><sub><b>Vincent</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Keydrain"><img src="https://avatars.githubusercontent.com/u/5723055?v=4" width="100px;" alt=""/><br /><sub><b>Clint</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/tamcore"><img src="https://avatars.githubusercontent.com/u/319917?v=4" width="100px;" alt=""/><br /><sub><b>Philipp B.</b></sub></a></td>
     </tr>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/tamcore"><img src="https://avatars.githubusercontent.com/u/319917?v=4" width="100px;" alt=""/><br /><sub><b>Philipp B.</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ebCrypto"><img src="https://avatars.githubusercontent.com/u/44279886?v=4" width="100px;" alt=""/><br /><sub><b>ebCrypto</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://ucdialplans.com/"><img src="https://avatars.githubusercontent.com/u/44060527?v=4" width="100px;" alt=""/><br /><sub><b>Ken Lasko</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mbund"><img src="https://avatars.githubusercontent.com/u/25110595?v=4" width="100px;" alt=""/><br /><sub><b>Mark Bundschuh</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://fotoallerlei.com/"><img src="https://avatars.githubusercontent.com/u/3430656?v=4" width="100px;" alt=""/><br /><sub><b>Max Rosin</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/yzeng1314"><img src="https://avatars.githubusercontent.com/u/6365365?v=4" width="100px;" alt=""/><br /><sub><b>Yang</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/dwarf-king-hreidmar"><img src="https://avatars.githubusercontent.com/u/45319558?v=4" width="100px;" alt=""/><br /><sub><b>dwarf-king-hreidmar</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/s94santos"><img src="https://avatars.githubusercontent.com/u/10950164?v=4" width="100px;" alt=""/><br /><sub><b>s94santos</b></sub></a></td>
     </tr>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/s94santos"><img src="https://avatars.githubusercontent.com/u/10950164?v=4" width="100px;" alt=""/><br /><sub><b>s94santos</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/adamrdavid"><img src="https://avatars.githubusercontent.com/u/1854876?v=4" width="100px;" alt=""/><br /><sub><b>Adam David</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/bkonicek"><img src="https://avatars.githubusercontent.com/u/7397530?v=4" width="100px;" alt=""/><br /><sub><b>Ben Konicek</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Gabisonfire"><img src="https://avatars.githubusercontent.com/u/6416239?v=4" width="100px;" alt=""/><br /><sub><b>Gabisonfire</b></sub></a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/giolekva"><img src="https://avatars.githubusercontent.com/u/124899?v=4" width="100px;" alt=""/><br /><sub><b>Giorgi Lekveishvili</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/paimonsoror"><img src="https://avatars.githubusercontent.com/u/935046?v=4" width="100px;" alt=""/><br /><sub><b>Paimon Sorornejad</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mivek"><img src="https://avatars.githubusercontent.com/u/9912558?v=4" width="100px;" alt=""/><br /><sub><b>Jean-Kevin KPADEY</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/aogier"><img src="https://avatars.githubusercontent.com/u/321364?v=4" width="100px;" alt=""/><br /><sub><b>Alessandro Ogier</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Luukvdm"><img src="https://avatars.githubusercontent.com/u/25098818?v=4" width="100px;" alt=""/><br /><sub><b>Luuk v/d Maagdenberg</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/sunsided"><img src="https://avatars.githubusercontent.com/u/495335?v=4" width="100px;" alt=""/><br /><sub><b>Markus Mayer</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/prfj"><img src="https://avatars.githubusercontent.com/u/37109548?v=4" width="100px;" alt=""/><br /><sub><b>Paulo Jesus</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://blog.bergpb.dev/"><img src="https://avatars.githubusercontent.com/u/11005963?v=4" width="100px;" alt=""/><br /><sub><b>Lindemberg Barbosa</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://ricardobaltazar.com/"><img src="https://avatars.githubusercontent.com/u/1923140?v=4" width="100px;" alt=""/><br /><sub><b>Ricardo Baltazar Chaves</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/wolviecb"><img src="https://avatars.githubusercontent.com/u/13783824?v=4" width="100px;" alt=""/><br /><sub><b>Thomas Andrade</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/alexinthesky"><img src="https://avatars.githubusercontent.com/u/14876221?v=4" width="100px;" alt=""/><br /><sub><b>Alexandre Chappaz</b></sub></a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/cristiklein"><img src="https://avatars.githubusercontent.com/u/1660833?v=4" width="100px;" alt=""/><br /><sub><b>Cristian Klein</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://flouret.com/"><img src="https://avatars.githubusercontent.com/u/9397098?v=4" width="100px;" alt=""/><br /><sub><b>JP Flouret</b></sub></a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/fernferret"><img src="https://avatars.githubusercontent.com/u/72811?v=4" width="100px;" alt=""/><br /><sub><b>Eric</b></sub></a></td>
     </tr>
   </tbody>
 </table>
@@ -429,4 +455,4 @@ Thanks goes to these wonderful people:
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.13.1](https://github.com/norwoodj/helm-docs/releases/v1.13.1)
+Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)

@@ -152,6 +152,7 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   path: /
+  pathType: ImplementationSpecific
   hosts:
     # virtualHost (default value is pi.hole) will be appended to the hosts
     - chart-example.local
@@ -183,14 +184,19 @@ probes:
     scheme: HTTP
   readiness:
     # -- Generate a readiness probe
+    # 'type' defaults to httpGet, can be set to 'command' to use a command type readiness probe.
+    type: httpGet
+    # command:
+    #   - /bin/bash
+    #   - -c
+    #   - /bin/true
     enabled: true
-    # -- Initial delay to wait for readiness check
+    # -- wait time before trying the readiness probe
     initialDelaySeconds: 60
-    # -- The failure threshold
-    failureThreshold: 3
-    # -- The timeout in seconds
+    # -- threshold until the probe is considered failing
+    failureThreshold: 10
+    # -- timeout in seconds
     timeoutSeconds: 5
-    # -- The port
     port: http
     scheme: HTTP
 
@@ -270,9 +276,15 @@ admin:
     # reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
     # reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "external-dns"
 
-# -- extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use
+# -- extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use. You can use either scalars or project cm, secrets or pod fields via valueFrom
 extraEnvVars: {}
   # TZ: UTC
+  # Project a variable
+  # SOME_VAR:
+  #   valueFrom:
+  #     configMapKeyRef:
+  #       key: some-var
+  #       name: my-config-map
 
 # -- extraEnvVarsSecret is a list of secrets to load in as environment variables.
 extraEnvVarsSecret: {}
@@ -309,7 +321,8 @@ doh:
   # -- Here you can pass environment variables to the DoH container, for example:
   envVars: {}
     # TUNNEL_DNS_UPSTREAM: "https://1.1.1.2/dns-query,https://1.0.0.2/dns-query"
-
+  # -- Custom command to the DoH container
+  command: []
   # -- Probes configuration
   probes:
     # -- Configure the healthcheck for the doh container
@@ -330,9 +343,31 @@ doh:
       failureThreshold: 10
       # -- defines the timeout in secondes for the liveness probe
       timeoutSeconds: 5
-
+    readiness:
+      # -- set to true to enable readiness probe
+      enabled: true
+      # -- customize the readiness probe
+      probe:
+        exec:
+          command:
+            - nslookup
+            - -po=5053
+            - cloudflare.com
+            - "127.0.0.1"
+      # -- defines the initial delay for the readiness probe
+      initialDelaySeconds: 60
+      # -- defines the failure threshold for the readiness probe
+      failureThreshold: 10
+      # -- defines the timeout in secondes for the readiness probe
+      timeoutSeconds: 5
+  monitoring:
+    podMonitor:
+      enabled: false
 # -- DNS MASQ settings
 dnsmasq:
+  # -- Load custom user configuration files from /etc/dnsmasq.d
+  enableCustomDnsMasq: true
+
   # -- Add upstream dns servers. All lines will be added to the pihole dnsmasq configuration
   upstreamServers: []
   # - server=/foo.bar/192.168.178.10
@@ -355,8 +390,8 @@ dnsmasq:
 
   # -- Other options
   customSettings:
-  # otherSettings:
-  # - rebind-domain-ok=/plex.direct/
+  # otherSettings: |
+  #   rebind-domain-ok=/plex.direct/
 
   # -- Here we specify custom cname entries that should point to `A` records or
   # elements in customDnsEntries array.
@@ -393,10 +428,15 @@ regex: {}
   # Add regular expression blacklist items
   # - (^|\.)facebook\.com$
 
-# -- values that should be added to pihole-FTL.conf
+# -- values that should be added to pihole-FTL.conf. You can use either scalars or project cm, secrets or pod fields via valueFrom
 ftl: {}
   # Add values for pihole-FTL.conf
   # MAXDBDAYS: 14
+  # Project a variable
+  # LOCAL_IPV4:
+  #   valueFrom:
+  #     fieldRef:
+  #       fieldPath: status.podIP
 
 # -- port the container should use to expose HTTP traffic
 webHttp: "80"
@@ -486,6 +526,10 @@ extraObjects: []
   #         }
   #       }
 
+# -- Additional annotations for the deployment
+deploymentAnnotations: {}
+  # reloader.stakater.com/auto: "true"
+
 # -- Additional annotations for pods
 podAnnotations: {}
   # Example below allows Prometheus to scape on metric port (requires pihole-exporter sidecar enabled)
@@ -521,7 +565,7 @@ monitoring:
     image:
       # -- the repository to use
       repository: ekofr/pihole-exporter
-      tag: v0.3.0
+      tag: v1.0.0
       pullPolicy: IfNotPresent
     resources:
       limits:

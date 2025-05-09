@@ -5,6 +5,7 @@ metadata:
   name: {{ template "pihole.fullname" . }}-dns
   labels:
     app: {{ template "pihole.name" . }}
+    app.kubernetes.io/name: {{ template "pihole.name" . }}
     chart: {{ template "pihole.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -55,6 +56,7 @@ metadata:
   name: {{ template "pihole.fullname" . }}-dns-ipv6
   labels:
     app: {{ template "pihole.name" . }}
+    app.kubernetes.io/name: {{ template "pihole.name" . }}
     chart: {{ template "pihole.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
