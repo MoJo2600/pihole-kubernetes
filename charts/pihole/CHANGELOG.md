@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.31.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.30.0...pihole-2.31.0) (2025-05-16)
+
+
+### Features
+
+* Allow specifying loadBalancerClass for LoadBalancer services ([#370](https://github.com/MoJo2600/pihole-kubernetes/issues/370)) ([d0c9f95](https://github.com/MoJo2600/pihole-kubernetes/commit/d0c9f9534d83020d5b4541f6c402912279db38d5))
+
 ## [2.30.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.29.1...pihole-2.30.0) (2025-04-30)
 
 
