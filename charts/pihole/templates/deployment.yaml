@@ -156,8 +156,10 @@ spec:
         {{- end }}
         - name: {{ .Chart.Name }}
           env:
+          {{- if not (hasKey .Values.extraEnvVars "FTLCONF_webserver_port") }}
           - name: 'FTLCONF_webserver_port'
             value: "{{ .Values.webHttp }}"
+          {{- end }}
           - name: VIRTUAL_HOST
             value: {{ .Values.virtualHost }}
           - name: FTLCONF_misc_etc_dnsmasq_d
