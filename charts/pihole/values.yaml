@@ -173,12 +173,12 @@ probes:
   # -- probes.liveness -- Configure the healthcheck for the ingress controller
   liveness:
     # -- Generate a liveness probe
-    # 'type' defaults to httpGet, can be set to 'command' to use a command type liveness probe.
-    type: httpGet
-    # command:
-    #   - /bin/bash
-    #   - -c
-    #   - /bin/true
+    # 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type liveness probe.
+    type: command
+    command:
+      - /bin/sh
+      - -c
+      - "curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end'"
     enabled: true
     # -- wait time before trying the liveness probe
     initialDelaySeconds: 60
@@ -186,16 +186,16 @@ probes:
     failureThreshold: 10
     # -- timeout in seconds
     timeoutSeconds: 5
-    port: http
-    scheme: HTTP
+    # port: http
+    # scheme: HTTP
   readiness:
     # -- Generate a readiness probe
-    # 'type' defaults to httpGet, can be set to 'command' to use a command type readiness probe.
-    type: httpGet
-    # command:
-    #   - /bin/bash
-    #   - -c
-    #   - /bin/true
+    # 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type readiness probe.
+    type: command
+    command:
+      - /bin/sh
+      - -c
+      - "curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end'"
     enabled: true
     # -- wait time before trying the readiness probe
     initialDelaySeconds: 60
@@ -203,8 +203,8 @@ probes:
     failureThreshold: 10
     # -- timeout in seconds
     timeoutSeconds: 5
-    port: http
-    scheme: HTTP
+    # port: http
+    # scheme: HTTP
 
 # -- We usually recommend not to specify default resources and to leave this as a conscious
 # -- choice for the user. This also increases chances charts run on environments with little
