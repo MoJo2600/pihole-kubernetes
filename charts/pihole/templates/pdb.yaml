@@ -3,6 +3,9 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: {{ template "pihole.fullname" . }}-pdb
+  {{- if .Release.Namespace }}
+  namespace: {{ .Release.Namespace | quote }}
+  {{- end }}
   labels:
     app: {{ template "pihole.name" . }}
     chart: {{ template "pihole.chart" . }}
