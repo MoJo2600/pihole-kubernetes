@@ -284,7 +284,8 @@ admin:
 
 # -- extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use. You can use either scalars or project cm, secrets or pod fields via valueFrom
 extraEnvVars:
-  FTLCONF_dns_listeningMode: 'all' # issue 360
+  # issue 360
+  FTLCONF_dns_listeningMode: 'all'
   # TZ: UTC
   # Project a variable
   # SOME_VAR:
