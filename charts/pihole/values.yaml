@@ -283,7 +283,8 @@ admin:
     # reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "external-dns"
 
 # -- extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use. You can use either scalars or project cm, secrets or pod fields via valueFrom
-extraEnvVars: {}
+extraEnvVars:
+  FTLCONF_dns_listeningMode: 'all' # issue 360
   # TZ: UTC
   # Project a variable
   # SOME_VAR:
