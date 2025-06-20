@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.31.0](https://img.shields.io/badge/Version-2.31.0-informational?style=flat-square) ![AppVersion: 2025.04.0](https://img.shields.io/badge/AppVersion-2025.04.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 2.32.0](https://img.shields.io/badge/Version-2.32.0-informational?style=flat-square) ![AppVersion: 2025.06.2](https://img.shields.io/badge/AppVersion-2025.06.2-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -214,7 +214,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.tag | string | `"latest"` |  |
 | dualStack.enabled | bool | `false` | set this to true to enable creation of DualStack services or creation of separate IPv6 services if `serviceDns.type` is set to `"LoadBalancer"` |
 | extraContainers | list | `[]` |  |
-| extraEnvVars | object | `{}` | extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use. You can use either scalars or project cm, secrets or pod fields via valueFrom |
+| extraEnvVars | object | `{"FTLCONF_dns_listeningMode":"all"}` | extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use. You can use either scalars or project cm, secrets or pod fields via valueFrom |
 | extraEnvVarsSecret | object | `{}` | extraEnvVarsSecret is a list of secrets to load in as environment variables. |
 | extraInitContainers | list | `[]` | any initContainers you might want to run before starting pihole |
 | extraObjects | list | `[]` | any extra kubernetes manifests you might want |
@@ -250,15 +250,15 @@ The following table lists the configurable parameters of the pihole chart and th
 | podDnsConfig.nameservers[1] | string | `"8.8.8.8"` |  |
 | podDnsConfig.policy | string | `"None"` |  |
 | privileged | string | `"false"` | should container run in privileged mode |
-| probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5,"type":"httpGet"},"readiness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"port":"http","scheme":"HTTP","timeoutSeconds":5,"type":"httpGet"}}` | Probes configuration |
+| probes | object | `{"liveness":{"command":["/bin/sh","-c","curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end'"],"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5,"type":"command"},"readiness":{"command":["/bin/sh","-c","curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end'"],"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5,"type":"command"}}` | Probes configuration |
 | probes.liveness.failureThreshold | int | `10` | threshold until the probe is considered failing |
 | probes.liveness.initialDelaySeconds | int | `60` | wait time before trying the liveness probe |
 | probes.liveness.timeoutSeconds | int | `5` | timeout in seconds |
-| probes.liveness.type | string | `"httpGet"` | Generate a liveness probe 'type' defaults to httpGet, can be set to 'command' to use a command type liveness probe. |
+| probes.liveness.type | string | `"command"` | Generate a liveness probe 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type liveness probe. |
 | probes.readiness.failureThreshold | int | `10` | threshold until the probe is considered failing |
 | probes.readiness.initialDelaySeconds | int | `60` | wait time before trying the readiness probe |
 | probes.readiness.timeoutSeconds | int | `5` | timeout in seconds |
-| probes.readiness.type | string | `"httpGet"` | Generate a readiness probe 'type' defaults to httpGet, can be set to 'command' to use a command type readiness probe. |
+| probes.readiness.type | string | `"command"` | Generate a readiness probe 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type readiness probe. |
 | regex | object | `{}` | list of blacklisted regex expressions to import during initial start of the container |
 | replicaCount | int | `1` | The number of replicas |
 | resources | object | `{}` | lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
