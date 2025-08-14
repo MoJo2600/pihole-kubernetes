@@ -14,6 +14,9 @@ metadata:
   {{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  {{- if .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
   strategy:
     type: {{ .Values.strategyType }}
     {{- if eq .Values.strategyType "RollingUpdate" }}
