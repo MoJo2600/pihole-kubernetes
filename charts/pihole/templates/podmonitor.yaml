@@ -11,9 +11,7 @@ metadata:
     {{- . | toYaml | nindent 4 }}
     {{- end }}
   name: {{ template "pihole.fullname" . }}-prometheus-exporter
-{{- if .Values.monitoring.podMonitor.namespace }}
-  namespace: {{ .Values.monitoring.podMonitor.namespace }}
-{{- end }}
+  namespace: {{ default "pihole-prometheus" .Values.monitoring.podMonitor.namespace }}
 spec:
   podMetricsEndpoints:
 {{- if .Values.monitoring.podMonitor.enabled }}
