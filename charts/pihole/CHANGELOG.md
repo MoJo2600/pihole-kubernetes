@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.33.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.32.0...pihole-2.33.0) (2025-08-14)
+
+
+### Features
+
+* bump pihole version to 2025.08.0 ([#381](https://github.com/MoJo2600/pihole-kubernetes/issues/381)) ([83b7196](https://github.com/MoJo2600/pihole-kubernetes/commit/83b719627f7a1bb6b893eb4af774edba2d7dd08a))
+
 ## [2.32.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.31.0...pihole-2.32.0) (2025-06-19)
 
 
