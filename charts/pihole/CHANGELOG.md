@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.34.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.33.0...pihole-2.34.0) (2025-08-14)
+
+
+### Features
+
+* add spec.revisionHistoryLimit to deployment.yaml template ([#382](https://github.com/MoJo2600/pihole-kubernetes/issues/382)) ([9a7450e](https://github.com/MoJo2600/pihole-kubernetes/commit/9a7450efc3b923ba95a2c73e1e738dcdf027bf05))
+
 ## [2.33.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.32.0...pihole-2.33.0) (2025-08-14)
 
 
