@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.33.0](https://img.shields.io/badge/Version-2.33.0-informational?style=flat-square) ![AppVersion: 2025.08.0](https://img.shields.io/badge/AppVersion-2025.08.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 2.34.0](https://img.shields.io/badge/Version-2.34.0-informational?style=flat-square) ![AppVersion: 2025.08.0](https://img.shields.io/badge/AppVersion-2025.08.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -262,6 +262,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | regex | object | `{}` | list of blacklisted regex expressions to import during initial start of the container |
 | replicaCount | int | `1` | The number of replicas |
 | resources | object | `{}` | lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
+| revisionHistoryLimit | int | `10` | The number of old ReplicaSets to retain to allow rollback |
 | serviceDhcp | object | `{"annotations":{},"enabled":true,"externalTrafficPolicy":"Local","extraLabels":{},"loadBalancerClass":"","loadBalancerIP":"","loadBalancerIPv6":"","nodePort":"","port":67,"type":"NodePort"}` | Configuration for the DHCP service on port 67 |
 | serviceDhcp.annotations | object | `{}` | Annotations for the DHCP service |
 | serviceDhcp.enabled | bool | `true` | Generate a Service resource for DHCP traffic |
