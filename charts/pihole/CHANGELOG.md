@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.32.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.31.0...pihole-2.32.0) (2025-06-19)
+
+
+### Features
+
+* bump pihole version to 2025.06.2 ([#374](https://github.com/MoJo2600/pihole-kubernetes/issues/374)) ([75d4519](https://github.com/MoJo2600/pihole-kubernetes/commit/75d4519ab2fea1a46ed2f4fef38262bbd41eb65f))
+* Use command probe for increased accuracy ([#344](https://github.com/MoJo2600/pihole-kubernetes/issues/344)) ([#359](https://github.com/MoJo2600/pihole-kubernetes/issues/359)) ([bd96c51](https://github.com/MoJo2600/pihole-kubernetes/commit/bd96c51b66f1f4e7f20d8131388ea3ccf8d318cf))
+
+
+### Bug Fixes
+
+* pihole not listening on all network interfaces ([#378](https://github.com/MoJo2600/pihole-kubernetes/issues/378)) ([f2b3aa7](https://github.com/MoJo2600/pihole-kubernetes/commit/f2b3aa797032dd53134c53e4e8e8a8d5267d0ab5))
+* prioritize webserver_port in extraEnvVars ([#372](https://github.com/MoJo2600/pihole-kubernetes/issues/372)) ([430117e](https://github.com/MoJo2600/pihole-kubernetes/commit/430117ed53048a954c25543f4a19e930fefa66e0))
+
 ## [2.31.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.30.0...pihole-2.31.0) (2025-05-16)
 
 
