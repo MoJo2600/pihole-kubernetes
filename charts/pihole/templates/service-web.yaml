@@ -33,6 +33,13 @@ spec:
   {{- if or (eq .Values.serviceWeb.type "NodePort") (eq .Values.serviceWeb.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceWeb.externalTrafficPolicy }}
   {{- end }}
+  {{- if .Values.serviceWeb.sessionAffinity }}
+  sessionAffinity: {{ .Values.serviceWeb.sessionAffinity }}
+  {{- end }}
+  {{- if .Values.serviceWeb.sessionAffinityConfig }}
+  sessionAffinityConfig:
+  {{- toYaml .Values.serviceWeb.sessionAffinityConfig | nindent 4 }}
+  {{- end }}
   ports:
     {{- if .Values.serviceWeb.http.enabled }}
     - port: {{ .Values.serviceWeb.http.port }}
@@ -89,6 +96,13 @@ spec:
   {{- end }}
   {{- if or (eq .Values.serviceWeb.type "NodePort") (eq .Values.serviceWeb.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceWeb.externalTrafficPolicy }}
+  {{- end }}
+  {{- if .Values.serviceWeb.sessionAffinity }}
+  sessionAffinity: {{ .Values.serviceWeb.sessionAffinity }}
+  {{- end }}
+  {{- if .Values.serviceWeb.sessionAffinityConfig }}
+  sessionAffinityConfig:
+  {{- toYaml .Values.serviceWeb.sessionAffinityConfig | nindent 4 }}
   {{- end }}
   ports:
     {{- if .Values.serviceWeb.http.enabled }}
