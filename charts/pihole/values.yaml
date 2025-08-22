@@ -137,7 +137,15 @@ serviceWeb:
   # -- `spec.loadBalancerClass` for the web interface Service. Only used if type is LoadBalancer.
   loadBalancerClass: ""
 
-  # -- Annotations for the DHCP service
+  # -- Optional `.spec.sessionAffinity` for session stickness
+  # sessionAffinity: None
+  #
+  # -- Optional `.spec.sessionAffinityConfig.clientIP.timeoutSeconds` stickness timout in seconds.
+  # sessionAffinityConfig:
+  #   clientIP:
+  #     timeoutSeconds: 10800
+
+  # -- Annotations for the web service
   annotations: {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
