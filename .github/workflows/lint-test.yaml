@@ -23,7 +23,7 @@ jobs:
         with:
           version: v3.17.1
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.x'
           check-latest: true
