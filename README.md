@@ -3,6 +3,9 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
+> [!IMPORTANT]  
+> Additional maintainers wanted! I need help maintaining this chart. Please see [the discussion here](https://github.com/MoJo2600/pihole-kubernetes/discussions/393)
+
 [Helm](https://helm.sh) repo for different charts which can be installed on [Kubernetes](https://kubernetes.io)
 
 Further documentation including chart keys, types, and default values is at https://hub.helm.sh/charts/mojo2600/pihole
