@@ -14,6 +14,9 @@ maxSurge: 1
 # -- The maximum number of Pods that can be unavailable during updating
 maxUnavailable: 1
 
+# -- The number of old ReplicaSets to retain to allow rollback
+revisionHistoryLimit: 10
+
 image:
   # -- the repostory to pull the image from
   repository: "pihole/pihole"
@@ -53,6 +56,8 @@ serviceDns:
   loadBalancerIP: ""
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service
   loadBalancerIPv6: ""
+  # -- `spec.loadBalancerClass` for the DNS Service. Only used if type is LoadBalancer.
+  loadBalancerClass: ""
 
   # -- Annotations for the DNS service
   annotations: {}
@@ -84,6 +89,8 @@ serviceDhcp:
   loadBalancerIP: ""
   # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service
   loadBalancerIPv6: ""
+  # -- `spec.loadBalancerClass` for the DHCP Service. Only used if type is LoadBalancer.
+  loadBalancerClass: ""
 
   # -- Annotations for the DHCP service
   annotations: {}
@@ -127,6 +134,8 @@ serviceWeb:
   loadBalancerIP: ""
   # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service
   loadBalancerIPv6: ""
+  # -- `spec.loadBalancerClass` for the web interface Service. Only used if type is LoadBalancer.
+  loadBalancerClass: ""
 
   # -- Annotations for the DHCP service
   annotations: {}
@@ -167,12 +176,12 @@ probes:
   # -- probes.liveness -- Configure the healthcheck for the ingress controller
   liveness:
     # -- Generate a liveness probe
-    # 'type' defaults to httpGet, can be set to 'command' to use a command type liveness probe.
-    type: httpGet
-    # command:
-    #   - /bin/bash
-    #   - -c
-    #   - /bin/true
+    # 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type liveness probe.
+    type: command
+    command:
+      - /bin/sh
+      - -c
+      - "curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end'"
     enabled: true
     # -- wait time before trying the liveness probe
     initialDelaySeconds: 60
@@ -180,16 +189,16 @@ probes:
     failureThreshold: 10
     # -- timeout in seconds
     timeoutSeconds: 5
-    port: http
-    scheme: HTTP
+    # port: http
+    # scheme: HTTP
   readiness:
     # -- Generate a readiness probe
-    # 'type' defaults to httpGet, can be set to 'command' to use a command type readiness probe.
-    type: httpGet
-    # command:
-    #   - /bin/bash
-    #   - -c
-    #   - /bin/true
+    # 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type readiness probe.
+    type: command
+    command:
+      - /bin/sh
+      - -c
+      - "curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end'"
     enabled: true
     # -- wait time before trying the readiness probe
     initialDelaySeconds: 60
@@ -197,8 +206,8 @@ probes:
     failureThreshold: 10
     # -- timeout in seconds
     timeoutSeconds: 5
-    port: http
-    scheme: HTTP
+    # port: http
+    # scheme: HTTP
 
 # -- We usually recommend not to specify default resources and to leave this as a conscious
 # -- choice for the user. This also increases chances charts run on environments with little
@@ -277,7 +286,9 @@ admin:
     # reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "external-dns"
 
 # -- extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use. You can use either scalars or project cm, secrets or pod fields via valueFrom
-extraEnvVars: {}
+extraEnvVars:
+  # issue 360
+  FTLCONF_dns_listeningMode: 'all'
   # TZ: UTC
   # Project a variable
   # SOME_VAR:
