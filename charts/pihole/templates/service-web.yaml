@@ -32,6 +32,9 @@ spec:
   {{- end }}
   {{- if or (eq .Values.serviceWeb.type "NodePort") (eq .Values.serviceWeb.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceWeb.externalTrafficPolicy }}
+    {{- if .Values.serviceWeb.internalTrafficPolicy }}
+  internalTrafficPolicy: {{ .Values.serviceWeb.internalTrafficPolicy }}
+    {{- end }}
   {{- end }}
   ports:
     {{- if .Values.serviceWeb.http.enabled }}
