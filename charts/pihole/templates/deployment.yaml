@@ -114,7 +114,7 @@ spec:
               protocol: TCP
         {{- end }}
         {{- if .Values.doh.enabled }}
-        - name: cloudflared
+        - name: dnscrypt-proxy
           image: "{{ .Values.doh.repository }}:{{ .Values.doh.tag }}"
           imagePullPolicy: {{ .Values.doh.pullPolicy }}
           terminationMessagePath: /dev/termination-log
@@ -130,11 +130,16 @@ spec:
               memory: 128Mi
           ports:
             - containerPort: 5053
-              name: cloudflared-udp
+              name: dnscrypt-udp
               protocol: UDP
-            - containerPort: 49312
-              name: cloudflared-met
+            - containerPort: 5053
+              name: dnscrypt-tcp
               protocol: TCP
+            {{- if .Values.doh.metrics.enabled }}
+            - containerPort: {{ .Values.doh.metrics.port }}
+              name: dnscrypt-metrics
+              protocol: TCP
+            {{- end }}
           {{- if .Values.doh.envVars }}
           env:
             {{- range $key, $value := .Values.doh.envVars }}
@@ -142,6 +147,9 @@ spec:
             value: {{ $value | quote }}
             {{- end }}
           {{- end }}
+          volumeMounts:
+            - name: dnscrypt-proxy-config
+              mountPath: /config
           {{- if .Values.doh.probes.liveness.enabled }}
           livenessProbe:
 {{ toYaml .Values.doh.probes.liveness.probe | indent 12 }}
@@ -379,6 +387,12 @@ spec:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-regex
         name: regex
+      {{- end }}
+      {{- if .Values.doh.enabled }}
+      - configMap:
+          defaultMode: 420
+          name: {{ template "pihole.fullname" . }}-dnscrypt-proxy
+        name: dnscrypt-proxy-config
       {{- end }}
       {{- range $key, $value := .Values.extraVolumes }}
       - name: {{ $key }}

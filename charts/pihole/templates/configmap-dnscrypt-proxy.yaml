@@ -1,0 +1,14 @@
+{{- if .Values.doh.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "pihole.fullname" . }}-dnscrypt-proxy
+  labels:
+    app: {{ template "pihole.name" . }}
+    chart: {{ template "pihole.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  dnscrypt-proxy.toml: |
+{{ .Values.doh.config | indent 4 }}
+{{- end }}

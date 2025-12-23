@@ -52,10 +52,11 @@ spec:
       protocol: TCP
       name: https
     {{- end }}
-    {{- if .Values.doh.enabled }}
-    - port: 49312
+    {{- if and .Values.doh.enabled .Values.doh.metrics.enabled }}
+    - port: {{ .Values.doh.metrics.port }}
+      targetPort: dnscrypt-metrics
       protocol: TCP
-      name: cloudflared-met
+      name: dnscrypt-metrics
     {{- end }}
   selector:
     app: {{ template "pihole.name" . }}
@@ -103,10 +104,11 @@ spec:
       protocol: TCP
       name: https
     {{- end }}
-    {{- if .Values.doh.enabled }}
-    - port: 49312
+    {{- if and .Values.doh.enabled .Values.doh.metrics.enabled }}
+    - port: {{ .Values.doh.metrics.port }}
+      targetPort: dnscrypt-metrics
       protocol: TCP
-      name: cloudflared-met
+      name: dnscrypt-metrics
     {{- end }}
   selector:
     app: {{ template "pihole.name" . }}

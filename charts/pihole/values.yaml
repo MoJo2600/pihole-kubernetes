@@ -320,60 +320,107 @@ antiaff:
   namespaces: []
 
 doh:
-  # -- set to true to enabled DNS over HTTPs via cloudflared
+  # -- set to true to enable encrypted DNS via dnscrypt-proxy (supports DoH, DoT, DNSCrypt)
   enabled: false
   # -- name
-  name: "cloudflared"
-  # -- repository
-  repository: "crazymax/cloudflared"
-  tag: latest
+  name: "dnscrypt-proxy"
+  # -- repository (using GHCR)
+  repository: "ghcr.io/klutchell/dnscrypt-proxy"
+  # -- image tag
+  tag: 2.1.15
   # -- Pull policy
   pullPolicy: IfNotPresent
-  # -- Here you can pass environment variables to the DoH container, for example:
+  # -- Here you can pass environment variables to the dnscrypt-proxy container
   envVars: {}
-    # TUNNEL_DNS_UPSTREAM: "https://1.1.1.2/dns-query,https://1.0.0.2/dns-query"
-  # -- Custom command to the DoH container
+  # -- Custom command to the dnscrypt-proxy container
   command: []
+  # -- dnscrypt-proxy configuration (raw TOML format, mounted as /config/dnscrypt-proxy.toml)
+  # -- See https://github.com/DNSCrypt/dnscrypt-proxy/wiki/Configuration for all options
+  # -- Example with monitoring_ui enabled for Prometheus metrics:
+  # config: |
+  #   listen_addresses = ['0.0.0.0:5053']
+  #   server_names = ['cloudflare', 'google']
+  #   [monitoring_ui]
+  #   enabled = true
+  #   listen_address = '0.0.0.0:8080'
+  #   prometheus_enabled = true
+  config: |
+    listen_addresses = ['0.0.0.0:5053']
+    require_dnssec = false
+    require_nolog = true
+    require_nofilter = true
+    dnscrypt_servers = true
+    doh_servers = true
+    odoh_servers = false
+    ipv6_servers = false
+    bootstrap_resolvers = ['9.9.9.9:53', '1.1.1.1:53']
+    timeout = 5000
+    keepalive = 30
+    log_level = 2
+    use_syslog = false
+    cache = true
+    cache_size = 4096
+    cache_min_ttl = 2400
+    cache_max_ttl = 86400
+    cache_neg_min_ttl = 60
+    cache_neg_max_ttl = 600
+
+    [sources]
+      [sources.'public-resolvers']
+        urls = [
+          'https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md',
+          'https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md'
+        ]
+        cache_file = '/tmp/public-resolvers.md'
+        minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+        refresh_delay = 73
+      [sources.'relays']
+        urls = [
+          'https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/relays.md',
+          'https://download.dnscrypt.info/resolvers-list/v3/relays.md'
+        ]
+        cache_file = '/tmp/relays.md'
+        minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+        refresh_delay = 73
+  # -- Metrics port configuration (enable if you have [monitoring_ui] in your config)
+  metrics:
+    # -- set to true to expose the metrics port (8080) in Service and create PodMonitor
+    enabled: false
+    # -- port for Prometheus metrics (must match listen_address in [monitoring_ui] config)
+    port: 8080
   # -- Probes configuration
   probes:
-    # -- Configure the healthcheck for the doh container
+    # -- Configure the healthcheck for the dnscrypt-proxy container
     liveness:
       # -- set to true to enable liveness probe
       enabled: true
-      # -- customize the liveness probe
+      # -- customize the liveness probe (uses dnsprobe tool)
       probe:
         exec:
           command:
-            - nslookup
-            - -po=5053
-            - cloudflare.com
-            - "127.0.0.1"
+            - dnsprobe
+            - "127.0.0.1:5053"
       # -- defines the initial delay for the liveness probe
       initialDelaySeconds: 60
       # -- defines the failure threshold for the liveness probe
       failureThreshold: 10
-      # -- defines the timeout in secondes for the liveness probe
+      # -- defines the timeout in seconds for the liveness probe
       timeoutSeconds: 5
     readiness:
       # -- set to true to enable readiness probe
       enabled: true
-      # -- customize the readiness probe
+      # -- customize the readiness probe (uses dnsprobe tool)
       probe:
         exec:
           command:
-            - nslookup
-            - -po=5053
-            - cloudflare.com
-            - "127.0.0.1"
+            - dnsprobe
+            - "127.0.0.1:5053"
       # -- defines the initial delay for the readiness probe
       initialDelaySeconds: 60
       # -- defines the failure threshold for the readiness probe
       failureThreshold: 10
-      # -- defines the timeout in secondes for the readiness probe
+      # -- defines the timeout in seconds for the readiness probe
       timeoutSeconds: 5
-  monitoring:
-    podMonitor:
-      enabled: false
 # -- DNS MASQ settings
 dnsmasq:
   # -- Load custom user configuration files from /etc/dnsmasq.d
