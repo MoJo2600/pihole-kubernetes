@@ -70,6 +70,10 @@ spec:
       serviceAccountName: {{ include "pihole.serviceAccountName" . }}
       hostname: {{ .Values.hostname }}
       hostNetwork: {{ .Values.hostNetwork }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.extraInitContainers }}
       initContainers:
         {{- toYaml . | nindent 8 }}
@@ -221,11 +225,16 @@ spec:
          {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          {{- else }}
           securityContext:
             privileged: {{ .Values.privileged }}
           {{- if .Values.capabilities }}
             capabilities:
             {{- toYaml .Values.capabilities | nindent 14 }}
+          {{- end }}
           {{- end }}
           ports:
           - containerPort: {{ .Values.webHttp }}
