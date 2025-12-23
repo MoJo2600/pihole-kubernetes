@@ -181,12 +181,12 @@ probes:
     command:
       - /bin/sh
       - -c
-      - "curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end'"
+      - "curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"
     enabled: true
-    # -- wait time before trying the liveness probe
-    initialDelaySeconds: 60
+    # -- wait time before trying the liveness probe (can be 0 when startup probe is enabled)
+    initialDelaySeconds: 0
     # -- threshold until the probe is considered failing
-    failureThreshold: 10
+    failureThreshold: 3
     # -- timeout in seconds
     timeoutSeconds: 5
     # port: http
@@ -198,12 +198,33 @@ probes:
     command:
       - /bin/sh
       - -c
-      - "curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end'"
+      - "curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"
     enabled: true
-    # -- wait time before trying the readiness probe
-    initialDelaySeconds: 60
+    # -- wait time before trying the readiness probe (can be 0 when startup probe is enabled)
+    initialDelaySeconds: 0
     # -- threshold until the probe is considered failing
-    failureThreshold: 10
+    failureThreshold: 3
+    # -- timeout in seconds
+    timeoutSeconds: 5
+    # port: http
+    # scheme: HTTP
+  startup:
+    # -- Generate a startup probe
+    # 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type startup probe.
+    # The startup probe runs before liveness/readiness probes begin.
+    # Once it succeeds, liveness and readiness probes take over.
+    type: command
+    command:
+      - /bin/sh
+      - -c
+      - "curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"
+    enabled: true
+    # -- wait time before trying the startup probe
+    initialDelaySeconds: 5
+    # -- probe interval in seconds
+    periodSeconds: 5
+    # -- threshold until the container is considered failed (30 * 5s = 150s max startup time)
+    failureThreshold: 30
     # -- timeout in seconds
     timeoutSeconds: 5
     # port: http
@@ -401,10 +422,10 @@ doh:
             - /usr/local/bin/dnsprobe
             - cloudflare.com
             - 127.0.0.1:5053
-      # -- defines the initial delay for the liveness probe
-      initialDelaySeconds: 60
+      # -- defines the initial delay for the liveness probe (can be 0 when startup probe is enabled)
+      initialDelaySeconds: 0
       # -- defines the failure threshold for the liveness probe
-      failureThreshold: 10
+      failureThreshold: 3
       # -- defines the timeout in seconds for the liveness probe
       timeoutSeconds: 5
     readiness:
@@ -417,11 +438,29 @@ doh:
             - /usr/local/bin/dnsprobe
             - cloudflare.com
             - 127.0.0.1:5053
-      # -- defines the initial delay for the readiness probe
-      initialDelaySeconds: 60
+      # -- defines the initial delay for the readiness probe (can be 0 when startup probe is enabled)
+      initialDelaySeconds: 0
       # -- defines the failure threshold for the readiness probe
-      failureThreshold: 10
+      failureThreshold: 3
       # -- defines the timeout in seconds for the readiness probe
+      timeoutSeconds: 5
+    startup:
+      # -- set to true to enable startup probe
+      enabled: true
+      # -- customize the startup probe (uses dnsprobe tool)
+      probe:
+        exec:
+          command:
+            - /usr/local/bin/dnsprobe
+            - cloudflare.com
+            - 127.0.0.1:5053
+      # -- defines the initial delay for the startup probe
+      initialDelaySeconds: 5
+      # -- probe interval in seconds
+      periodSeconds: 5
+      # -- threshold until the container is considered failed (30 * 5s = 150s max startup time)
+      failureThreshold: 30
+      # -- defines the timeout in seconds for the startup probe
       timeoutSeconds: 5
 # -- DNS MASQ settings
 dnsmasq:

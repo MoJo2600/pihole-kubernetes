@@ -159,6 +159,14 @@ spec:
             failureThreshold: {{ .Values.doh.probes.readiness.failureThreshold }}
             timeoutSeconds: {{ .Values.doh.probes.readiness.timeoutSeconds }}
           {{- end }}
+          {{- if .Values.doh.probes.startup.enabled }}
+          startupProbe:
+{{ toYaml .Values.doh.probes.startup.probe | indent 12 }}
+            initialDelaySeconds: {{ .Values.doh.probes.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.doh.probes.startup.periodSeconds }}
+            failureThreshold: {{ .Values.doh.probes.startup.failureThreshold }}
+            timeoutSeconds: {{ .Values.doh.probes.startup.timeoutSeconds }}
+          {{- end }}
         {{- end }}
         - name: {{ .Chart.Name }}
           env:
@@ -271,6 +279,22 @@ spec:
             initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
             failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+          {{- end }}
+          {{- if .Values.probes.startup.enabled }}
+          startupProbe:
+            {{- if eq .Values.probes.startup.type "command" }}
+            exec:
+              command: {{ .Values.probes.startup.command | required "An array of command(s) is required if 'type' is set to 'command'." | toYaml | nindent 16 }}
+            {{- else }}
+            httpGet:
+              path: /admin
+              port: {{ .Values.probes.startup.port }}
+              scheme: {{ .Values.probes.startup.scheme }}
+            {{- end }}
+            initialDelaySeconds: {{ .Values.probes.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.startup.periodSeconds }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
+            timeoutSeconds: {{ .Values.probes.startup.timeoutSeconds }}
           {{- end }}
           volumeMounts:
           - mountPath: /etc/pihole
