@@ -1,0 +1,45 @@
+{{- if .Values.networkPolicy.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "pihole.fullname" . }}
+  labels:
+    {{- include "pihole.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "pihole.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        {{- toYaml .Values.networkPolicy.ingress.from | nindent 8 }}
+      ports:
+        # Web interface HTTP
+        - protocol: TCP
+          port: {{ .Values.webHttp }}
+        # Web interface HTTPS
+        - protocol: TCP
+          port: {{ .Values.webHttps }}
+        # DNS UDP
+        - protocol: UDP
+          port: 53
+        # DNS TCP
+        - protocol: TCP
+          port: 53
+        {{- if .Values.serviceDhcp.enabled }}
+        # DHCP
+        - protocol: UDP
+          port: 67
+        {{- end }}
+        {{- if .Values.doh.enabled }}
+        # DoH/DNSCrypt proxy
+        - protocol: UDP
+          port: 5053
+        - protocol: TCP
+          port: 5053
+        {{- end }}
+  egress:
+    {{- toYaml .Values.networkPolicy.egress | nindent 4 }}
+{{- end }}

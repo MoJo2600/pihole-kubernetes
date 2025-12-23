@@ -725,8 +725,40 @@ podDisruptionBudget:
   enabled: false
   # -- minimum number of pods Kubernetes should try to have running at all times
   minAvailable: 1
-  # -- maximum number of pods Kubernetes will allow to be unavailable. Cannot set both `minAvailable` and `maxAvailable`
+  # -- maximum number of pods Kubernetes will allow to be unavailable. Cannot set both `minAvailable` and `maxUnavailable`
   # maxUnavailable: 1
+
+# -- NetworkPolicy configuration
+networkPolicy:
+  # -- Enable NetworkPolicy
+  enabled: false
+  # -- Ingress rules configuration
+  ingress:
+    # -- Allowed sources for ingress traffic
+    from:
+      - namespaceSelector: {}
+      # - podSelector:
+      #     matchLabels:
+      #       app: my-app
+      # - ipBlock:
+      #     cidr: 10.0.0.0/8
+  # -- Egress rules (allow DNS and HTTP/HTTPS for upstream resolution and ad list updates)
+  egress:
+    # Allow DNS resolution to external servers
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow HTTP/HTTPS for downloading ad lists and updates
+    - ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+    # Allow communication within the cluster
+    - to:
+        - namespaceSelector: {}
 
 # -- ServiceAccount configuration
 serviceAccount:
