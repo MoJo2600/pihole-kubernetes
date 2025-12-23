@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.35.0](https://img.shields.io/badge/Version-2.35.0-informational?style=flat-square) ![AppVersion: 2025.11.1](https://img.shields.io/badge/AppVersion-2025.11.1-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 2.35.0](https://img.shields.io/badge/Version-2.35.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.11.1](https://img.shields.io/badge/AppVersion-2025.11.1-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -34,7 +34,27 @@ The following items can be set via `--set` flag during installation or configure
 
 - **Ingress**: The ingress controller must be installed in the Kubernetes cluster.
 - **ClusterIP**: Exposes the service on a cluster-internal IP. Choosing this value makes the service only reachable from within the cluster.
-- **LoadBalancer**: Exposes the service externally using a cloud provider’s load balancer.
+- **LoadBalancer**: Exposes the service externally using a cloud provider's load balancer.
+
+### Deprecation Notice: `loadBalancerIP`
+
+The `spec.loadBalancerIP` field is **deprecated** since Kubernetes 1.24 and may be removed in a future Kubernetes version. While the `loadBalancerIP` values still work in this chart, we recommend migrating to your cloud provider's annotation-based approach.
+
+**For MetalLB users**, use the annotation instead:
+
+```yaml
+serviceDns:
+  type: LoadBalancer
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 192.168.178.252
+
+serviceWeb:
+  type: LoadBalancer
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 192.168.178.252
+```
+
+**For cloud providers**, consult your provider's documentation for the appropriate annotation (e.g., `service.beta.kubernetes.io/aws-load-balancer-eip-allocations` for AWS).
 
 ## My settings in values.yaml
 
@@ -192,26 +212,29 @@ The following table lists the configurable parameters of the pihole chart and th
 | dnsmasq.enableCustomDnsMasq | bool | `true` | Load custom user configuration files from /etc/dnsmasq.d |
 | dnsmasq.staticDhcpEntries | list | `[]` | Static DHCP config |
 | dnsmasq.upstreamServers | list | `[]` | Add upstream dns servers. All lines will be added to the pihole dnsmasq configuration |
-| doh.command | list | `[]` | Custom command to the DoH container |
-| doh.enabled | bool | `false` | set to true to enabled DNS over HTTPs via cloudflared |
-| doh.envVars | object | `{}` | Here you can pass environment variables to the DoH container, for example: |
-| doh.monitoring.podMonitor.enabled | bool | `false` |  |
-| doh.name | string | `"cloudflared"` | name |
-| doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5},"readiness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5}}` | Probes configuration |
-| doh.probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}},"timeoutSeconds":5}` | Configure the healthcheck for the doh container |
+| doh.command | list | `[]` | Custom command to the dnscrypt-proxy container |
+| doh.config | string | `"listen_addresses = ['0.0.0.0:5053']\nrequire_dnssec = false\nrequire_nolog = true\nrequire_nofilter = true\ndnscrypt_servers = true\ndoh_servers = true\nodoh_servers = false\nipv6_servers = false\nbootstrap_resolvers = ['9.9.9.9:53', '1.1.1.1:53']\ntimeout = 5000\nkeepalive = 30\nlog_level = 2\nuse_syslog = false\ncache = true\ncache_size = 4096\ncache_min_ttl = 2400\ncache_max_ttl = 86400\ncache_neg_min_ttl = 60\ncache_neg_max_ttl = 600\n\n[sources]\n  [sources.'public-resolvers']\n    urls = [\n      'https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md',\n      'https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md'\n    ]\n    cache_file = '/tmp/public-resolvers.md'\n    minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'\n    refresh_delay = 73\n  [sources.'relays']\n    urls = [\n      'https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/relays.md',\n      'https://download.dnscrypt.info/resolvers-list/v3/relays.md'\n    ]\n    cache_file = '/tmp/relays.md'\n    minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'\n    refresh_delay = 73\n"` | Example with monitoring_ui enabled for Prometheus metrics: config: |   listen_addresses = ['0.0.0.0:5053']   server_names = ['cloudflare', 'google']   [monitoring_ui]   enabled = true   listen_address = '0.0.0.0:8080'   prometheus_enabled = true |
+| doh.enabled | bool | `false` | set to true to enable encrypted DNS via dnscrypt-proxy (supports DoH, DoT, DNSCrypt) |
+| doh.envVars | object | `{}` | Here you can pass environment variables to the dnscrypt-proxy container |
+| doh.metrics | object | `{"enabled":false,"port":8080}` | Metrics port configuration (enable if you have [monitoring_ui] in your config) |
+| doh.metrics.enabled | bool | `false` | set to true to expose the metrics port (8080) in Service and create PodMonitor |
+| doh.metrics.port | int | `8080` | port for Prometheus metrics (must match listen_address in [monitoring_ui] config) |
+| doh.name | string | `"dnscrypt-proxy"` | name |
+| doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5},"readiness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5}}` | Probes configuration |
+| doh.probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5}` | Configure the healthcheck for the dnscrypt-proxy container |
 | doh.probes.liveness.enabled | bool | `true` | set to true to enable liveness probe |
 | doh.probes.liveness.failureThreshold | int | `10` | defines the failure threshold for the liveness probe |
 | doh.probes.liveness.initialDelaySeconds | int | `60` | defines the initial delay for the liveness probe |
-| doh.probes.liveness.probe | object | `{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}}` | customize the liveness probe |
-| doh.probes.liveness.timeoutSeconds | int | `5` | defines the timeout in secondes for the liveness probe |
+| doh.probes.liveness.probe | object | `{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}}` | customize the liveness probe (uses dnsprobe tool) |
+| doh.probes.liveness.timeoutSeconds | int | `5` | defines the timeout in seconds for the liveness probe |
 | doh.probes.readiness.enabled | bool | `true` | set to true to enable readiness probe |
 | doh.probes.readiness.failureThreshold | int | `10` | defines the failure threshold for the readiness probe |
 | doh.probes.readiness.initialDelaySeconds | int | `60` | defines the initial delay for the readiness probe |
-| doh.probes.readiness.probe | object | `{"exec":{"command":["nslookup","-po=5053","cloudflare.com","127.0.0.1"]}}` | customize the readiness probe |
-| doh.probes.readiness.timeoutSeconds | int | `5` | defines the timeout in secondes for the readiness probe |
+| doh.probes.readiness.probe | object | `{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}}` | customize the readiness probe (uses dnsprobe tool) |
+| doh.probes.readiness.timeoutSeconds | int | `5` | defines the timeout in seconds for the readiness probe |
 | doh.pullPolicy | string | `"IfNotPresent"` | Pull policy |
-| doh.repository | string | `"crazymax/cloudflared"` | repository |
-| doh.tag | string | `"latest"` |  |
+| doh.repository | string | `"ghcr.io/klutchell/dnscrypt-proxy"` | repository (using GHCR) |
+| doh.tag | string | `"2.1.15"` | image tag |
 | dualStack.enabled | bool | `false` | set this to true to enable creation of DualStack services or creation of separate IPv6 services if `serviceDns.type` is set to `"LoadBalancer"` |
 | extraContainers | list | `[]` |  |
 | extraEnvVars | object | `{"FTLCONF_dns_listeningMode":"all"}` | extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use. You can use either scalars or project cm, secrets or pod fields via valueFrom |
@@ -263,14 +286,19 @@ The following table lists the configurable parameters of the pihole chart and th
 | replicaCount | int | `1` | The number of replicas |
 | resources | object | `{}` | lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
 | revisionHistoryLimit | int | `10` | The number of old ReplicaSets to retain to allow rollback |
+| serviceAccount | object | `{"annotations":{},"automountServiceAccountToken":false,"create":true,"name":""}` | ServiceAccount configuration |
+| serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
+| serviceAccount.automountServiceAccountToken | bool | `false` | Automatically mount a ServiceAccount's API credentials |
+| serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
+| serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | serviceDhcp | object | `{"annotations":{},"enabled":true,"externalTrafficPolicy":"Local","extraLabels":{},"loadBalancerClass":"","loadBalancerIP":"","loadBalancerIPv6":"","nodePort":"","port":67,"type":"NodePort"}` | Configuration for the DHCP service on port 67 |
 | serviceDhcp.annotations | object | `{}` | Annotations for the DHCP service |
 | serviceDhcp.enabled | bool | `true` | Generate a Service resource for DHCP traffic |
 | serviceDhcp.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
 | serviceDhcp.extraLabels | object | `{}` | Labels for the DHCP service |
 | serviceDhcp.loadBalancerClass | string | `""` | `spec.loadBalancerClass` for the DHCP Service. Only used if type is LoadBalancer. |
-| serviceDhcp.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DHCP Service |
-| serviceDhcp.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service |
+| serviceDhcp.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DHCP Service. DEPRECATED in Kubernetes 1.24+. Use `annotations` with your cloud provider's annotation instead (e.g., `metallb.universe.tf/loadBalancerIPs` for MetalLB). |
+| serviceDhcp.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service. DEPRECATED in Kubernetes 1.24+. |
 | serviceDhcp.nodePort | string | `""` | Optional node port for the DHCP service |
 | serviceDhcp.port | int | `67` | The port of the DHCP service |
 | serviceDhcp.type | string | `"NodePort"` | `spec.type` for the DHCP Service |
@@ -279,8 +307,8 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceDns.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
 | serviceDns.extraLabels | object | `{}` | Labels for the DNS service |
 | serviceDns.loadBalancerClass | string | `""` | `spec.loadBalancerClass` for the DNS Service. Only used if type is LoadBalancer. |
-| serviceDns.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DNS Service |
-| serviceDns.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 DNS Service |
+| serviceDns.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DNS Service. DEPRECATED in Kubernetes 1.24+. Use `annotations` with your cloud provider's annotation instead (e.g., `metallb.universe.tf/loadBalancerIPs` for MetalLB). |
+| serviceDns.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 DNS Service. DEPRECATED in Kubernetes 1.24+. |
 | serviceDns.mixedService | bool | `false` | deploys a mixed (TCP + UDP) Service instead of separate ones |
 | serviceDns.nodePort | string | `""` | Optional node port for the DNS service |
 | serviceDns.port | int | `53` | The port of the DNS service |
@@ -298,8 +326,8 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceWeb.https.nodePort | string | `""` | Optional node port for the web HTTPS service |
 | serviceWeb.https.port | int | `443` | The port of the web HTTPS service |
 | serviceWeb.loadBalancerClass | string | `""` | `spec.loadBalancerClass` for the web interface Service. Only used if type is LoadBalancer. |
-| serviceWeb.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the web interface Service |
-| serviceWeb.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 web interface Service |
+| serviceWeb.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the web interface Service. DEPRECATED in Kubernetes 1.24+. Use `annotations` with your cloud provider's annotation instead (e.g., `metallb.universe.tf/loadBalancerIPs` for MetalLB). |
+| serviceWeb.loadBalancerIPv6 | string | `""` | A fixed `spec.loadBalancerIP` for the IPv6 web interface Service. DEPRECATED in Kubernetes 1.24+. |
 | serviceWeb.type | string | `"ClusterIP"` | `spec.type` for the web interface Service |
 | strategyType | string | `"RollingUpdate"` | The `spec.strategyTpye` for updates |
 | tolerations | list | `[]` | Toleration |

@@ -52,9 +52,9 @@ serviceDns:
   # -- `spec.externalTrafficPolicy` for the DHCP Service
   externalTrafficPolicy: Local
 
-  # -- A fixed `spec.loadBalancerIP` for the DNS Service
+  # -- A fixed `spec.loadBalancerIP` for the DNS Service. DEPRECATED in Kubernetes 1.24+. Use `annotations` with your cloud provider's annotation instead (e.g., `metallb.universe.tf/loadBalancerIPs` for MetalLB).
   loadBalancerIP: ""
-  # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service
+  # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service. DEPRECATED in Kubernetes 1.24+.
   loadBalancerIPv6: ""
   # -- `spec.loadBalancerClass` for the DNS Service. Only used if type is LoadBalancer.
   loadBalancerClass: ""
@@ -85,9 +85,9 @@ serviceDhcp:
   # -- `spec.externalTrafficPolicy` for the DHCP Service
   externalTrafficPolicy: Local
 
-  # -- A fixed `spec.loadBalancerIP` for the DHCP Service
+  # -- A fixed `spec.loadBalancerIP` for the DHCP Service. DEPRECATED in Kubernetes 1.24+. Use `annotations` with your cloud provider's annotation instead (e.g., `metallb.universe.tf/loadBalancerIPs` for MetalLB).
   loadBalancerIP: ""
-  # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service
+  # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service. DEPRECATED in Kubernetes 1.24+.
   loadBalancerIPv6: ""
   # -- `spec.loadBalancerClass` for the DHCP Service. Only used if type is LoadBalancer.
   loadBalancerClass: ""
@@ -130,9 +130,9 @@ serviceWeb:
   # -- `spec.externalTrafficPolicy` for the web interface Service
   externalTrafficPolicy: Local
 
-  # -- A fixed `spec.loadBalancerIP` for the web interface Service
+  # -- A fixed `spec.loadBalancerIP` for the web interface Service. DEPRECATED in Kubernetes 1.24+. Use `annotations` with your cloud provider's annotation instead (e.g., `metallb.universe.tf/loadBalancerIPs` for MetalLB).
   loadBalancerIP: ""
-  # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service
+  # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service. DEPRECATED in Kubernetes 1.24+.
   loadBalancerIPv6: ""
   # -- `spec.loadBalancerClass` for the web interface Service. Only used if type is LoadBalancer.
   loadBalancerClass: ""
