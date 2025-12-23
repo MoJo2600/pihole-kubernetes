@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-dns-test"
+  labels:
+    {{- include "pihole.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+  - name: dns-test
+    image: curlimages/curl
+    imagePullPolicy: IfNotPresent
+    command:
+      - /bin/sh
+      - -c
+      - |
+        apk add --no-cache bind-tools >/dev/null 2>&1
+        echo "Testing DNS resolution via Pi-hole..."
+        nslookup google.com {{ include "pihole.fullname" . }}-dns
+  restartPolicy: Never
+  terminationGracePeriodSeconds: 0
