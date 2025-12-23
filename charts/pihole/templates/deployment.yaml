@@ -3,11 +3,7 @@ kind: Deployment
 metadata:
   name: {{ template "pihole.fullname" . }}
   labels:
-    app: {{ template "pihole.name" . }}
-    app.kubernetes.io/name: {{ template "pihole.name" . }}
-    chart: {{ template "pihole.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pihole.labels" . | nindent 4 }}
   {{- with .Values.deploymentAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -26,8 +22,7 @@ spec:
     {{- end }}
   selector:
     matchLabels:
-      app: {{ template "pihole.name" . }}
-      release: {{ .Release.Name }}
+      {{- include "pihole.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
@@ -41,9 +36,7 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
       labels:
-        app: {{ template "pihole.name" . }}
-        app.kubernetes.io/name: {{ template "pihole.name" . }}
-        release: {{ .Release.Name }}
+        {{- include "pihole.selectorLabels" . | nindent 8 }}
     spec:
       {{- if .Values.antiaff.enabled }}
       affinity:
