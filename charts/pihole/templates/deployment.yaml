@@ -150,6 +150,7 @@ spec:
           volumeMounts:
             - name: dnscrypt-proxy-config
               mountPath: /config
+              readOnly: true
           {{- if .Values.doh.probes.liveness.enabled }}
           livenessProbe:
 {{ toYaml .Values.doh.probes.liveness.probe | indent 12 }}

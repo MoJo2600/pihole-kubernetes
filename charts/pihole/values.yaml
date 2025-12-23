@@ -398,8 +398,9 @@ doh:
       probe:
         exec:
           command:
-            - dnsprobe
-            - "127.0.0.1:5053"
+            - /usr/local/bin/dnsprobe
+            - cloudflare.com
+            - 127.0.0.1:5053
       # -- defines the initial delay for the liveness probe
       initialDelaySeconds: 60
       # -- defines the failure threshold for the liveness probe
@@ -413,8 +414,9 @@ doh:
       probe:
         exec:
           command:
-            - dnsprobe
-            - "127.0.0.1:5053"
+            - /usr/local/bin/dnsprobe
+            - cloudflare.com
+            - 127.0.0.1:5053
       # -- defines the initial delay for the readiness probe
       initialDelaySeconds: 60
       # -- defines the failure threshold for the readiness probe
