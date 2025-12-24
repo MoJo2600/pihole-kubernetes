@@ -1,0 +1,66 @@
+# Pi-hole values for use with DHCP Helper
+#
+# This configuration runs Pi-hole WITHOUT hostNetwork, using a separate
+# DHCP helper container to handle Layer 2 broadcast requirements.
+#
+# See README.md in this directory for full deployment instructions.
+
+# Pi-hole runs with normal pod networking (no hostNetwork required)
+hostNetwork: false
+
+# Persist DHCP leases and configuration
+persistentVolumeClaim:
+  enabled: true
+  size: "500Mi"
+
+# Enable DHCP service (ClusterIP by default)
+# After deployment, get the ClusterIP and configure it in dhcphelper.yaml
+serviceDhcp:
+  enabled: true
+  type: ClusterIP
+
+# DNS service configuration
+# Adjust type based on your setup (LoadBalancer for MetalLB, NodePort, etc.)
+serviceDns:
+  type: LoadBalancer
+  # Uncomment and adjust for MetalLB
+  # annotations:
+  #   metallb.universe.tf/loadBalancerIPs: 192.168.1.10
+
+# Web admin interface
+serviceWeb:
+  type: ClusterIP
+
+# DHCP server configuration
+# Adjust these values for your network!
+extraEnvVars:
+  # Enable DHCP server
+  DHCP_ACTIVE: "true"
+  # DHCP range start
+  DHCP_START: "192.168.1.100"
+  # DHCP range end
+  DHCP_END: "192.168.1.200"
+  # Your network gateway
+  DHCP_ROUTER: "192.168.1.1"
+  # Pi-hole's IP address (use the LoadBalancer IP or node IP)
+  FTLCONF_LOCAL_IPV4: "192.168.1.10"
+
+# Optional: Custom DNS entries
+dnsmasq:
+  customDnsEntries:
+    - address=/gateway.lan/192.168.1.1
+    - address=/pihole.lan/192.168.1.10
+
+# Optional: Resource limits
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Admin password - consider using existingSecret instead
+# admin:
+#   existingSecret: "pihole-admin-secret"
+#   passwordKey: "password"
