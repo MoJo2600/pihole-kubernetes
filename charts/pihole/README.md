@@ -186,21 +186,23 @@ The following table lists the configurable parameters of the pihole chart and th
 | DNS1 | string | `"8.8.8.8"` | default upstream DNS 1 server to use |
 | DNS2 | string | `"8.8.4.4"` | default upstream DNS 2 server to use |
 | adlists | object | `{}` | list of adlists to import during initial start of the container |
-| admin | object | `{"annotations":null,"enabled":true,"existingSecret":"","passwordKey":"password"}` | Use an existing secret for the admin password. |
+| admin | object | `{"annotations":null,"enabled":true,"existingSecret":"","password":"admin","passwordKey":"password"}` | Use an existing secret for the admin password. |
 | admin.annotations | string | `nil` | Specify [annotations](docs/Values.md#admin.annotations) to be added to the secret |
-| admin.enabled | bool | `true` | If set to false admin password will be disabled, adminPassword specified above and the pre-existing secret (if specified) will be ignored. |
+| admin.enabled | bool | `true` | If set to false admin password will be disabled, password specified below and the pre-existing secret (if specified) will be ignored. |
 | admin.existingSecret | string | `""` | Specify an existing secret to use as admin password |
+| admin.password | string | `"admin"` | Administrator password when not using an existing secret (see below) |
 | admin.passwordKey | string | `"password"` | Specify the key inside the secret to use |
-| adminPassword | string | `"admin"` | Administrator password when not using an existing secret (see below) |
 | affinity | object | `{}` |  |
+| allowed | object | `{}` | list of allowed domains to import during initial start of the container |
 | antiaff.avoidRelease | string | `"pihole1"` | Here you can set the pihole release (you set in `helm install <releasename> ...`) you want to avoid |
 | antiaff.enabled | bool | `false` | set to true to enable antiaffinity (example: 2 pihole DNS in the same cluster) |
 | antiaff.namespaces | list | `[]` | Here you can pass namespaces to be part of those inclueded in anti-affinity |
 | antiaff.strict | bool | `true` | Here you can choose between preferred or required |
-| blacklist | object | `{}` | list of blacklisted domains to import during initial start of the container |
-| capabilities | object | `{}` |  |
+| capabilities | object | `{}` | linux capabilities container should run with @deprecated Use containerSecurityContext.capabilities instead |
+| containerSecurityContext | object | `{}` | Container-level security context EXPERIMENTAL: These settings are not fully tested with all Pi-hole features! See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/  Why detailed capability management provides limited security benefit for Pi-hole: Pi-hole requires 10+ capabilities including privileged ones like NET_ADMIN, NET_RAW, DAC_OVERRIDE, SETUID, SETGID. This exceeds Docker's default capability set (NET_ADMIN and SYS_NICE are not in defaults). Dropping ALL and re-adding these capabilities provides minimal security improvement over defaults.  Recommended: Only set privileged: false (prevents full host access) The seccompProfile in podSecurityContext provides additional syscall filtering.  NOT SUPPORTED (Pi-hole needs root at startup): - runAsNonRoot: true - runAsUser/runAsGroup: any value - allowPrivilegeEscalation: false (required for setcap) - readOnlyRootFilesystem: true (Pi-hole writes to /etc/pihole, /var/log, etc.) |
 | customVolumes.config | object | `{}` | any volume type can be used here |
 | customVolumes.enabled | bool | `false` | set this to true to enable custom volumes |
+| denied | object | `{}` | list of denied domains to import during initial start of the container |
 | deploymentAnnotations | object | `{}` | Additional annotations for the deployment |
 | dnsHostPort.enabled | bool | `false` | set this to true to enable dnsHostPort |
 | dnsHostPort.port | int | `53` | default port for this pod |
@@ -220,18 +222,24 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.metrics.enabled | bool | `false` | set to true to expose the metrics port (8080) in Service and create PodMonitor |
 | doh.metrics.port | int | `8080` | port for Prometheus metrics (must match listen_address in [monitoring_ui] config) |
 | doh.name | string | `"dnscrypt-proxy"` | name |
-| doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5},"readiness":{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5}}` | Probes configuration |
-| doh.probes.liveness | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5}` | Configure the healthcheck for the dnscrypt-proxy container |
+| doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5},"readiness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5},"startup":{"enabled":true,"failureThreshold":30,"initialDelaySeconds":5,"periodSeconds":5,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5}}` | Probes configuration |
+| doh.probes.liveness | object | `{"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5}` | Configure the healthcheck for the dnscrypt-proxy container |
 | doh.probes.liveness.enabled | bool | `true` | set to true to enable liveness probe |
-| doh.probes.liveness.failureThreshold | int | `10` | defines the failure threshold for the liveness probe |
-| doh.probes.liveness.initialDelaySeconds | int | `60` | defines the initial delay for the liveness probe |
+| doh.probes.liveness.failureThreshold | int | `3` | defines the failure threshold for the liveness probe |
+| doh.probes.liveness.initialDelaySeconds | int | `0` | defines the initial delay for the liveness probe (can be 0 when startup probe is enabled) |
 | doh.probes.liveness.probe | object | `{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}}` | customize the liveness probe (uses dnsprobe tool) |
 | doh.probes.liveness.timeoutSeconds | int | `5` | defines the timeout in seconds for the liveness probe |
 | doh.probes.readiness.enabled | bool | `true` | set to true to enable readiness probe |
-| doh.probes.readiness.failureThreshold | int | `10` | defines the failure threshold for the readiness probe |
-| doh.probes.readiness.initialDelaySeconds | int | `60` | defines the initial delay for the readiness probe |
+| doh.probes.readiness.failureThreshold | int | `3` | defines the failure threshold for the readiness probe |
+| doh.probes.readiness.initialDelaySeconds | int | `0` | defines the initial delay for the readiness probe (can be 0 when startup probe is enabled) |
 | doh.probes.readiness.probe | object | `{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}}` | customize the readiness probe (uses dnsprobe tool) |
 | doh.probes.readiness.timeoutSeconds | int | `5` | defines the timeout in seconds for the readiness probe |
+| doh.probes.startup.enabled | bool | `true` | set to true to enable startup probe |
+| doh.probes.startup.failureThreshold | int | `30` | threshold until the container is considered failed (30 * 5s = 150s max startup time) |
+| doh.probes.startup.initialDelaySeconds | int | `5` | defines the initial delay for the startup probe |
+| doh.probes.startup.periodSeconds | int | `5` | probe interval in seconds |
+| doh.probes.startup.probe | object | `{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}}` | customize the startup probe (uses dnsprobe tool) |
+| doh.probes.startup.timeoutSeconds | int | `5` | defines the timeout in seconds for the startup probe |
 | doh.pullPolicy | string | `"IfNotPresent"` | Pull policy |
 | doh.repository | string | `"ghcr.io/klutchell/dnscrypt-proxy"` | repository (using GHCR) |
 | doh.tag | string | `"2.1.15"` | image tag |
@@ -259,6 +267,11 @@ The following table lists the configurable parameters of the pihole chart and th
 | monitoring.sidecar | object | `{"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"ekofr/pihole-exporter","tag":"v1.0.0"},"port":9617,"resources":{"limits":{"memory":"128Mi"}}}` | Sidecar configuration |
 | monitoring.sidecar.enabled | bool | `false` | set this to true to enable podMonitor as sidecar |
 | monitoring.sidecar.image.repository | string | `"ekofr/pihole-exporter"` | the repository to use |
+| networkPolicy | object | `{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}]},{"ports":[{"port":80,"protocol":"TCP"},{"port":443,"protocol":"TCP"}]},{"to":[{"namespaceSelector":{}}]}],"enabled":false,"ingress":{"from":[{"namespaceSelector":{}}]}}` | NetworkPolicy configuration |
+| networkPolicy.egress | list | `[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}]},{"ports":[{"port":80,"protocol":"TCP"},{"port":443,"protocol":"TCP"}]},{"to":[{"namespaceSelector":{}}]}]` | Egress rules (allow DNS and HTTP/HTTPS for upstream resolution and ad list updates) |
+| networkPolicy.enabled | bool | `false` | Enable NetworkPolicy |
+| networkPolicy.ingress | object | `{"from":[{"namespaceSelector":{}}]}` | Ingress rules configuration |
+| networkPolicy.ingress.from | list | `[{"namespaceSelector":{}}]` | Allowed sources for ingress traffic |
 | nodeSelector | object | `{}` | Node selector values |
 | persistentVolumeClaim | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"size":"500Mi"}` | `spec.PersitentVolumeClaim` configuration |
 | persistentVolumeClaim.annotations | object | `{}` | Annotations for the `PersitentVolumeClaim` |
@@ -272,17 +285,23 @@ The following table lists the configurable parameters of the pihole chart and th
 | podDnsConfig.nameservers[0] | string | `"127.0.0.1"` |  |
 | podDnsConfig.nameservers[1] | string | `"8.8.8.8"` |  |
 | podDnsConfig.policy | string | `"None"` |  |
-| privileged | string | `"false"` | should container run in privileged mode |
-| probes | object | `{"liveness":{"command":["/bin/sh","-c","curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end'"],"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5,"type":"command"},"readiness":{"command":["/bin/sh","-c","curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end'"],"enabled":true,"failureThreshold":10,"initialDelaySeconds":60,"timeoutSeconds":5,"type":"command"}}` | Probes configuration |
-| probes.liveness.failureThreshold | int | `10` | threshold until the probe is considered failing |
-| probes.liveness.initialDelaySeconds | int | `60` | wait time before trying the liveness probe |
+| podSecurityContext | object | `{}` | Pod-level security context EXPERIMENTAL: These settings are not fully tested with all Pi-hole features! See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/  Pi-hole Docker image limitations: - Requires root at startup for: gravity database, crontab, permissions, setcap - runAsNonRoot, runAsUser, runAsGroup are NOT SUPPORTED - Pi-hole internally drops privileges after initialization |
+| privileged | string | `"false"` | should container run in privileged mode @deprecated Use containerSecurityContext.privileged instead |
+| probes | object | `{"liveness":{"command":["/bin/sh","-c","curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"],"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"timeoutSeconds":5,"type":"command"},"readiness":{"command":["/bin/sh","-c","curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"],"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"timeoutSeconds":5,"type":"command"},"startup":{"command":["/bin/sh","-c","curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"],"enabled":true,"failureThreshold":30,"initialDelaySeconds":5,"periodSeconds":5,"timeoutSeconds":5,"type":"command"}}` | Probes configuration |
+| probes.liveness.failureThreshold | int | `3` | threshold until the probe is considered failing |
+| probes.liveness.initialDelaySeconds | int | `0` | wait time before trying the liveness probe (can be 0 when startup probe is enabled) |
 | probes.liveness.timeoutSeconds | int | `5` | timeout in seconds |
 | probes.liveness.type | string | `"command"` | Generate a liveness probe 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type liveness probe. |
-| probes.readiness.failureThreshold | int | `10` | threshold until the probe is considered failing |
-| probes.readiness.initialDelaySeconds | int | `60` | wait time before trying the readiness probe |
+| probes.readiness.failureThreshold | int | `3` | threshold until the probe is considered failing |
+| probes.readiness.initialDelaySeconds | int | `0` | wait time before trying the readiness probe (can be 0 when startup probe is enabled) |
 | probes.readiness.timeoutSeconds | int | `5` | timeout in seconds |
 | probes.readiness.type | string | `"command"` | Generate a readiness probe 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type readiness probe. |
-| regex | object | `{}` | list of blacklisted regex expressions to import during initial start of the container |
+| probes.startup.failureThreshold | int | `30` | threshold until the container is considered failed (30 * 5s = 150s max startup time) |
+| probes.startup.initialDelaySeconds | int | `5` | wait time before trying the startup probe |
+| probes.startup.periodSeconds | int | `5` | probe interval in seconds |
+| probes.startup.timeoutSeconds | int | `5` | timeout in seconds |
+| probes.startup.type | string | `"command"` | Generate a startup probe 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type startup probe. The startup probe runs before liveness/readiness probes begin. Once it succeeds, liveness and readiness probes take over. |
+| regex | object | `{}` | list of denied regex expressions to import during initial start of the container |
 | replicaCount | int | `1` | The number of replicas |
 | resources | object | `{}` | lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
 | revisionHistoryLimit | int | `10` | The number of old ReplicaSets to retain to allow rollback |
@@ -335,7 +354,6 @@ The following table lists the configurable parameters of the pihole chart and th
 | virtualHost | string | `"pi.hole"` |  |
 | webHttp | string | `"80"` | port the container should use to expose HTTP traffic |
 | webHttps | string | `"443"` | port the container should use to expose HTTPS traffic |
-| whitelist | object | `{}` | list of whitelisted domains to import during initial start of the container |
 
 ## Maintainers
 
