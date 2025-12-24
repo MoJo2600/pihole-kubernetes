@@ -290,13 +290,12 @@ topologySpreadConstraints: []
 
 affinity: {}
 
-# -- Administrator password when not using an existing secret (see below)
-adminPassword: "admin"
-
 # -- Use an existing secret for the admin password.
 admin:
-  # -- If set to false admin password will be disabled, adminPassword specified above and the pre-existing secret (if specified) will be ignored.
+  # -- If set to false admin password will be disabled, password specified below and the pre-existing secret (if specified) will be ignored.
   enabled: true
+  # -- Administrator password when not using an existing secret (see below)
+  password: "admin"
   # -- Specify an existing secret to use as admin password
   existingSecret: ""
   # -- Specify the key inside the secret to use
