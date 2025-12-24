@@ -188,8 +188,12 @@ probes:
     enabled: true
     # -- wait time before trying the liveness probe (can be 0 when startup probe is enabled)
     initialDelaySeconds: 0
+    # -- probe interval in seconds
+    periodSeconds: 10
     # -- threshold until the probe is considered failing
     failureThreshold: 3
+    # -- threshold until the probe is considered successful
+    successThreshold: 1
     # -- timeout in seconds
     timeoutSeconds: 5
     # port: http
@@ -205,8 +209,12 @@ probes:
     enabled: true
     # -- wait time before trying the readiness probe (can be 0 when startup probe is enabled)
     initialDelaySeconds: 0
+    # -- probe interval in seconds
+    periodSeconds: 10
     # -- threshold until the probe is considered failing
     failureThreshold: 3
+    # -- threshold until the probe is considered successful
+    successThreshold: 1
     # -- timeout in seconds
     timeoutSeconds: 5
     # port: http
@@ -426,8 +434,12 @@ doh:
             - 127.0.0.1:5053
       # -- defines the initial delay for the liveness probe (can be 0 when startup probe is enabled)
       initialDelaySeconds: 0
+      # -- probe interval in seconds
+      periodSeconds: 10
       # -- defines the failure threshold for the liveness probe
       failureThreshold: 3
+      # -- threshold until the probe is considered successful
+      successThreshold: 1
       # -- defines the timeout in seconds for the liveness probe
       timeoutSeconds: 5
     readiness:
@@ -442,8 +454,12 @@ doh:
             - 127.0.0.1:5053
       # -- defines the initial delay for the readiness probe (can be 0 when startup probe is enabled)
       initialDelaySeconds: 0
+      # -- probe interval in seconds
+      periodSeconds: 10
       # -- defines the failure threshold for the readiness probe
       failureThreshold: 3
+      # -- threshold until the probe is considered successful
+      successThreshold: 1
       # -- defines the timeout in seconds for the readiness probe
       timeoutSeconds: 5
     startup:

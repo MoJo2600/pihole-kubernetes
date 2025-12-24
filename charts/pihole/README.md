@@ -62,7 +62,7 @@ serviceWeb:
 dnsmasq:
   customDnsEntries:
     - address=/nas/192.168.178.10
-
+ 
   customCnameEntries:
     - cname=foo.nas,nas
 
@@ -223,17 +223,21 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.metrics.enabled | bool | `false` | set to true to expose the metrics port (8080) in Service and create PodMonitor |
 | doh.metrics.port | int | `8080` | port for Prometheus metrics (must match listen_address in [monitoring_ui] config) |
 | doh.name | string | `"dnscrypt-proxy"` | name |
-| doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5},"readiness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5},"startup":{"enabled":true,"failureThreshold":30,"initialDelaySeconds":5,"periodSeconds":5,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5}}` | Probes configuration |
-| doh.probes.liveness | object | `{"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5}` | Configure the healthcheck for the dnscrypt-proxy container |
+| doh.probes | object | `{"liveness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"periodSeconds":10,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"successThreshold":1,"timeoutSeconds":5},"readiness":{"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"periodSeconds":10,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"successThreshold":1,"timeoutSeconds":5},"startup":{"enabled":true,"failureThreshold":30,"initialDelaySeconds":5,"periodSeconds":5,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"timeoutSeconds":5}}` | Probes configuration |
+| doh.probes.liveness | object | `{"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"periodSeconds":10,"probe":{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}},"successThreshold":1,"timeoutSeconds":5}` | Configure the healthcheck for the dnscrypt-proxy container |
 | doh.probes.liveness.enabled | bool | `true` | set to true to enable liveness probe |
 | doh.probes.liveness.failureThreshold | int | `3` | defines the failure threshold for the liveness probe |
 | doh.probes.liveness.initialDelaySeconds | int | `0` | defines the initial delay for the liveness probe (can be 0 when startup probe is enabled) |
+| doh.probes.liveness.periodSeconds | int | `10` | probe interval in seconds |
 | doh.probes.liveness.probe | object | `{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}}` | customize the liveness probe (uses dnsprobe tool) |
+| doh.probes.liveness.successThreshold | int | `1` | threshold until the probe is considered successful |
 | doh.probes.liveness.timeoutSeconds | int | `5` | defines the timeout in seconds for the liveness probe |
 | doh.probes.readiness.enabled | bool | `true` | set to true to enable readiness probe |
 | doh.probes.readiness.failureThreshold | int | `3` | defines the failure threshold for the readiness probe |
 | doh.probes.readiness.initialDelaySeconds | int | `0` | defines the initial delay for the readiness probe (can be 0 when startup probe is enabled) |
+| doh.probes.readiness.periodSeconds | int | `10` | probe interval in seconds |
 | doh.probes.readiness.probe | object | `{"exec":{"command":["/usr/local/bin/dnsprobe","cloudflare.com","127.0.0.1:5053"]}}` | customize the readiness probe (uses dnsprobe tool) |
+| doh.probes.readiness.successThreshold | int | `1` | threshold until the probe is considered successful |
 | doh.probes.readiness.timeoutSeconds | int | `5` | defines the timeout in seconds for the readiness probe |
 | doh.probes.startup.enabled | bool | `true` | set to true to enable startup probe |
 | doh.probes.startup.failureThreshold | int | `30` | threshold until the container is considered failed (30 * 5s = 150s max startup time) |
@@ -288,13 +292,17 @@ The following table lists the configurable parameters of the pihole chart and th
 | podDnsConfig.policy | string | `"None"` |  |
 | podSecurityContext | object | `{}` | Pod-level security context EXPERIMENTAL: These settings are not fully tested with all Pi-hole features! See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/  Pi-hole Docker image limitations: - Requires root at startup for: gravity database, crontab, permissions, setcap - runAsNonRoot, runAsUser, runAsGroup are NOT SUPPORTED - Pi-hole internally drops privileges after initialization |
 | privileged | string | `"false"` | should container run in privileged mode @deprecated Use containerSecurityContext.privileged instead |
-| probes | object | `{"liveness":{"command":["/bin/sh","-c","curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"],"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"timeoutSeconds":5,"type":"command"},"readiness":{"command":["/bin/sh","-c","curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"],"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"timeoutSeconds":5,"type":"command"},"startup":{"command":["/bin/sh","-c","curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"],"enabled":true,"failureThreshold":30,"initialDelaySeconds":5,"periodSeconds":5,"timeoutSeconds":5,"type":"command"}}` | Probes configuration |
+| probes | object | `{"liveness":{"command":["/bin/sh","-c","curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"],"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":5,"type":"command"},"readiness":{"command":["/bin/sh","-c","curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"],"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":5,"type":"command"},"startup":{"command":["/bin/sh","-c","curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"],"enabled":true,"failureThreshold":30,"initialDelaySeconds":5,"periodSeconds":5,"timeoutSeconds":5,"type":"command"}}` | Probes configuration |
 | probes.liveness.failureThreshold | int | `3` | threshold until the probe is considered failing |
 | probes.liveness.initialDelaySeconds | int | `0` | wait time before trying the liveness probe (can be 0 when startup probe is enabled) |
+| probes.liveness.periodSeconds | int | `10` | probe interval in seconds |
+| probes.liveness.successThreshold | int | `1` | threshold until the probe is considered successful |
 | probes.liveness.timeoutSeconds | int | `5` | timeout in seconds |
 | probes.liveness.type | string | `"command"` | Generate a liveness probe 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type liveness probe. |
 | probes.readiness.failureThreshold | int | `3` | threshold until the probe is considered failing |
 | probes.readiness.initialDelaySeconds | int | `0` | wait time before trying the readiness probe (can be 0 when startup probe is enabled) |
+| probes.readiness.periodSeconds | int | `10` | probe interval in seconds |
+| probes.readiness.successThreshold | int | `1` | threshold until the probe is considered successful |
 | probes.readiness.timeoutSeconds | int | `5` | timeout in seconds |
 | probes.readiness.type | string | `"command"` | Generate a readiness probe 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type readiness probe. |
 | probes.startup.failureThreshold | int | `30` | threshold until the container is considered failed (30 * 5s = 150s max startup time) |
