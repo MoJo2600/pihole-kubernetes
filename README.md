@@ -7,7 +7,7 @@
 > Additional maintainers wanted! I need help maintaining this chart. Please see [the discussion here](https://github.com/MoJo2600/pihole-kubernetes/discussions/393)
 
 > [!WARNING]
-> **v3 Proposal Repository**: This Repository contains an unfinished rewrite with breaking changes intended as a proposal for v3. Do not use in production. For the stable version, please use the https://github.com/MoJo2600/pihole-kubernetes.
+> **v3 Proposal Repository**: This Repository contains an unfinished rewrite with breaking changes intended as a proposal for v3. Do not use in production. For the stable version, please use the https://github.com/MoJo2600/pihole-kubernetes. For an overview of the changes, take a look at the [CHANGELOG.md](CHANGELOG.md).
 
 [Helm](https://helm.sh) repo for different charts which can be installed on [Kubernetes](https://kubernetes.io)
 
