@@ -68,8 +68,12 @@ spec:
         {{- toYaml .Values.podDnsConfig.nameservers | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "pihole.serviceAccountName" . }}
+      {{- if .Values.hostname }}
       hostname: {{ .Values.hostname }}
+      {{- end }}
+      {{- if and .Values.hostNetwork (ne (toString .Values.hostNetwork) "false") }}
       hostNetwork: {{ .Values.hostNetwork }}
+      {{- end }}
       {{- with .Values.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
@@ -152,23 +156,26 @@ spec:
           {{- if .Values.doh.probes.liveness.enabled }}
           livenessProbe:
 {{ toYaml .Values.doh.probes.liveness.probe | indent 12 }}
-            initialDelaySeconds: {{ .Values.doh.probes.liveness.initialDelaySeconds }}
             failureThreshold: {{ .Values.doh.probes.liveness.failureThreshold }}
+            periodSeconds: {{ .Values.doh.probes.liveness.periodSeconds }}
+            successThreshold: {{ .Values.doh.probes.liveness.successThreshold }}
             timeoutSeconds: {{ .Values.doh.probes.liveness.timeoutSeconds }}
           {{- end }}
           {{- if .Values.doh.probes.readiness.enabled }}
           readinessProbe:
 {{ toYaml .Values.doh.probes.readiness.probe | indent 12 }}
-            initialDelaySeconds: {{ .Values.doh.probes.readiness.initialDelaySeconds }}
             failureThreshold: {{ .Values.doh.probes.readiness.failureThreshold }}
+            periodSeconds: {{ .Values.doh.probes.readiness.periodSeconds }}
+            successThreshold: {{ .Values.doh.probes.readiness.successThreshold }}
             timeoutSeconds: {{ .Values.doh.probes.readiness.timeoutSeconds }}
           {{- end }}
           {{- if .Values.doh.probes.startup.enabled }}
           startupProbe:
 {{ toYaml .Values.doh.probes.startup.probe | indent 12 }}
+            failureThreshold: {{ .Values.doh.probes.startup.failureThreshold }}
             initialDelaySeconds: {{ .Values.doh.probes.startup.initialDelaySeconds }}
             periodSeconds: {{ .Values.doh.probes.startup.periodSeconds }}
-            failureThreshold: {{ .Values.doh.probes.startup.failureThreshold }}
+            successThreshold: 1
             timeoutSeconds: {{ .Values.doh.probes.startup.timeoutSeconds }}
           {{- end }}
         {{- end }}
@@ -182,15 +189,13 @@ spec:
             value: {{ .Values.virtualHost }}
           - name: FTLCONF_misc_etc_dnsmasq_d
             value: {{ ne .Values.dnsmasq.enableCustomDnsMasq false | quote }}
+          {{- if .Values.admin.enabled }}
           - name: FTLCONF_webserver_api_password
-            {{- if .Values.admin.enabled }}
             valueFrom:
               secretKeyRef:
                 key: {{ .Values.admin.passwordKey | default "password" }}
                 name: {{ .Values.admin.existingSecret | default (include "pihole.password-secret" .) }}
-            {{- else }}
-            value: ""
-            {{- end }}
+          {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
           - name: {{ $key | quote }}
             {{- if kindIs "map" $value }}
@@ -269,10 +274,10 @@ spec:
               port: {{ .Values.probes.liveness.port }}
               scheme: {{ .Values.probes.liveness.scheme }}
             {{- end }}
-            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            successThreshold: {{ .Values.probes.liveness.successThreshold }}
             timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
-
           {{- end }}
           {{- if .Values.probes.readiness.enabled }}
           readinessProbe:
@@ -285,8 +290,9 @@ spec:
               port: {{ .Values.probes.readiness.port }}
               scheme: {{ .Values.probes.readiness.scheme }}
             {{- end }}
-            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
             failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            successThreshold: {{ .Values.probes.readiness.successThreshold }}
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
           {{- end }}
           {{- if .Values.probes.startup.enabled }}
@@ -300,9 +306,10 @@ spec:
               port: {{ .Values.probes.startup.port }}
               scheme: {{ .Values.probes.startup.scheme }}
             {{- end }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
             initialDelaySeconds: {{ .Values.probes.startup.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.startup.periodSeconds }}
-            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
+            successThreshold: 1
             timeoutSeconds: {{ .Values.probes.startup.timeoutSeconds }}
           {{- end }}
           volumeMounts:
