@@ -1,13 +1,13 @@
-{{ if .Values.whitelist }}
+{{ if .Values.allowed }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "pihole.fullname" . }}-whitelist
+  name: {{ template "pihole.fullname" . }}-allowed
   labels:
     {{- include "pihole.labels" . | nindent 4 }}
 data:
   whitelist.txt: |
-  {{- range .Values.whitelist }}
+  {{- range .Values.allowed }}
     {{ . }}
   {{- end }}
 {{ end }}

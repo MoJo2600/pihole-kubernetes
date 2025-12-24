@@ -27,9 +27,9 @@ spec:
     metadata:
       annotations:
         checksum.config.adlists: {{ include (print $.Template.BasePath "/configmap-adlists.yaml") . | sha256sum | trunc 63 }}
-        checksum.config.blacklist: {{ include (print $.Template.BasePath "/configmap-blacklist.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.denied: {{ include (print $.Template.BasePath "/configmap-denied.yaml") . | sha256sum | trunc 63 }}
         checksum.config.regex: {{ include (print $.Template.BasePath "/configmap-regex.yaml") . | sha256sum | trunc 63 }}
-        checksum.config.whitelist: {{ include (print $.Template.BasePath "/configmap-whitelist.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.allowed: {{ include (print $.Template.BasePath "/configmap-allowed.yaml") . | sha256sum | trunc 63 }}
         checksum.config.dnsmasqConfig: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum | trunc 63 }}
         checksum.config.staticDhcpConfig: {{ include (print $.Template.BasePath "/configmap-static-dhcp.yaml") . | sha256sum | trunc 63 }}
 {{- with .Values.podAnnotations }}
@@ -327,9 +327,9 @@ spec:
             name: adlists
             subPath: adlists.list
           {{- end }}
-          {{- if .Values.blacklist }}
+          {{- if .Values.denied }}
           - mountPath: /etc/pihole/blacklist.txt
-            name: blacklist
+            name: denied
             subPath: blacklist.txt
           {{- end }}
           {{- if .Values.regex }}
@@ -337,9 +337,9 @@ spec:
             name: regex
             subPath: regex.list
           {{- end }}
-          {{- if .Values.whitelist }}
+          {{- if .Values.allowed }}
           - mountPath: /etc/pihole/whitelist.txt
-            name: whitelist
+            name: allowed
             subPath: whitelist.txt
           {{- end }}
           {{- if .Values.dnsmasq.staticDhcpEntries }}
@@ -392,11 +392,11 @@ spec:
           name: {{ template "pihole.fullname" . }}-adlists
         name: adlists
       {{- end }}
-      {{- if .Values.whitelist }}
+      {{- if .Values.allowed }}
       - configMap:
           defaultMode: 420
-          name: {{ template "pihole.fullname" . }}-whitelist
-        name: whitelist
+          name: {{ template "pihole.fullname" . }}-allowed
+        name: allowed
       {{- end }}
       {{- if .Values.dnsmasq.staticDhcpEntries }}
       - configMap:
@@ -404,11 +404,11 @@ spec:
           name: {{ template "pihole.fullname" . }}-static-dhcp
         name: static-dhcp
       {{- end }}
-      {{- if .Values.blacklist }}
+      {{- if .Values.denied }}
       - configMap:
           defaultMode: 420
-          name: {{ template "pihole.fullname" . }}-blacklist
-        name: blacklist
+          name: {{ template "pihole.fullname" . }}-denied
+        name: denied
       {{- end }}
       {{- if .Values.regex }}
       - configMap:

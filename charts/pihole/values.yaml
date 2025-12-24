@@ -511,19 +511,19 @@ adlists: {}
   # - https://hosts-file.net/grm.txt
   # - https://reddestdream.github.io/Projects/MinimalHosts/etc/MinimalHostsBlocker/minimalhosts
 
-# -- list of whitelisted domains to import during initial start of the container
-whitelist: {}
-  # If you want to provide whitelisted domains, add them here.
+# -- list of allowed domains to import during initial start of the container
+allowed: {}
+  # If you want to provide allowed domains, add them here.
   # - clients4.google.com
 
-# -- list of blacklisted domains to import during initial start of the container
-blacklist: {}
-  # If you want to have special domains blacklisted, add them here
-  # - *.blackist.com
+# -- list of denied domains to import during initial start of the container
+denied: {}
+  # If you want to have special domains denied, add them here
+  # - *.denied.com
 
-# -- list of blacklisted regex expressions to import during initial start of the container
+# -- list of denied regex expressions to import during initial start of the container
 regex: {}
-  # Add regular expression blacklist items
+  # Add regular expression patterns for denied domains
   # - (^|\.)facebook\.com$
 
 # -- values that should be added to pihole-FTL.conf. You can use either scalars or project cm, secrets or pod fields via valueFrom

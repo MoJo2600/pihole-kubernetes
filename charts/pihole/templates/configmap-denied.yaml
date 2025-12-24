@@ -1,13 +1,13 @@
-{{ if .Values.blacklist }}
+{{ if .Values.denied }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "pihole.fullname" . }}-blacklist
+  name: {{ template "pihole.fullname" . }}-denied
   labels:
     {{- include "pihole.labels" . | nindent 4 }}
 data:
   blacklist.txt: |
-  {{- range .Values.blacklist }}
+  {{- range .Values.denied }}
     {{ . }}
   {{- end }}
 {{ end }}
