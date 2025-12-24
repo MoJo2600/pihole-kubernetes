@@ -31,20 +31,6 @@ serviceDns:
 serviceWeb:
   type: ClusterIP
 
-# DHCP server configuration
-# Adjust these values for your network!
-extraEnvVars:
-  # Enable DHCP server
-  DHCP_ACTIVE: "true"
-  # DHCP range start
-  DHCP_START: "192.168.1.100"
-  # DHCP range end
-  DHCP_END: "192.168.1.200"
-  # Your network gateway
-  DHCP_ROUTER: "192.168.1.1"
-  # Pi-hole's IP address (use the LoadBalancer IP or node IP)
-  FTLCONF_LOCAL_IPV4: "192.168.1.10"
-
 # Optional: Custom DNS entries
 dnsmasq:
   customDnsEntries:
@@ -59,8 +45,3 @@ resources:
   requests:
     cpu: 100m
     memory: 128Mi
-
-# Admin password - consider using existingSecret instead
-# admin:
-#   existingSecret: "pihole-admin-secret"
-#   passwordKey: "password"
