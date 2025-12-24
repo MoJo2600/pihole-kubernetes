@@ -3,8 +3,11 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > Additional maintainers wanted! I need help maintaining this chart. Please see [the discussion here](https://github.com/MoJo2600/pihole-kubernetes/discussions/393)
+
+> [!WARNING]
+> **v3 Proposal Repository**: This Repository contains an unfinished rewrite with breaking changes intended as a proposal for v3. Do not use in production. For the stable version, please use the https://github.com/MoJo2600/pihole-kubernetes.
 
 [Helm](https://helm.sh) repo for different charts which can be installed on [Kubernetes](https://kubernetes.io)
 
