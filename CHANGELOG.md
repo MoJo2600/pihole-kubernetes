@@ -1,6 +1,6 @@
 # Release Notes
 
-This release brings significant improvements to the Pi-hole Helm chart, including modernized Kubernetes standards, enhanced DNS capabilities, and better observability.
+This release brings significant improvements to the Pi-hole Helm chart, including modernized Kubernetes standards and enhanced secure DNS capabilities.
 
 ## Breaking Changes
 
@@ -14,14 +14,20 @@ This release brings significant improvements to the Pi-hole Helm chart, includin
   - `app.kubernetes.io/version`
   - `app.kubernetes.io/managed-by`
 
-### Admin Password Configuration Restructured
+### Admin Password Configuration moved
 - **`adminPassword` moved to `admin.password`** - The root-level `adminPassword` value has been moved into the `admin` section
 - Update your values files: change `adminPassword: "xxx"` to `admin.password: "xxx"`
 
 ### DNS-over-HTTPS (DoH) Overhaul
 - **Replaced cloudflared with dnscrypt-proxy** for encrypted DNS resolution
-- Cloudflare deprecated the proxy-dns feature in clooudflared
+- Cloudflare deprecated the proxy-dns feature in cloudflared
 - More flexible and feature-rich encrypted DNS solution
+
+### Use same terminology as pihole
+- renamed `whitelist` to `allowed` and `blacklist` to `denied` for inclusive terminology
+- Update your values files:
+  - `whitelist: [...]` → `allowed: [...]`
+  - `blacklist: [...]` → `denied: [...]`
 
 ## Features
 
@@ -76,8 +82,6 @@ This release brings significant improvements to the Pi-hole Helm chart, includin
 - Optimized `.helmignore` to reduce packaged chart size
 
 ## Improvements
-
-- renamed `whitelist` to `allowed` and `blacklist` to `denied` for inclusive terminology
 
 ### DNS Testing
 - Extended Helm tests with DNS resolution verification
