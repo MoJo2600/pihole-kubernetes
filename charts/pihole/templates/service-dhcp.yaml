@@ -5,9 +5,13 @@ metadata:
   name: {{ template "pihole.fullname" . }}-dhcp
   labels:
     app: {{ template "pihole.name" . }}
+    app.kubernetes.io/name: {{ template "pihole.name" . }}
     chart: {{ template "pihole.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+{{- if .Values.serviceDhcp.extraLabels }}
+{{ toYaml .Values.servicesDhcp.extraLabels | indent 4  }}
+{{- end }}
 {{- if .Values.serviceDhcp.annotations }}
   annotations:
 {{ toYaml .Values.serviceDhcp.annotations | indent 4 }}
@@ -22,6 +26,9 @@ spec:
   {{- end }}
   {{- if .Values.serviceDhcp.loadBalancerIP }}
   loadBalancerIP: {{ .Values.serviceDhcp.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq .Values.serviceDhcp.type "LoadBalancer") .Values.serviceDhcp.loadBalancerClass }}
+  loadBalancerClass: {{ .Values.serviceDhcp.loadBalancerClass }}
   {{- end }}
   {{- if or (eq .Values.serviceDhcp.type "NodePort") (eq .Values.serviceDhcp.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceDhcp.externalTrafficPolicy }}
@@ -45,6 +52,7 @@ metadata:
   name: {{ template "pihole.fullname" . }}-dhcp-ivp6
   labels:
     app: {{ template "pihole.name" . }}
+    app.kubernetes.io/name: {{ template "pihole.name" . }}
     chart: {{ template "pihole.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -59,6 +67,9 @@ spec:
   ipFamilyPolicy: SingleStack
   {{- if .Values.serviceDhcp.loadBalancerIPv6 }}
   loadBalancerIP: {{ .Values.serviceDhcp.loadBalancerIPv6 }}
+  {{- end }}
+  {{- if and (eq .Values.serviceDhcp.type "LoadBalancer") .Values.serviceDhcp.loadBalancerClass }}
+  loadBalancerClass: {{ .Values.serviceDhcp.loadBalancerClass }}
   {{- end }}
   {{- if or (eq .Values.serviceDhcp.type "NodePort") (eq .Values.serviceDhcp.type "LoadBalancer") }}
   externalTrafficPolicy: {{ .Values.serviceDhcp.externalTrafficPolicy }}

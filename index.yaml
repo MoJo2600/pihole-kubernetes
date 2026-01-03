@@ -7,7 +7,7 @@ entries:
     description: Installs pihole in kubernetes
     digest: ab6d6b143ffb9c240d2f7c6123561ab4f16e609f6ff7a2f919c47dfc68b7b1f6
     home: https://github.com/MoJo2600/pihole-kubernetes/tree/master/charts/pihole
-    icon: https://i2.wp.com/pi-hole.net/wp-content/uploads/2016/12/Vortex-R.png
+    icon: https://upload.wikimedia.org/wikipedia/commons/0/00/Pi-hole_Logo.png
     maintainers:
     - email: christian.erhardt@mojo2k.de
       name: MoJo2600

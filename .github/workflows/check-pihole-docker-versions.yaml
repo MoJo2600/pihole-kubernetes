@@ -13,7 +13,7 @@ jobs:
     steps:
 
       - name: ✨ Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -43,19 +43,28 @@ jobs:
         run: |
           echo "New pihole version: ${{ steps.version-check.outputs.latest_pihole_version }}"
           V="${{ steps.version-check.outputs.latest_pihole_version }}" yq -i '.appVersion |= env(V)' charts/pihole/Chart.yaml
-
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        if: ${{ steps.version-check.outputs.new_version == 'true' }}
+      
+      - name: 📢 Create Pull Request
+        id: create-pr
+        uses: peter-evans/create-pull-request@v7
         with:
-          commit_message: 'feat: Bump pihole version to ${{ steps.version-check.outputs.latest_pihole_version }}'
-          branch: deps/pihole-version-bump
-          create_branch: true
+          token: ${{ github.token }}
+          commit-message: >-
+            feat: bump pihole version to ${{ steps.version-check.outputs.latest_pihole_version }}
 
-      - name: 📢 Create new pull request
-        if: ${{ steps.version-check.outputs.new_version == 'true' }}
-        run: |
-          gh pr create -B main -H deps/pihole-version-bump --title 'feat: Bump pihole version to ${{ steps.version-check.outputs.latest_pihole_version }}' --body 'Created by Github action'
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            Bump program version
+
+            [Workflow Run]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          branch: deps/version-bump
+          title: "feat: bump pihole version to ${{ steps.version-check.outputs.latest_pihole_version }}"
+          body: >-
+            Bumps the version of the program to ${{ steps.version-check.outputs.latest_pihole_version }}. 
+            
+            See details in [workflow run].
+
+            [Workflow Run]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          author: github-actions <github-actions@github.com>
+          committer: github-actions <github-actions@github.com>
+          signoff: true
 
 

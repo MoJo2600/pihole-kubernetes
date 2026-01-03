@@ -1,5 +1,147 @@
 # Changelog
 
+## [2.35.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.34.0...pihole-2.35.0) (2025-12-11)
+
+
+### Features
+
+* bump pihole version to 2025.11.1 ([#396](https://github.com/MoJo2600/pihole-kubernetes/issues/396)) ([1d9c294](https://github.com/MoJo2600/pihole-kubernetes/commit/1d9c29410fb6bac45500a2b5d27a26eb7010fcb0))
+
+## [2.34.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.33.0...pihole-2.34.0) (2025-08-14)
+
+
+### Features
+
+* add spec.revisionHistoryLimit to deployment.yaml template ([#382](https://github.com/MoJo2600/pihole-kubernetes/issues/382)) ([9a7450e](https://github.com/MoJo2600/pihole-kubernetes/commit/9a7450efc3b923ba95a2c73e1e738dcdf027bf05))
+
+## [2.33.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.32.0...pihole-2.33.0) (2025-08-14)
+
+
+### Features
+
+* bump pihole version to 2025.08.0 ([#381](https://github.com/MoJo2600/pihole-kubernetes/issues/381)) ([83b7196](https://github.com/MoJo2600/pihole-kubernetes/commit/83b719627f7a1bb6b893eb4af774edba2d7dd08a))
+
+## [2.32.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.31.0...pihole-2.32.0) (2025-06-19)
+
+
+### Features
+
+* bump pihole version to 2025.06.2 ([#374](https://github.com/MoJo2600/pihole-kubernetes/issues/374)) ([75d4519](https://github.com/MoJo2600/pihole-kubernetes/commit/75d4519ab2fea1a46ed2f4fef38262bbd41eb65f))
+* Use command probe for increased accuracy ([#344](https://github.com/MoJo2600/pihole-kubernetes/issues/344)) ([#359](https://github.com/MoJo2600/pihole-kubernetes/issues/359)) ([bd96c51](https://github.com/MoJo2600/pihole-kubernetes/commit/bd96c51b66f1f4e7f20d8131388ea3ccf8d318cf))
+
+
+### Bug Fixes
+
+* pihole not listening on all network interfaces ([#378](https://github.com/MoJo2600/pihole-kubernetes/issues/378)) ([f2b3aa7](https://github.com/MoJo2600/pihole-kubernetes/commit/f2b3aa797032dd53134c53e4e8e8a8d5267d0ab5))
+* prioritize webserver_port in extraEnvVars ([#372](https://github.com/MoJo2600/pihole-kubernetes/issues/372)) ([430117e](https://github.com/MoJo2600/pihole-kubernetes/commit/430117ed53048a954c25543f4a19e930fefa66e0))
+
+## [2.31.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.30.0...pihole-2.31.0) (2025-05-16)
+
+
+### Features
+
+* Allow specifying loadBalancerClass for LoadBalancer services ([#370](https://github.com/MoJo2600/pihole-kubernetes/issues/370)) ([d0c9f95](https://github.com/MoJo2600/pihole-kubernetes/commit/d0c9f9534d83020d5b4541f6c402912279db38d5))
+
+## [2.30.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.29.1...pihole-2.30.0) (2025-04-30)
+
+
+### Features
+
+* bump pihole version to 2025.04.0 ([#364](https://github.com/MoJo2600/pihole-kubernetes/issues/364)) ([b41ff7f](https://github.com/MoJo2600/pihole-kubernetes/commit/b41ff7f264ea4472a2556ed34c8d8a79eb616af0))
+
+## [2.29.1](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.29.0...pihole-2.29.1) (2025-03-08)
+
+
+### Bug Fixes
+
+* revert liveness and readiness probe back to http ([#357](https://github.com/MoJo2600/pihole-kubernetes/issues/357)) ([bbb557b](https://github.com/MoJo2600/pihole-kubernetes/commit/bbb557b1730c31cec5401d99c9962613e376358a)), closes [#356](https://github.com/MoJo2600/pihole-kubernetes/issues/356)
+* updated pihole exporter to v1.0.0 ([#351](https://github.com/MoJo2600/pihole-kubernetes/issues/351)) ([04d4e90](https://github.com/MoJo2600/pihole-kubernetes/commit/04d4e9047e3cbe6d1d0dade813367beb6291777c))
+
+## [2.29.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.28.0...pihole-2.29.0) (2025-03-07)
+
+
+### Features
+
+* allow for env map values ([#339](https://github.com/MoJo2600/pihole-kubernetes/issues/339)) ([f6fcb06](https://github.com/MoJo2600/pihole-kubernetes/commit/f6fcb06d4c5d3a5fd41e08d8dbcc7e3fbba68a85))
+* bump pihole version to 2025.03.0 ([#352](https://github.com/MoJo2600/pihole-kubernetes/issues/352)) ([83dd678](https://github.com/MoJo2600/pihole-kubernetes/commit/83dd67801fe07f872a12301a96f087b8e9d0f2f1))
+
+## [2.28.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.27.0...pihole-2.28.0) (2025-03-02)
+
+
+### Features
+
+* add custom deployment annotation option ([#332](https://github.com/MoJo2600/pihole-kubernetes/issues/332)) ([bc8f720](https://github.com/MoJo2600/pihole-kubernetes/commit/bc8f720a9343e8b61fea68b67a2aa4f9ca56c0f4))
+* allow to override the command of the cloudflared container. ([#331](https://github.com/MoJo2600/pihole-kubernetes/issues/331)) ([02cff49](https://github.com/MoJo2600/pihole-kubernetes/commit/02cff4992313488524f0883946bb6e425be8be77))
+* PiHole v6 Support ([#343](https://github.com/MoJo2600/pihole-kubernetes/issues/343)) ([8112b80](https://github.com/MoJo2600/pihole-kubernetes/commit/8112b800b98eb6ff23aa19d074b56acd72e1066b))
+* support doh readiness and podmonitor ([#335](https://github.com/MoJo2600/pihole-kubernetes/issues/335)) ([2c5aaf5](https://github.com/MoJo2600/pihole-kubernetes/commit/2c5aaf592b10d69ce674e87833edb82ad4954110))
+
+## [2.27.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.26.2...pihole-2.27.0) (2024-11-28)
+
+
+### Features
+
+* add command option to set up readiness probe. ([#323](https://github.com/MoJo2600/pihole-kubernetes/issues/323)) ([f5c6ad3](https://github.com/MoJo2600/pihole-kubernetes/commit/f5c6ad3661a2a87e5014aff6c617ea0367177b24))
+* add the label app.kubernetes.io/name to deployment and services ([#321](https://github.com/MoJo2600/pihole-kubernetes/issues/321)) ([61ab00d](https://github.com/MoJo2600/pihole-kubernetes/commit/61ab00d1f7fe0cfabfc426bf484cec46fff6ed11))
+* configurable pathType for the ingress resource ([#317](https://github.com/MoJo2600/pihole-kubernetes/issues/317)) ([d3c09bc](https://github.com/MoJo2600/pihole-kubernetes/commit/d3c09bc0a6addc487ceda44b516e0714c06c1875))
+
+## [2.26.2](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.26.1...pihole-2.26.2) (2024-10-27)
+
+
+### Bug Fixes
+
+* wrong customSettings.otherSettings exmaple in values.yaml ([#319](https://github.com/MoJo2600/pihole-kubernetes/issues/319)) ([67a0e3f](https://github.com/MoJo2600/pihole-kubernetes/commit/67a0e3fce49f9899bd92f1fad3ed96ae1148b78e)), closes [#318](https://github.com/MoJo2600/pihole-kubernetes/issues/318)
+
+## [2.26.1](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.26.0...pihole-2.26.1) (2024-07-26)
+
+
+### Bug Fixes
+
+* Update Notes.txt ([#309](https://github.com/MoJo2600/pihole-kubernetes/issues/309)) ([0c98981](https://github.com/MoJo2600/pihole-kubernetes/commit/0c9898127323effa124aef86f492c3935d8bc017)), closes [#307](https://github.com/MoJo2600/pihole-kubernetes/issues/307)
+
+## [2.26.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.25.0...pihole-2.26.0) (2024-07-18)
+
+
+### Features
+
+* bump pihole version to 2024.07.0 ([#306](https://github.com/MoJo2600/pihole-kubernetes/issues/306)) ([a119d89](https://github.com/MoJo2600/pihole-kubernetes/commit/a119d893c9d193b38875f6b7841855f68716ca32))
+
+## [2.25.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.24.0...pihole-2.25.0) (2024-06-27)
+
+
+### Features
+
+* bump pihole version to 2024.06.0 ([#303](https://github.com/MoJo2600/pihole-kubernetes/issues/303)) ([7f96afc](https://github.com/MoJo2600/pihole-kubernetes/commit/7f96afce866cd2dadfbb7d717ad05b87e23538a4))
+
+## [2.24.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.23.0...pihole-2.24.0) (2024-05-14)
+
+
+### Features
+
+* bump pihole version to 2024.05.0 ([#298](https://github.com/MoJo2600/pihole-kubernetes/issues/298)) ([2b9fada](https://github.com/MoJo2600/pihole-kubernetes/commit/2b9fada9ea76857e9641935a7637a317451751cd))
+
+## [2.23.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.22.0...pihole-2.23.0) (2024-04-04)
+
+
+### Features
+
+* Add optional annotations to the password secret ([#287](https://github.com/MoJo2600/pihole-kubernetes/issues/287)) ([b71d543](https://github.com/MoJo2600/pihole-kubernetes/commit/b71d54321e4c78f2640e0bbd979f3ebe840b2660))
+* bump pihole version to 2024.03.2 Bump program version [Workflow Run]: https://github.com/MoJo2600/pihole-kubernetes/actions/runs/8555143588 ([#294](https://github.com/MoJo2600/pihole-kubernetes/issues/294)) ([6e9bd88](https://github.com/MoJo2600/pihole-kubernetes/commit/6e9bd882a0df505468bcdee2a3a476e2fb39058d))
+
+
+### Bug Fixes
+
+* invalid web service manifest generation ([#288](https://github.com/MoJo2600/pihole-kubernetes/issues/288)) ([b1019dc](https://github.com/MoJo2600/pihole-kubernetes/commit/b1019dcdd2b3f42ba05dbca8b687ee2627d92411))
+* Update Chart.yaml ([#291](https://github.com/MoJo2600/pihole-kubernetes/issues/291)) ([f10c1fc](https://github.com/MoJo2600/pihole-kubernetes/commit/f10c1fca167346de4fbd6681cfebd08cae7c13df))
+
+## [2.22.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-v2.28.0...pihole-2.22.0) (2024-02-16)
+
+
+### Features
+
+* add support for service extraLabels ([#266](https://github.com/MoJo2600/pihole-kubernetes/issues/266)) ([4a09a58](https://github.com/MoJo2600/pihole-kubernetes/commit/4a09a5839e35d075598343bdf138161cf4ed5da7))
+* Bump pihole version to 2024.02.0 ([#283](https://github.com/MoJo2600/pihole-kubernetes/issues/283)) ([f9ec0af](https://github.com/MoJo2600/pihole-kubernetes/commit/f9ec0af000d6e4724010e5c18004896031485450))
+* Change to trigger a new Release ([#280](https://github.com/MoJo2600/pihole-kubernetes/issues/280)) ([dea65aa](https://github.com/MoJo2600/pihole-kubernetes/commit/dea65aa7d2e17336c63cb4ee8fdbb5f13eceaab6))
+
 ## [2.28.0](https://github.com/MoJo2600/pihole-kubernetes-githubactions/compare/pihole-2.27.15...pihole-2.28.0) (2024-01-22)
 
 

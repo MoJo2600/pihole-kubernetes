@@ -1,4 +1,4 @@
-{{- if .Values.monitoring.podMonitor.enabled }}
+{{- if or .Values.monitoring.podMonitor.enabled .Values.doh.monitoring.podMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
@@ -16,6 +16,7 @@ metadata:
 {{- end }}
 spec:
   podMetricsEndpoints:
+{{- if .Values.monitoring.podMonitor.enabled }}
   - port: prometheus
     path: /metrics
 {{- if .Values.monitoring.podMonitor.interval }}
@@ -31,6 +32,11 @@ spec:
       {{- if .Values.monitoring.podMonitor.bearerTokenSecret.optional }}
       optional: {{ .Values.monitoring.podMonitor.bearerTokenSecret.optional }}
       {{- end }}
+{{- end }}
+{{- end }}
+{{- if .Values.doh.monitoring.podMonitor.enabled }}
+  - port: cloudflared-met
+    path: /metrics
 {{- end }}
   jobLabel: {{ template "pihole.fullname" . }}-prometheus-exporter
   namespaceSelector:
