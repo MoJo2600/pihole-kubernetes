@@ -455,6 +455,9 @@ webHttp: "80"
 # -- port the container should use to expose HTTPS traffic
 webHttps: "443"
 
+# -- port the container should use to expose DHCP traffic
+dhcpContainerPort: "67"
+
 # -- hostname of pod
 hostname: ""
 
