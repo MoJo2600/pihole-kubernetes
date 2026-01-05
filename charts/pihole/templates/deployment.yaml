@@ -3,11 +3,7 @@ kind: Deployment
 metadata:
   name: {{ template "pihole.fullname" . }}
   labels:
-    app: {{ template "pihole.name" . }}
-    app.kubernetes.io/name: {{ template "pihole.name" . }}
-    chart: {{ template "pihole.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pihole.labels" . | nindent 4 }}
   {{- with .Values.deploymentAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -26,24 +22,21 @@ spec:
     {{- end }}
   selector:
     matchLabels:
-      app: {{ template "pihole.name" . }}
-      release: {{ .Release.Name }}
+      {{- include "pihole.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
         checksum.config.adlists: {{ include (print $.Template.BasePath "/configmap-adlists.yaml") . | sha256sum | trunc 63 }}
-        checksum.config.blacklist: {{ include (print $.Template.BasePath "/configmap-blacklist.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.denied: {{ include (print $.Template.BasePath "/configmap-denied.yaml") . | sha256sum | trunc 63 }}
         checksum.config.regex: {{ include (print $.Template.BasePath "/configmap-regex.yaml") . | sha256sum | trunc 63 }}
-        checksum.config.whitelist: {{ include (print $.Template.BasePath "/configmap-whitelist.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.allowed: {{ include (print $.Template.BasePath "/configmap-allowed.yaml") . | sha256sum | trunc 63 }}
         checksum.config.dnsmasqConfig: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum | trunc 63 }}
         checksum.config.staticDhcpConfig: {{ include (print $.Template.BasePath "/configmap-static-dhcp.yaml") . | sha256sum | trunc 63 }}
 {{- with .Values.podAnnotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
       labels:
-        app: {{ template "pihole.name" . }}
-        app.kubernetes.io/name: {{ template "pihole.name" . }}
-        release: {{ .Release.Name }}
+        {{- include "pihole.selectorLabels" . | nindent 8 }}
     spec:
       {{- if .Values.antiaff.enabled }}
       affinity:
@@ -74,8 +67,17 @@ spec:
         nameservers:
         {{- toYaml .Values.podDnsConfig.nameservers | nindent 8 }}
       {{- end }}
+      serviceAccountName: {{ include "pihole.serviceAccountName" . }}
+      {{- if .Values.hostname }}
       hostname: {{ .Values.hostname }}
+      {{- end }}
+      {{- if and .Values.hostNetwork (ne (toString .Values.hostNetwork) "false") }}
       hostNetwork: {{ .Values.hostNetwork }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.extraInitContainers }}
       initContainers:
         {{- toYaml . | nindent 8 }}
@@ -114,7 +116,7 @@ spec:
               protocol: TCP
         {{- end }}
         {{- if .Values.doh.enabled }}
-        - name: cloudflared
+        - name: dnscrypt-proxy
           image: "{{ .Values.doh.repository }}:{{ .Values.doh.tag }}"
           imagePullPolicy: {{ .Values.doh.pullPolicy }}
           terminationMessagePath: /dev/termination-log
@@ -130,11 +132,16 @@ spec:
               memory: 128Mi
           ports:
             - containerPort: 5053
-              name: cloudflared-udp
+              name: dnscrypt-udp
               protocol: UDP
-            - containerPort: 49312
-              name: cloudflared-met
+            - containerPort: 5053
+              name: dnscrypt-tcp
               protocol: TCP
+            {{- if .Values.doh.metrics.enabled }}
+            - containerPort: {{ .Values.doh.metrics.port }}
+              name: dnscrypt-metrics
+              protocol: TCP
+            {{- end }}
           {{- if .Values.doh.envVars }}
           env:
             {{- range $key, $value := .Values.doh.envVars }}
@@ -142,19 +149,34 @@ spec:
             value: {{ $value | quote }}
             {{- end }}
           {{- end }}
+          volumeMounts:
+            - name: dnscrypt-proxy-config
+              mountPath: /config
+              readOnly: true
           {{- if .Values.doh.probes.liveness.enabled }}
           livenessProbe:
 {{ toYaml .Values.doh.probes.liveness.probe | indent 12 }}
-            initialDelaySeconds: {{ .Values.doh.probes.liveness.initialDelaySeconds }}
             failureThreshold: {{ .Values.doh.probes.liveness.failureThreshold }}
+            periodSeconds: {{ .Values.doh.probes.liveness.periodSeconds }}
+            successThreshold: {{ .Values.doh.probes.liveness.successThreshold }}
             timeoutSeconds: {{ .Values.doh.probes.liveness.timeoutSeconds }}
           {{- end }}
           {{- if .Values.doh.probes.readiness.enabled }}
           readinessProbe:
 {{ toYaml .Values.doh.probes.readiness.probe | indent 12 }}
-            initialDelaySeconds: {{ .Values.doh.probes.readiness.initialDelaySeconds }}
             failureThreshold: {{ .Values.doh.probes.readiness.failureThreshold }}
+            periodSeconds: {{ .Values.doh.probes.readiness.periodSeconds }}
+            successThreshold: {{ .Values.doh.probes.readiness.successThreshold }}
             timeoutSeconds: {{ .Values.doh.probes.readiness.timeoutSeconds }}
+          {{- end }}
+          {{- if .Values.doh.probes.startup.enabled }}
+          startupProbe:
+{{ toYaml .Values.doh.probes.startup.probe | indent 12 }}
+            failureThreshold: {{ .Values.doh.probes.startup.failureThreshold }}
+            initialDelaySeconds: {{ .Values.doh.probes.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.doh.probes.startup.periodSeconds }}
+            successThreshold: 1
+            timeoutSeconds: {{ .Values.doh.probes.startup.timeoutSeconds }}
           {{- end }}
         {{- end }}
         - name: {{ .Chart.Name }}
@@ -210,11 +232,16 @@ spec:
          {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          {{- else }}
           securityContext:
             privileged: {{ .Values.privileged }}
           {{- if .Values.capabilities }}
             capabilities:
             {{- toYaml .Values.capabilities | nindent 14 }}
+          {{- end }}
           {{- end }}
           ports:
           - containerPort: {{ .Values.webHttp }}
@@ -249,10 +276,10 @@ spec:
               port: {{ .Values.probes.liveness.port }}
               scheme: {{ .Values.probes.liveness.scheme }}
             {{- end }}
-            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
             failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            successThreshold: {{ .Values.probes.liveness.successThreshold }}
             timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
-
           {{- end }}
           {{- if .Values.probes.readiness.enabled }}
           readinessProbe:
@@ -265,9 +292,27 @@ spec:
               port: {{ .Values.probes.readiness.port }}
               scheme: {{ .Values.probes.readiness.scheme }}
             {{- end }}
-            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
             failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            successThreshold: {{ .Values.probes.readiness.successThreshold }}
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+          {{- end }}
+          {{- if .Values.probes.startup.enabled }}
+          startupProbe:
+            {{- if eq .Values.probes.startup.type "command" }}
+            exec:
+              command: {{ .Values.probes.startup.command | required "An array of command(s) is required if 'type' is set to 'command'." | toYaml | nindent 16 }}
+            {{- else }}
+            httpGet:
+              path: /admin
+              port: {{ .Values.probes.startup.port }}
+              scheme: {{ .Values.probes.startup.scheme }}
+            {{- end }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
+            initialDelaySeconds: {{ .Values.probes.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.startup.periodSeconds }}
+            successThreshold: 1
+            timeoutSeconds: {{ .Values.probes.startup.timeoutSeconds }}
           {{- end }}
           volumeMounts:
           - mountPath: /etc/pihole
@@ -291,9 +336,9 @@ spec:
             name: adlists
             subPath: adlists.list
           {{- end }}
-          {{- if .Values.blacklist }}
+          {{- if .Values.denied }}
           - mountPath: /etc/pihole/blacklist.txt
-            name: blacklist
+            name: denied
             subPath: blacklist.txt
           {{- end }}
           {{- if .Values.regex }}
@@ -301,9 +346,9 @@ spec:
             name: regex
             subPath: regex.list
           {{- end }}
-          {{- if .Values.whitelist }}
+          {{- if .Values.allowed }}
           - mountPath: /etc/pihole/whitelist.txt
-            name: whitelist
+            name: allowed
             subPath: whitelist.txt
           {{- end }}
           {{- if .Values.dnsmasq.staticDhcpEntries }}
@@ -356,11 +401,11 @@ spec:
           name: {{ template "pihole.fullname" . }}-adlists
         name: adlists
       {{- end }}
-      {{- if .Values.whitelist }}
+      {{- if .Values.allowed }}
       - configMap:
           defaultMode: 420
-          name: {{ template "pihole.fullname" . }}-whitelist
-        name: whitelist
+          name: {{ template "pihole.fullname" . }}-allowed
+        name: allowed
       {{- end }}
       {{- if .Values.dnsmasq.staticDhcpEntries }}
       - configMap:
@@ -368,17 +413,23 @@ spec:
           name: {{ template "pihole.fullname" . }}-static-dhcp
         name: static-dhcp
       {{- end }}
-      {{- if .Values.blacklist }}
+      {{- if .Values.denied }}
       - configMap:
           defaultMode: 420
-          name: {{ template "pihole.fullname" . }}-blacklist
-        name: blacklist
+          name: {{ template "pihole.fullname" . }}-denied
+        name: denied
       {{- end }}
       {{- if .Values.regex }}
       - configMap:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-regex
         name: regex
+      {{- end }}
+      {{- if .Values.doh.enabled }}
+      - configMap:
+          defaultMode: 420
+          name: {{ template "pihole.fullname" . }}-dnscrypt-proxy
+        name: dnscrypt-proxy-config
       {{- end }}
       {{- range $key, $value := .Values.extraVolumes }}
       - name: {{ $key }}

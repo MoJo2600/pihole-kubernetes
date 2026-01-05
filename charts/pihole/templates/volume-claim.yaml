@@ -8,11 +8,8 @@ metadata:
 {{ toYaml .Values.persistentVolumeClaim.annotations | indent 4 }}
 {{- end }}
   labels:
-    app: {{ template "pihole.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    {{- include "pihole.labels" . | nindent 4 }}
     component: "{{ .Values.persistentVolumeClaim.name }}"
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
   name: {{ template "pihole.fullname" . }}
 spec:
   accessModes:

@@ -1,0 +1,118 @@
+# DHCP Helper Deployment
+#
+# This container receives DHCP broadcasts on the host network and forwards
+# them as unicast to the Pi-hole pod. This allows Pi-hole to handle DHCP
+# without requiring hostNetwork on the Pi-hole pod itself.
+#
+# IMPORTANT: Update PIHOLE_IP with your Pi-hole DHCP service ClusterIP:
+#   kubectl get svc pihole-dhcp -o jsonpath='{.spec.clusterIP}'
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dhcphelper
+  labels:
+    app: dhcphelper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dhcphelper
+  template:
+    metadata:
+      labels:
+        app: dhcphelper
+    spec:
+      # Required: Must use host network to receive Layer 2 DHCP broadcasts
+      hostNetwork: true
+
+      # Optional: Pin to a specific node
+      # Uncomment and adjust for your cluster
+      # nodeSelector:
+      #   kubernetes.io/hostname: your-node-name
+
+      containers:
+        - name: dhcphelper
+          image: homeall/dhcphelper:latest
+
+          # Required for network operations
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+
+          env:
+            # IMPORTANT: Set this to your Pi-hole DHCP service ClusterIP
+            # Get it with: kubectl get svc pihole-dhcp -o jsonpath='{.spec.clusterIP}'
+            - name: IP
+              value: "10.96.0.100"  # <-- UPDATE THIS VALUE
+
+            # Optional: Timezone
+            - name: TZ
+              value: "Europe/Berlin"
+
+          # Health check
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - "pgrep dhcp-helper"
+            initialDelaySeconds: 10
+            periodSeconds: 30
+
+          resources:
+            limits:
+              cpu: 50m
+              memory: 32Mi
+            requests:
+              cpu: 10m
+              memory: 16Mi
+
+      # Minimal restart policy
+      restartPolicy: Always
+
+---
+# Alternative: DaemonSet for multi-node DHCP coverage
+# Uncomment this and comment out the Deployment above if you need
+# DHCP relay on every node in your cluster.
+#
+# apiVersion: apps/v1
+# kind: DaemonSet
+# metadata:
+#   name: dhcphelper
+#   labels:
+#     app: dhcphelper
+# spec:
+#   selector:
+#     matchLabels:
+#       app: dhcphelper
+#   template:
+#     metadata:
+#       labels:
+#         app: dhcphelper
+#     spec:
+#       hostNetwork: true
+#       tolerations:
+#         - key: node-role.kubernetes.io/control-plane
+#           operator: Exists
+#           effect: NoSchedule
+#       containers:
+#         - name: dhcphelper
+#           image: homeall/dhcphelper:latest
+#           securityContext:
+#             capabilities:
+#               add:
+#                 - NET_ADMIN
+#           env:
+#             - name: IP
+#               value: "10.96.0.100"  # <-- UPDATE THIS VALUE
+#             - name: TZ
+#               value: "Europe/Berlin"
+#           resources:
+#             limits:
+#               cpu: 50m
+#               memory: 32Mi
+#             requests:
+#               cpu: 10m
+#               memory: 16Mi

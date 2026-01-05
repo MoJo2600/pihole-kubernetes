@@ -30,7 +30,27 @@ The following items can be set via `--set` flag during installation or configure
 
 - **Ingress**: The ingress controller must be installed in the Kubernetes cluster.
 - **ClusterIP**: Exposes the service on a cluster-internal IP. Choosing this value makes the service only reachable from within the cluster.
-- **LoadBalancer**: Exposes the service externally using a cloud provider’s load balancer.
+- **LoadBalancer**: Exposes the service externally using a cloud provider's load balancer.
+
+### Deprecation Notice: `loadBalancerIP`
+
+The `spec.loadBalancerIP` field is **deprecated** since Kubernetes 1.24 and may be removed in a future Kubernetes version. While the `loadBalancerIP` values still work in this chart, we recommend migrating to your cloud provider's annotation-based approach.
+
+**For MetalLB users**, use the annotation instead:
+
+```yaml
+serviceDns:
+  type: LoadBalancer
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 192.168.178.252
+
+serviceWeb:
+  type: LoadBalancer
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 192.168.178.252
+```
+
+**For cloud providers**, consult your provider's documentation for the appropriate annotation (e.g., `service.beta.kubernetes.io/aws-load-balancer-eip-allocations` for AWS).
 
 ## My settings in values.yaml
 

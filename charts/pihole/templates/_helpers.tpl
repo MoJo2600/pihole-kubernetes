@@ -37,3 +37,37 @@ Default password secret name.
 {{- define "pihole.password-secret" -}}
 {{- printf "%s-%s" (include "pihole.fullname" .) "password" | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{/*
+Common labels
+*/}}
+{{- define "pihole.labels" -}}
+helm.sh/chart: {{ include "pihole.chart" . }}
+{{ include "pihole.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- with .Values.commonLabels }}
+{{ toYaml . }}
+{{- end }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "pihole.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "pihole.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "pihole.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "pihole.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}

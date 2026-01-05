@@ -2,6 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# -- Labels to add to all deployed objects
+commonLabels: {}
+
 # -- The number of replicas
 replicaCount: 1
 
@@ -52,9 +55,9 @@ serviceDns:
   # -- `spec.externalTrafficPolicy` for the DHCP Service
   externalTrafficPolicy: Local
 
-  # -- A fixed `spec.loadBalancerIP` for the DNS Service
+  # -- A fixed `spec.loadBalancerIP` for the DNS Service. DEPRECATED in Kubernetes 1.24+. Use `annotations` with your cloud provider's annotation instead (e.g., `metallb.universe.tf/loadBalancerIPs` for MetalLB).
   loadBalancerIP: ""
-  # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service
+  # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service. DEPRECATED in Kubernetes 1.24+.
   loadBalancerIPv6: ""
   # -- `spec.loadBalancerClass` for the DNS Service. Only used if type is LoadBalancer.
   loadBalancerClass: ""
@@ -85,9 +88,9 @@ serviceDhcp:
   # -- `spec.externalTrafficPolicy` for the DHCP Service
   externalTrafficPolicy: Local
 
-  # -- A fixed `spec.loadBalancerIP` for the DHCP Service
+  # -- A fixed `spec.loadBalancerIP` for the DHCP Service. DEPRECATED in Kubernetes 1.24+. Use `annotations` with your cloud provider's annotation instead (e.g., `metallb.universe.tf/loadBalancerIPs` for MetalLB).
   loadBalancerIP: ""
-  # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service
+  # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service. DEPRECATED in Kubernetes 1.24+.
   loadBalancerIPv6: ""
   # -- `spec.loadBalancerClass` for the DHCP Service. Only used if type is LoadBalancer.
   loadBalancerClass: ""
@@ -130,9 +133,9 @@ serviceWeb:
   # -- `spec.externalTrafficPolicy` for the web interface Service
   externalTrafficPolicy: Local
 
-  # -- A fixed `spec.loadBalancerIP` for the web interface Service
+  # -- A fixed `spec.loadBalancerIP` for the web interface Service. DEPRECATED in Kubernetes 1.24+. Use `annotations` with your cloud provider's annotation instead (e.g., `metallb.universe.tf/loadBalancerIPs` for MetalLB).
   loadBalancerIP: ""
-  # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service
+  # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service. DEPRECATED in Kubernetes 1.24+.
   loadBalancerIPv6: ""
   # -- `spec.loadBalancerClass` for the web interface Service. Only used if type is LoadBalancer.
   loadBalancerClass: ""
@@ -181,12 +184,16 @@ probes:
     command:
       - /bin/sh
       - -c
-      - "curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end'"
+      - "curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"
     enabled: true
-    # -- wait time before trying the liveness probe
-    initialDelaySeconds: 60
+    # -- wait time before trying the liveness probe (can be 0 when startup probe is enabled)
+    initialDelaySeconds: 0
+    # -- probe interval in seconds
+    periodSeconds: 10
     # -- threshold until the probe is considered failing
-    failureThreshold: 10
+    failureThreshold: 3
+    # -- threshold until the probe is considered successful
+    successThreshold: 1
     # -- timeout in seconds
     timeoutSeconds: 5
     # port: http
@@ -198,12 +205,37 @@ probes:
     command:
       - /bin/sh
       - -c
-      - "curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end'"
+      - "curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"
     enabled: true
-    # -- wait time before trying the readiness probe
-    initialDelaySeconds: 60
+    # -- wait time before trying the readiness probe (can be 0 when startup probe is enabled)
+    initialDelaySeconds: 0
+    # -- probe interval in seconds
+    periodSeconds: 10
     # -- threshold until the probe is considered failing
-    failureThreshold: 10
+    failureThreshold: 3
+    # -- threshold until the probe is considered successful
+    successThreshold: 1
+    # -- timeout in seconds
+    timeoutSeconds: 5
+    # port: http
+    # scheme: HTTP
+  startup:
+    # -- Generate a startup probe
+    # 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type startup probe.
+    # The startup probe runs before liveness/readiness probes begin.
+    # Once it succeeds, liveness and readiness probes take over.
+    type: command
+    command:
+      - /bin/sh
+      - -c
+      - "curl --silent http://localhost/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1"
+    enabled: true
+    # -- wait time before trying the startup probe
+    initialDelaySeconds: 5
+    # -- probe interval in seconds
+    periodSeconds: 5
+    # -- threshold until the container is considered failed (30 * 5s = 150s max startup time)
+    failureThreshold: 30
     # -- timeout in seconds
     timeoutSeconds: 5
     # port: http
@@ -269,13 +301,12 @@ topologySpreadConstraints: []
 
 affinity: {}
 
-# -- Administrator password when not using an existing secret (see below)
-adminPassword: "admin"
-
 # -- Use an existing secret for the admin password.
 admin:
-  # -- If set to false admin password will be disabled, adminPassword specified above and the pre-existing secret (if specified) will be ignored.
+  # -- If set to false admin password will be disabled, password specified below and the pre-existing secret (if specified) will be ignored.
   enabled: true
+  # -- Administrator password when not using an existing secret (see below)
+  password: "admin"
   # -- Specify an existing secret to use as admin password
   existingSecret: ""
   # -- Specify the key inside the secret to use
@@ -320,60 +351,135 @@ antiaff:
   namespaces: []
 
 doh:
-  # -- set to true to enabled DNS over HTTPs via cloudflared
+  # -- set to true to enable encrypted DNS via dnscrypt-proxy (supports DoH, DoT, DNSCrypt)
   enabled: false
   # -- name
-  name: "cloudflared"
-  # -- repository
-  repository: "crazymax/cloudflared"
-  tag: latest
+  name: "dnscrypt-proxy"
+  # -- repository (using GHCR)
+  repository: "ghcr.io/klutchell/dnscrypt-proxy"
+  # -- image tag
+  tag: 2.1.15
   # -- Pull policy
   pullPolicy: IfNotPresent
-  # -- Here you can pass environment variables to the DoH container, for example:
+  # -- Here you can pass environment variables to the dnscrypt-proxy container
   envVars: {}
-    # TUNNEL_DNS_UPSTREAM: "https://1.1.1.2/dns-query,https://1.0.0.2/dns-query"
-  # -- Custom command to the DoH container
+  # -- Custom command to the dnscrypt-proxy container
   command: []
+  # -- dnscrypt-proxy configuration (raw TOML format, mounted as /config/dnscrypt-proxy.toml)
+  # -- See https://github.com/DNSCrypt/dnscrypt-proxy/wiki/Configuration for all options
+  # -- Example with monitoring_ui enabled for Prometheus metrics:
+  # config: |
+  #   listen_addresses = ['0.0.0.0:5053']
+  #   server_names = ['cloudflare', 'google']
+  #   [monitoring_ui]
+  #   enabled = true
+  #   listen_address = '0.0.0.0:8080'
+  #   prometheus_enabled = true
+  config: |
+    listen_addresses = ['0.0.0.0:5053']
+    require_dnssec = false
+    require_nolog = true
+    require_nofilter = true
+    dnscrypt_servers = true
+    doh_servers = true
+    odoh_servers = false
+    ipv6_servers = false
+    bootstrap_resolvers = ['9.9.9.9:53', '1.1.1.1:53']
+    timeout = 5000
+    keepalive = 30
+    log_level = 2
+    use_syslog = false
+    cache = true
+    cache_size = 4096
+    cache_min_ttl = 2400
+    cache_max_ttl = 86400
+    cache_neg_min_ttl = 60
+    cache_neg_max_ttl = 600
+
+    [sources]
+      [sources.'public-resolvers']
+        urls = [
+          'https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md',
+          'https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md'
+        ]
+        cache_file = '/tmp/public-resolvers.md'
+        minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+        refresh_delay = 73
+      [sources.'relays']
+        urls = [
+          'https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/relays.md',
+          'https://download.dnscrypt.info/resolvers-list/v3/relays.md'
+        ]
+        cache_file = '/tmp/relays.md'
+        minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+        refresh_delay = 73
+  # -- Metrics port configuration (enable if you have [monitoring_ui] in your config)
+  metrics:
+    # -- set to true to expose the metrics port (8080) in Service and create PodMonitor
+    enabled: false
+    # -- port for Prometheus metrics (must match listen_address in [monitoring_ui] config)
+    port: 8080
   # -- Probes configuration
   probes:
-    # -- Configure the healthcheck for the doh container
+    # -- Configure the healthcheck for the dnscrypt-proxy container
     liveness:
       # -- set to true to enable liveness probe
       enabled: true
-      # -- customize the liveness probe
+      # -- customize the liveness probe (uses dnsprobe tool)
       probe:
         exec:
           command:
-            - nslookup
-            - -po=5053
+            - /usr/local/bin/dnsprobe
             - cloudflare.com
-            - "127.0.0.1"
-      # -- defines the initial delay for the liveness probe
-      initialDelaySeconds: 60
+            - 127.0.0.1:5053
+      # -- defines the initial delay for the liveness probe (can be 0 when startup probe is enabled)
+      initialDelaySeconds: 0
+      # -- probe interval in seconds
+      periodSeconds: 10
       # -- defines the failure threshold for the liveness probe
-      failureThreshold: 10
-      # -- defines the timeout in secondes for the liveness probe
+      failureThreshold: 3
+      # -- threshold until the probe is considered successful
+      successThreshold: 1
+      # -- defines the timeout in seconds for the liveness probe
       timeoutSeconds: 5
     readiness:
       # -- set to true to enable readiness probe
       enabled: true
-      # -- customize the readiness probe
+      # -- customize the readiness probe (uses dnsprobe tool)
       probe:
         exec:
           command:
-            - nslookup
-            - -po=5053
+            - /usr/local/bin/dnsprobe
             - cloudflare.com
-            - "127.0.0.1"
-      # -- defines the initial delay for the readiness probe
-      initialDelaySeconds: 60
+            - 127.0.0.1:5053
+      # -- defines the initial delay for the readiness probe (can be 0 when startup probe is enabled)
+      initialDelaySeconds: 0
+      # -- probe interval in seconds
+      periodSeconds: 10
       # -- defines the failure threshold for the readiness probe
-      failureThreshold: 10
-      # -- defines the timeout in secondes for the readiness probe
+      failureThreshold: 3
+      # -- threshold until the probe is considered successful
+      successThreshold: 1
+      # -- defines the timeout in seconds for the readiness probe
       timeoutSeconds: 5
-  monitoring:
-    podMonitor:
-      enabled: false
+    startup:
+      # -- set to true to enable startup probe
+      enabled: true
+      # -- customize the startup probe (uses dnsprobe tool)
+      probe:
+        exec:
+          command:
+            - /usr/local/bin/dnsprobe
+            - cloudflare.com
+            - 127.0.0.1:5053
+      # -- defines the initial delay for the startup probe
+      initialDelaySeconds: 5
+      # -- probe interval in seconds
+      periodSeconds: 5
+      # -- threshold until the container is considered failed (30 * 5s = 150s max startup time)
+      failureThreshold: 30
+      # -- defines the timeout in seconds for the startup probe
+      timeoutSeconds: 5
 # -- DNS MASQ settings
 dnsmasq:
   # -- Load custom user configuration files from /etc/dnsmasq.d
@@ -424,19 +530,19 @@ adlists: {}
   # - https://hosts-file.net/grm.txt
   # - https://reddestdream.github.io/Projects/MinimalHosts/etc/MinimalHostsBlocker/minimalhosts
 
-# -- list of whitelisted domains to import during initial start of the container
-whitelist: {}
-  # If you want to provide whitelisted domains, add them here.
+# -- list of allowed domains to import during initial start of the container
+allowed: {}
+  # If you want to provide allowed domains, add them here.
   # - clients4.google.com
 
-# -- list of blacklisted domains to import during initial start of the container
-blacklist: {}
-  # If you want to have special domains blacklisted, add them here
-  # - *.blackist.com
+# -- list of denied domains to import during initial start of the container
+denied: {}
+  # If you want to have special domains denied, add them here
+  # - *.denied.com
 
-# -- list of blacklisted regex expressions to import during initial start of the container
+# -- list of denied regex expressions to import during initial start of the container
 regex: {}
-  # Add regular expression blacklist items
+  # Add regular expression patterns for denied domains
   # - (^|\.)facebook\.com$
 
 # -- values that should be added to pihole-FTL.conf. You can use either scalars or project cm, secrets or pod fields via valueFrom
@@ -462,12 +568,51 @@ hostname: ""
 hostNetwork: "false"
 
 # -- should container run in privileged mode
+# @deprecated Use containerSecurityContext.privileged instead
 privileged: "false"
 
-# linux capabilities container should run with
+# -- linux capabilities container should run with
+# @deprecated Use containerSecurityContext.capabilities instead
 capabilities: {}
   # add:
   # - NET_ADMIN
+
+# -- Pod-level security context
+# EXPERIMENTAL: These settings are not fully tested with all Pi-hole features!
+# See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+#
+# Pi-hole Docker image limitations:
+# - Requires root at startup for: gravity database, crontab, permissions, setcap
+# - runAsNonRoot, runAsUser, runAsGroup are NOT SUPPORTED
+# - Pi-hole internally drops privileges after initialization
+podSecurityContext: {}
+  # seccompProfile:
+  #   type: RuntimeDefault
+
+# -- Container-level security context
+# EXPERIMENTAL: These settings are not fully tested with all Pi-hole features!
+# See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+#
+# Why detailed capability management provides limited security benefit for Pi-hole:
+# Pi-hole requires 10+ capabilities including privileged ones like NET_ADMIN,
+# NET_RAW, DAC_OVERRIDE, SETUID, SETGID. This exceeds Docker's default capability
+# set (NET_ADMIN and SYS_NICE are not in defaults). Dropping ALL and re-adding
+# these capabilities provides minimal security improvement over defaults.
+#
+# Recommended: Only set privileged: false (prevents full host access)
+# The seccompProfile in podSecurityContext provides additional syscall filtering.
+#
+# NOT SUPPORTED (Pi-hole needs root at startup):
+# - runAsNonRoot: true
+# - runAsUser/runAsGroup: any value
+# - allowPrivilegeEscalation: false (required for setcap)
+# - readOnlyRootFilesystem: true (Pi-hole writes to /etc/pihole, /var/log, etc.)
+containerSecurityContext: {}
+  # privileged: false
+  # capabilities:
+  #   add:
+  #     - NET_ADMIN
+  #     - SYS_NICE
 
 customVolumes:
   # -- set this to true to enable custom volumes
@@ -598,5 +743,49 @@ podDisruptionBudget:
   enabled: false
   # -- minimum number of pods Kubernetes should try to have running at all times
   minAvailable: 1
-  # -- maximum number of pods Kubernetes will allow to be unavailable. Cannot set both `minAvailable` and `maxAvailable`
+  # -- maximum number of pods Kubernetes will allow to be unavailable. Cannot set both `minAvailable` and `maxUnavailable`
   # maxUnavailable: 1
+
+# -- NetworkPolicy configuration
+networkPolicy:
+  # -- Enable NetworkPolicy
+  enabled: false
+  # -- Ingress rules configuration
+  ingress:
+    # -- Allowed sources for ingress traffic
+    from:
+      - namespaceSelector: {}
+      # - podSelector:
+      #     matchLabels:
+      #       app: my-app
+      # - ipBlock:
+      #     cidr: 10.0.0.0/8
+  # -- Egress rules (allow DNS and HTTP/HTTPS for upstream resolution and ad list updates)
+  egress:
+    # Allow DNS resolution to external servers
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow HTTP/HTTPS for downloading ad lists and updates
+    - ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+    # Allow communication within the cluster
+    - to:
+        - namespaceSelector: {}
+
+# -- ServiceAccount configuration
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- Automatically mount a ServiceAccount's API credentials
+  automountServiceAccountToken: false
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""

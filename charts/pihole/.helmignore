@@ -18,7 +18,16 @@
 # Various IDEs
 .project
 .idea/
+.vscode/
 *.tmproj
+
+# Backup and temporary files
+*.orig
+
+# CI/CD files
+.github/
+.gitlab-ci.yml
+.travis.yml
 
 # Manually added entries
 ci/

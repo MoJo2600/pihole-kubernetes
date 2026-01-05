@@ -1,13 +1,13 @@
-{{ if .Values.adlists }}
+{{ if .Values.denied }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "pihole.fullname" . }}-adlists
+  name: {{ template "pihole.fullname" . }}-denied
   labels:
     {{- include "pihole.labels" . | nindent 4 }}
 data:
-  adlists.list: |
-  {{- range .Values.adlists }}
+  blacklist.txt: |
+  {{- range .Values.denied }}
     {{ . }}
   {{- end }}
 {{ end }}
