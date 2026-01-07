@@ -37,6 +37,7 @@ spec:
         checksum.config.whitelist: {{ include (print $.Template.BasePath "/configmap-whitelist.yaml") . | sha256sum | trunc 63 }}
         checksum.config.dnsmasqConfig: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum | trunc 63 }}
         checksum.config.staticDhcpConfig: {{ include (print $.Template.BasePath "/configmap-static-dhcp.yaml") . | sha256sum | trunc 63 }}
+        checksum.config.domains: {{ include (print $.Template.BasePath "/configmap-domains.yaml") . | sha256sum | trunc 63 }}
 {{- with .Values.podAnnotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
@@ -269,6 +270,18 @@ spec:
             failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
           {{- end }}
+          {{- if .Values.domains }}
+          # Using bash for the convenience of source
+          # This is not a very elegant way of checking that the DB is ready and isn't still being initialised
+          # but I couldn't find a more reliable way...         
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - 'bash'
+                  - '-c'
+                  - 'until grep "file renamed while open" /var/log/pihole/FTL.log ; do echo Waiting for pihole >> /var/log/domains.log; sleep 2; done; sleep 20; source /etc/pihole/domains.sh >> /var/log/domains.log 2>&1'  
+          {{ end }}
           volumeMounts:
           - mountPath: /etc/pihole
             name: config
@@ -306,6 +319,11 @@ spec:
             name: whitelist
             subPath: whitelist.txt
           {{- end }}
+          {{- if .Values.domains }}
+          - mountPath: /etc/pihole/domains.sh
+            name: domains
+            subPath: domains.sh
+          {{- end }}
           {{- if .Values.dnsmasq.staticDhcpEntries }}
           - mountPath: /etc/dnsmasq.d/04-pihole-static-dhcp.conf
             name: static-dhcp
@@ -316,7 +334,7 @@ spec:
 {{- toYaml $value | nindent 12 }}
           {{- end }}
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+{{ toYaml .Values.resources | indent 12 }}  
     {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
@@ -379,6 +397,12 @@ spec:
           defaultMode: 420
           name: {{ template "pihole.fullname" . }}-regex
         name: regex
+      {{- end }}
+      {{- if .Values.domains }}
+      - configMap:
+          defaultMode: 420
+          name: {{ template "pihole.fullname" . }}-domains
+        name: domains
       {{- end }}
       {{- range $key, $value := .Values.extraVolumes }}
       - name: {{ $key }}
