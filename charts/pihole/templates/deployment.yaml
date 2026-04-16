@@ -161,7 +161,7 @@ spec:
           env:
           {{- if not (hasKey .Values.extraEnvVars "FTLCONF_webserver_port") }}
           - name: 'FTLCONF_webserver_port'
-            value: "{{ .Values.webHttp }}"
+            value: "{{ .Values.webHttp }}o,[::]:{{ .Values.webHttp }}o,{{ .Values.webHttps }}os,[::]:{{ .Values.webHttps }}os"
           {{- end }}
           - name: VIRTUAL_HOST
             value: {{ .Values.virtualHost }}
