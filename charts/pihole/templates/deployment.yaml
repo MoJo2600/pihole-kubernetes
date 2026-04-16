@@ -161,7 +161,13 @@ spec:
           env:
           {{- if not (hasKey .Values.extraEnvVars "FTLCONF_webserver_port") }}
           - name: 'FTLCONF_webserver_port'
-            value: "{{ .Values.webHttp }}o,[::]:{{ .Values.webHttp }}o,{{ .Values.webHttps }}os,[::]:{{ .Values.webHttps }}os"
+            {{- if and .Values.webHttps .Values.redirectToHttps }}
+            value: "{{ .Values.webHttp }}or,{{ .Values.webHttps }}os,[::]:{{ .Values.webHttp }}or,[::]:{{ .Values.webHttps }}os"
+            {{- else if .Values.webHttps }}
+            value: "{{ .Values.webHttp }}o,{{ .Values.webHttps }}os,[::]:{{ .Values.webHttp }}o,[::]:{{ .Values.webHttps }}os"
+            {{- else }}
+            value: "{{ .Values.webHttp }}o,[::]:{{ .Values.webHttp }}o"
+            {{- end }}
           {{- end }}
           - name: VIRTUAL_HOST
             value: {{ .Values.virtualHost }}
@@ -232,9 +238,11 @@ spec:
           {{- if .Values.dnsHostPort.enabled }}
             hostPort: {{ .Values.dnsHostPort.port }}
           {{- end }}
+          {{- if .Values.webHttps }}
           - containerPort:  {{ .Values.webHttps }}
             name: https
             protocol: TCP
+          {{- end }}
           - containerPort: 67
             name: client-udp
             protocol: UDP
