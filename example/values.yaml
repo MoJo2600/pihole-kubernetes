@@ -234,7 +234,8 @@ persistentVolumeClaim:
   enabled: true
   storageClass: glusterfs-storage
 
-adminPassword: pihole
+admin:
+  password: pihole
 
 serviceTCP:
   loadBalancerIP: 192.168.178.252
@@ -245,4 +246,3 @@ serviceUDP:
   loadBalancerIP: 192.168.178.252
   annotations:
     metallb.universe.tf/allow-shared-ip: pihole-svc
-

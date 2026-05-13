@@ -5,40 +5,102 @@ Pi-hole Helm Chart Deployment
    - Namespace: {{ .Release.Namespace }}
    - Chart Name: {{ .Chart.Name }}
    - Chart Version: {{ .Chart.Version }}
+   - App Version: {{ .Chart.AppVersion }}
 
 2. Pi-hole Service Information:
+
+   Web Interface Service:
    - Service Name: {{ template "pihole.fullname" . }}-web
-   - Service Type: ClusterIP
-   - Service Port: 80/443 TCP
+   - Service Type: {{ .Values.serviceWeb.type }}
+{{- if .Values.serviceWeb.http.enabled }}
+   - HTTP Port: {{ .Values.serviceWeb.http.port }}
+{{- end }}
+{{- if .Values.serviceWeb.https.enabled }}
+   - HTTPS Port: {{ .Values.serviceWeb.https.port }}
+{{- end }}
 
-   - Service Name: {{ template "pihole.fullname" . }}-dns-tcp
-   - Service Type: NodePort
-   - Service Port: 53 TCP
+   DNS Service:
+{{- if .Values.serviceDns.mixedService }}
+   - Service Name: {{ template "pihole.fullname" . }}-dns (mixed TCP/UDP)
+{{- else }}
+   - Service Name: {{ template "pihole.fullname" . }}-dns-tcp (TCP)
+   - Service Name: {{ template "pihole.fullname" . }}-dns-udp (UDP)
+{{- end }}
+   - Service Type: {{ .Values.serviceDns.type }}
+   - Service Port: {{ .Values.serviceDns.port }}
+{{- if .Values.serviceDhcp.enabled }}
 
-   - Service Name: {{ template "pihole.fullname" . }}-dns-udp
-   - Service Type: NodePort
-   - Service Port: 53 UDP
-
+   DHCP Service:
    - Service Name: {{ template "pihole.fullname" . }}-dhcp
-   - Service Type: NodePort
-   - Service Port: 67 UDP
+   - Service Type: {{ .Values.serviceDhcp.type }}
+   - Service Port: {{ .Values.serviceDhcp.port }}
+{{- end }}
 
-3. Accessing Pi-hole:
-   !!! This chart does not create a Loadbalancer for pihole by default. Please
-   create a configuration that is tailored to your setup. Especially the DNS
-   and DHCP services are system services that require a dedicated setup based
-   on your system !!!
+3. Accessing Pi-hole Web Interface:
+{{- if .Values.ingress.enabled }}
 
-   Find more information in the wiki:
-   https://github.com/MoJo2600/pihole-kubernetes/wiki/Pi%E2%80%90hole
+   Via Ingress:
+{{- range .Values.ingress.hosts }}
+   - http{{ if $.Values.ingress.tls }}s{{ end }}://{{ . }}
+{{- end }}
+{{- else if eq .Values.serviceWeb.type "LoadBalancer" }}
 
-4. Useful Commands:
+   Via LoadBalancer:
+{{- if .Values.serviceWeb.loadBalancerIP }}
+   - http://{{ .Values.serviceWeb.loadBalancerIP }}{{ if ne (int .Values.serviceWeb.http.port) 80 }}:{{ .Values.serviceWeb.http.port }}{{ end }}/admin
+{{- else }}
+   Get the LoadBalancer IP:
+     kubectl get svc {{ template "pihole.fullname" . }}-web -n {{ .Release.Namespace }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+{{- end }}
+{{- else if eq .Values.serviceWeb.type "NodePort" }}
+
+   Via NodePort:
+{{- if .Values.serviceWeb.http.nodePort }}
+   - http://<NODE-IP>:{{ .Values.serviceWeb.http.nodePort }}/admin
+{{- else }}
+   Get the NodePort:
+     export NODE_PORT=$(kubectl get svc {{ template "pihole.fullname" . }}-web -n {{ .Release.Namespace }} -o jsonpath='{.spec.ports[?(@.name=="http")].nodePort}')
+     export NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
+     echo "http://${NODE_IP}:${NODE_PORT}/admin"
+{{- end }}
+{{- else }}
+
+   Via Port-Forward (ClusterIP):
+     kubectl port-forward svc/{{ template "pihole.fullname" . }}-web -n {{ .Release.Namespace }} 8080:{{ .Values.serviceWeb.http.port }}
+   Then visit: http://localhost:8080/admin
+{{- end }}
+
+4. Accessing DNS Service:
+{{- if eq .Values.serviceDns.type "LoadBalancer" }}
+{{- if .Values.serviceDns.loadBalancerIP }}
+
+   DNS Server IP: {{ .Values.serviceDns.loadBalancerIP }}
+{{- else }}
+   Get the LoadBalancer IP:
+     kubectl get svc {{ template "pihole.fullname" . }}-dns{{ if not .Values.serviceDns.mixedService }}-tcp{{ end }} -n {{ .Release.Namespace }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+{{- end }}
+{{- else if eq .Values.serviceDns.type "NodePort" }}
+
+   DNS is available via NodePort on port {{ default "auto-assigned" .Values.serviceDns.nodePort }}
+   Configure your clients to use <NODE-IP> as DNS server
+{{- else }}
+
+   DNS is available as ClusterIP service (only accessible within the cluster)
+{{- end }}
+
+5. Useful Commands:
    - Check the Pi-hole Deployment Status:
-     helm status {{ .Release.Name }}
+     helm status {{ .Release.Name }} -n {{ .Release.Namespace }}
 
    - Get Detailed Information about the Pi-hole Deployment:
-     helm get all {{ .Release.Name }}
+     helm get all {{ .Release.Name }} -n {{ .Release.Namespace }}
 
-5. Clean Up:
+   - View Pi-hole Logs:
+     kubectl logs -l app.kubernetes.io/name={{ template "pihole.name" . }},app.kubernetes.io/instance={{ .Release.Name }} -n {{ .Release.Namespace }}
+
+6. Clean Up:
    - To uninstall/delete the Pi-hole deployment, run:
-     helm uninstall {{ .Release.Name }}
+     helm uninstall {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+For more information, visit:
+https://github.com/MoJo2600/pihole-kubernetes

@@ -47,7 +47,8 @@ capabilities:
 hostNetwork: true
 
 # Optional.
-adminPassword: oqij234poij  # UGLY!!! Consider using an existing secret
+admin:
+  password: oqij234poij  # UGLY!!! Consider using an existing secret
 
 # Mandatory. Configures the DHCP server, so you don't have to click around in
 # the web UI.

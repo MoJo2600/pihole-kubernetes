@@ -35,7 +35,8 @@ podDnsConfig:
   - 8.8.8.8
 
 #! use an existing secret in a prod env
-adminPassword: "0n4BQ2l7Dbu3ViYgd4wu"
+admin:
+  password: "0n4BQ2l7Dbu3ViYgd4wu"
 
 resources:
   limits:
