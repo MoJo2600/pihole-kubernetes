@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.36.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.35.0...pihole-2.36.0) (2026-06-12)
+
+
+### Features
+
+* bump pihole version to 2026.04.1 ([#411](https://github.com/MoJo2600/pihole-kubernetes/issues/411)) ([8d9f2dc](https://github.com/MoJo2600/pihole-kubernetes/commit/8d9f2dc72127468cf81ac623f24e0bc53780fdc9))
+* bump pihole version to 2026.05.0 ([#417](https://github.com/MoJo2600/pihole-kubernetes/issues/417)) ([7dbcaf4](https://github.com/MoJo2600/pihole-kubernetes/commit/7dbcaf4d278a39ba30524edde3d64c92d1354d29))
+
+
+### Bug Fixes
+
+* Retrigger release ([#420](https://github.com/MoJo2600/pihole-kubernetes/issues/420)) ([0db6a4c](https://github.com/MoJo2600/pihole-kubernetes/commit/0db6a4c86f1500da2b70288595dc819270502db0))
+
 ## [2.35.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.34.0...pihole-2.35.0) (2025-12-11)
 
 
