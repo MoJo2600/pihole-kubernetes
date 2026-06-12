@@ -1,5 +1,5 @@
-# Default values for pihole.
-# This is a YAML-formatted file.
+# Default values for pihole
+# This is a YAML-formatted file
 # Declare variables to be passed into your templates.
 
 # -- The number of replicas
