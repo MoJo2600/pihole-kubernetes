@@ -38,7 +38,7 @@ jobs:
           echo "$RELEASE_PLEASE_OUTPUT"
 
       - name: 📦 Determine what should be published
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         id: items-to-publish
         env:
           CHANGED_ITEMS: "${{ steps.release-please.outputs.paths_released }}"
