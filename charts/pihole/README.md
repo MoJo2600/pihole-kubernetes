@@ -2,7 +2,7 @@
 
 Installs pihole in kubernetes
 
-![Version: 2.36.0](https://img.shields.io/badge/Version-2.36.0-informational?style=flat-square) ![AppVersion: 2026.05.0](https://img.shields.io/badge/AppVersion-2026.05.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Version: 2.37.0](https://img.shields.io/badge/Version-2.37.0-informational?style=flat-square) ![AppVersion: 2026.06.0](https://img.shields.io/badge/AppVersion-2026.06.0-informational?style=flat-square) <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
