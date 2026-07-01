@@ -5,6 +5,10 @@ on:
     - cron:  '0 4 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   docker:
     name: Check for new pihole version
@@ -29,7 +33,11 @@ jobs:
           echo $LATEST_PIHOLE_DIGEST
           echo $LATEST_PIHOLE_VERSION
           echo "latest_pihole_version=$LATEST_PIHOLE_VERSION" >> "$GITHUB_OUTPUT"
-          [[ "$LATEST_PIHOLE_VERSION" == "$CURRENT_PIHOLE_VERSION" ]] && echo "new_version=false" || echo "new_version=true" >> "$GITHUB_OUTPUT"
+          if [[ "$LATEST_PIHOLE_VERSION" == "$CURRENT_PIHOLE_VERSION" ]]; then
+            echo "new_version=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "new_version=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Debug
         run: |
@@ -46,7 +54,7 @@ jobs:
       
       - name: 📢 Create Pull Request
         id: create-pr
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@98357b18bf14b5342f975ff684046ec3b2a07725 # v8
         with:
           token: ${{ github.token }}
           commit-message: >-

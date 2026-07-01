@@ -27,13 +27,28 @@ spec:
       serviceAccountName: external-dns
       containers:
       - name: external-dns
-        image: registry.k8s.io/external-dns/external-dns:v0.14.0
+        # Pi-hole v6 API support was added in external-dns v0.15.0; the v5 API is
+        # deprecated. Use a recent release and select the v6 API (see args below).
+        image: registry.k8s.io/external-dns/external-dns:v0.21.0
         # If authentication is disabled and/or you didn't create
         # a secret, you can remove this block.
-        envFrom:
-          - secretRef:
-              # Change this if you gave the secret a different name
-              name: pihole-password
+        #
+        # NOTE: external-dns reads the password from the env var
+        # EXTERNAL_DNS_PIHOLE_PASSWORD, but this chart stores it under the secret
+        # key `password`. So map it explicitly with secretKeyRef rather than using
+        # envFrom (which would inject an env var literally named `password`).
+        env:
+          - name: EXTERNAL_DNS_PIHOLE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                # The chart generates the secret as <fullname>-password. When the
+                # release name already contains "pihole" (e.g. `helm install pihole`)
+                # this is simply "pihole-password"; otherwise it is
+                # "<release-name>-pihole-password" (e.g. "my-release-pihole-password").
+                # Change this to match your release name, or set admin.existingSecret
+                # to use your own secret.
+                name: pihole-password
+                key: password
         args:
           - --source=service
           - --source=ingress
@@ -45,6 +60,8 @@ spec:
           # the policy to upsert-only so they do not get deleted.
           - --policy=upsert-only
           - --provider=pihole
+          # Pi-hole v6 uses a new API; this chart deploys v6, so select it explicitly.
+          - --pihole-api-version=6
           # Change this to the actual address of your Pi-hole web server
           - --pihole-server=http://pihole-web.pihole.svc.cluster.local
         resources:
@@ -70,13 +87,13 @@ admin:
     reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "external-dns"
 ```
 
-For Reflector to work we also need to create the mirror (target) secret in ExternalDNS' namespace like this:
+For Reflector to work we also need to create the mirror (target) secret in ExternalDNS' namespace like this. Reflector copies the source secret's data verbatim, so the mirrored secret keeps the `password` key — which is exactly what the `secretKeyRef` in the ExternalDNS deployment above maps to `EXTERNAL_DNS_PIHOLE_PASSWORD`.
 
 ```yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  # Change this to match the secretRef used in the ExternalDNS deployment:
+  # Change this to match the secretKeyRef name used in the ExternalDNS deployment:
   name: pihole-password
   # Change this to ExternalDNS' namespace:
   namespace: external-dns

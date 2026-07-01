@@ -52,10 +52,12 @@ admin:
 
 # Mandatory. Configures the DHCP server, so you don't have to click around in
 # the web UI.
+# NOTE: Pi-hole v6 uses FTLCONF_* settings. The legacy v5 variables
+# (DHCP_ACTIVE, DHCP_START, FTLCONF_LOCAL_IPV4, INTERFACE, ...) are no longer used.
+# See https://docs.pi-hole.net/docker/DHCP/ and https://docs.pi-hole.net/api/config/
 extraEnvVars:
-  DHCP_ACTIVE: true
-  DHCP_START: 192.168.1.64  # Choose a reasonable start.
-  DHCP_END: 192.168.1.254  # Choose a reasonable end.
-  DHCP_ROUTER: 192.168.1.1  # Make sure this matches your gateway
-  FTLCONF_LOCAL_IPV4: 192.168.1.10  # Set to the LAN IP address of your Pi-hole host
-  INTERFACE: enp0s31f6  # Make sure this matches your hosts network interface
+  FTLCONF_dhcp_active: "true"
+  FTLCONF_dhcp_start: 192.168.1.64  # Choose a reasonable start.
+  FTLCONF_dhcp_end: 192.168.1.254  # Choose a reasonable end.
+  FTLCONF_dhcp_router: 192.168.1.1  # Make sure this matches your gateway
+  FTLCONF_dns_interface: enp0s31f6  # Make sure this matches your hosts network interface

@@ -1,0 +1,20 @@
+# kube-linter configuration for the pihole chart.
+# Docs: https://docs.kubelinter.io/
+#
+# kube-linter runs its default set of checks. The exclusions below turn off the
+# checks that conflict with how the upstream pihole/pihole container is designed
+# to run. Everything else (latest-tag, privilege-escalation, dangling-service,
+# etc.) stays active.
+checks:
+  exclude:
+    # Pi-hole writes to its root filesystem at runtime (gravity DB, logs,
+    # dnsmasq/FTL config), so a read-only root filesystem is not viable.
+    - "no-read-only-root-fs"
+    # The upstream pihole/pihole image expects to start as root to manage its
+    # services and bind privileged ports. Hardening is available via the
+    # securityContext values, but it is experimental and off by default.
+    - "run-as-non-root"
+    # Resource requests/limits are intentionally left for the operator to set
+    # per environment; the chart exposes them via `resources` in values.yaml.
+    - "unset-cpu-requirements"
+    - "unset-memory-requirements"

@@ -13,11 +13,62 @@ Installs pihole in kubernetes
 * <https://github.com/pi-hole>
 * <https://github.com/pi-hole/docker-pi-hole>
 
+## Introduction
+
+[Pi-hole®](https://pi-hole.net/) is a network-wide ad blocker that acts as a DNS sinkhole. This chart deploys Pi-hole (v6) on Kubernetes as a `Deployment`, with separate services for the web interface, DNS (TCP/UDP) and optional DHCP, plus optional encrypted upstream DNS, persistence, Prometheus monitoring and network policies.
+
+> **Note:** Pi-hole v6 is configured through `FTLCONF_*` environment variables, which you pass via [`extraEnvVars`](#values). See the [Pi-hole v6 configuration docs](https://docs.pi-hole.net/docker/configuration/) for the full list of settings.
+
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Configuration](#configuration)
+  - [Exposing Pi-hole](#exposing-pi-hole)
+    - [Making DNS reachable on port 53](#making-dns-reachable-on-port-53-start-here)
+  - [Example values.yaml](#example-valuesyaml)
+  - [Admin password](#admin-password)
+  - [Upstream DNS resolvers](#upstream-dns-resolvers)
+  - [Encrypted upstream DNS (DoH / DoT / DNSCrypt)](#encrypted-upstream-dns-doh--dot--dnscrypt)
+  - [Persistence](#persistence)
+  - [NetworkPolicy](#networkpolicy)
+  - [ServiceAccount](#serviceaccount)
+  - [Security context (experimental)](#security-context-experimental)
+  - [Health probes](#health-probes)
+- [Upgrading](#upgrading)
+- [Uninstallation](#uninstallation)
+- [Values](#values)
+
+## Prerequisites
+
+- Kubernetes 1.19+ (the Ingress template uses `networking.k8s.io/v1`)
+- Helm 3+
+- A default `StorageClass` if you enable persistence (`persistentVolumeClaim.enabled`)
+- A `LoadBalancer` provider such as [MetalLB](https://metallb.universe.tf/) if you want to expose DNS/web on a routable IP
+
+## Quick Start
+
+```shell
+helm repo add mojo2600 https://mojo2600.github.io/pihole-kubernetes/
+helm repo update
+
+helm install pihole mojo2600/pihole \
+  --namespace pihole --create-namespace \
+  --set admin.password=change-me
+```
+
+Open the web interface via port-forward:
+
+```shell
+kubectl port-forward svc/pihole-web -n pihole 8080:80
+# then visit http://localhost:8080/admin
+```
+
+Point a client's DNS at the Pi-hole DNS service and you're blocking ads. For a real deployment, expose DNS with a `LoadBalancer` and enable [persistence](#persistence).
+
 ## Installation
-
-Jeff Geerling on YouTube made a video about the installation of this chart:
-
-[![Jeff Geerling on YouTube](https://img.youtube.com/vi/IafVCHkJbtI/0.jpg)](https://youtu.be/IafVCHkJbtI?t=2655)
 
 ### Add Helm repository
 
@@ -26,21 +77,79 @@ helm repo add mojo2600 https://mojo2600.github.io/pihole-kubernetes/
 helm repo update
 ```
 
-### Configure the chart
+### Install the chart
 
-The following items can be set via `--set` flag during installation or configured by editing the `values.yaml` directly.
+Install with your own values file:
 
-#### Configure the way how to expose pihole service:
+```shell
+helm install pihole mojo2600/pihole \
+  --namespace pihole --create-namespace \
+  --values my-values.yaml
+```
 
-- **Ingress**: The ingress controller must be installed in the Kubernetes cluster.
-- **ClusterIP**: Exposes the service on a cluster-internal IP. Choosing this value makes the service only reachable from within the cluster.
-- **LoadBalancer**: Exposes the service externally using a cloud provider's load balancer.
+Jeff Geerling also made a video walking through the installation of this chart:
 
-### Deprecation Notice: `loadBalancerIP`
+[![Jeff Geerling on YouTube](https://img.youtube.com/vi/IafVCHkJbtI/0.jpg)](https://youtu.be/IafVCHkJbtI?t=2655)
 
-The `spec.loadBalancerIP` field is **deprecated** since Kubernetes 1.24 and may be removed in a future Kubernetes version. While the `loadBalancerIP` values still work in this chart, we recommend migrating to your cloud provider's annotation-based approach.
+### Access the web interface
 
-**For MetalLB users**, use the annotation instead:
+By default the web service is a `ClusterIP`. Reach it with a port-forward:
+
+```shell
+kubectl port-forward svc/pihole-web -n pihole 8080:80
+# then visit http://localhost:8080/admin
+```
+
+If you did not set `admin.password`, a random password is generated. Retrieve it from the secret:
+
+```shell
+kubectl get secret pihole-password -n pihole -o jsonpath='{.data.password}' | base64 -d; echo
+```
+
+## Configuration
+
+Every option can be set with `--set key=value` at install time or, preferably, in a `values.yaml` file passed with `--values`. See the [Values](#values) table for the full list of parameters and their defaults.
+
+### Exposing Pi-hole
+
+Choose how the DNS and web services are exposed:
+
+- **ClusterIP** — reachable only inside the cluster (default for the web service). Use with an Ingress or a port-forward.
+- **LoadBalancer** — exposes the service on an external IP via your cloud provider or MetalLB.
+- **Ingress** — set `ingress.enabled: true` to route the web interface through an ingress controller (which must already be installed).
+
+#### Making DNS reachable on port 53 (start here)
+
+This is the most common stumbling block for new users. This chart installs Pi-hole, but it **cannot know how your cluster is networked** — so it can't automatically make DNS reachable to your clients. You have to pick an exposure strategy that fits your environment.
+
+Why it needs special attention:
+
+- Clients send DNS queries to **UDP/TCP port 53**, a privileged, fixed port. Your router, phones and laptops cannot be told to use "port 31514" — they expect DNS on `53`.
+- The default `serviceDns.type` is **`NodePort`**, which publishes DNS on a *random high port* (30000–32767), **not** on `53`. That is fine for testing from inside the cluster, but clients on your LAN can't use it as their DNS server.
+- Port 53 on the nodes is often **already taken** by the host OS resolver (e.g. `systemd-resolved` listening on `127.0.0.53:53`, or `dnsmasq`). Binding Pi-hole directly to the host's port 53 will clash with it.
+
+Common strategies, from most to least recommended:
+
+- **LoadBalancer (recommended).** Give the DNS service its own IP with port 53. On bare metal / home labs use [MetalLB](https://metallb.universe.tf/); on a cloud provider use its native load balancer. Point your clients (or your router's DHCP DNS setting) at that IP:
+
+  ```yaml
+  serviceDns:
+    type: LoadBalancer
+    annotations:
+      metallb.universe.tf/loadBalancerIPs: 192.168.178.252
+  ```
+
+- **hostNetwork / host port.** Bind DNS directly onto a node's IP on port 53 (`hostNetwork: true`, or `dnsHostPort.enabled: true`). Simple, but the node **must not** already run a resolver on port 53 — otherwise disable `systemd-resolved` (or free up port 53) on that node first.
+
+- **NodePort with a fixed port.** Works, but NodePorts must fall in the `30000–32767` range by default, so you cannot serve `53` directly unless you widen `--service-node-port-range` on the API server. Usually not worth it.
+
+If DNS "isn't working" after install, it's almost always because the DNS service is a `NodePort` (the default) rather than exposed on a routable IP on port 53.
+
+#### `loadBalancerIP` is deprecated
+
+The `spec.loadBalancerIP` field is **deprecated** since Kubernetes 1.24 and may be removed in a future version. It still works in this chart, but prefer your provider's annotation-based approach.
+
+**MetalLB:**
 
 ```yaml
 serviceDns:
@@ -54,15 +163,16 @@ serviceWeb:
     metallb.universe.tf/loadBalancerIPs: 192.168.178.252
 ```
 
-**For cloud providers**, consult your provider's documentation for the appropriate annotation (e.g., `service.beta.kubernetes.io/aws-load-balancer-eip-allocations` for AWS).
+**Cloud providers:** consult your provider's documentation for the appropriate annotation (e.g. `service.beta.kubernetes.io/aws-load-balancer-eip-allocations` for AWS).
 
-## My settings in values.yaml
+### Example values.yaml
 
-```console
+A typical home setup exposing web and DNS on a shared MetalLB IP with persistence enabled:
+
+```yaml
 dnsmasq:
   customDnsEntries:
     - address=/nas/192.168.178.10
- 
   customCnameEntries:
     - cname=foo.nas,nas
 
@@ -70,26 +180,37 @@ persistentVolumeClaim:
   enabled: true
 
 serviceWeb:
-  loadBalancerIP: 192.168.178.252
-  annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
   type: LoadBalancer
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 192.168.178.252
+    metallb.universe.tf/allow-shared-ip: pihole-svc
 
 serviceDns:
-  loadBalancerIP: 192.168.178.252
-  annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
   type: LoadBalancer
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 192.168.178.252
+    metallb.universe.tf/allow-shared-ip: pihole-svc
 ```
 
-## Configuring Upstream DNS Resolvers
+### Admin password
 
-By default, `pihole-kubernetes` will configure pod DNS automatically to use Google's `8.8.8.8` nameserver for upstream
-DNS resolution. You can configure this, or opt-out of pod DNS configuration completely.
+Set the web interface password with `admin.password`, or reference an existing secret:
 
-### Changing The Upstream DNS Resolver
+```yaml
+admin:
+  enabled: true
+  # inline password (stored in a generated secret)
+  password: change-me
+  # or reference your own secret instead:
+  existingSecret: ""
+  passwordKey: password
+```
 
-For example, to use Cloudflare's resolver:
+If `admin.password` is empty and no `existingSecret` is set, a random password is generated into the `<release>-password` secret (retrieve it as shown in [Access the web interface](#access-the-web-interface)). Set `admin.enabled: false` to disable password authentication entirely.
+
+### Upstream DNS resolvers
+
+By default the chart configures pod DNS to use Google's `8.8.8.8` for upstream resolution. Change it via `podDnsConfig`, for example to use Cloudflare:
 
 ```yaml
 podDnsConfig:
@@ -100,84 +221,107 @@ podDnsConfig:
   - 1.1.1.1
 ```
 
-### Disabling Pod DNS Configuration
-
-If you have other DNS policy at play (for example, when running a service mesh), you may not want to have
-`pihole-kubernetes` control this behavior. In that case, you can disable DNS configuration on `pihole` pods:
+To opt out of pod DNS configuration entirely (e.g. when running a service mesh):
 
 ```yaml
 podDnsConfig:
   enabled: false
 ```
 
+### Encrypted upstream DNS (DoH / DoT / DNSCrypt)
+
+Set `doh.enabled: true` to run a `dnscrypt-proxy` sidecar that Pi-hole uses as its upstream resolver (this replaces the previously used `cloudflared`). Customize the resolver via `doh.config` (raw dnscrypt-proxy TOML):
+
+```yaml
+doh:
+  enabled: true
+  config: |
+    listen_addresses = ['0.0.0.0:5053']
+    server_names = ['cloudflare', 'google']
+```
+
+To expose Prometheus metrics, enable `[monitoring_ui]` in `doh.config` and set:
+
+```yaml
+doh:
+  metrics:
+    enabled: true
+    port: 8080
+```
+
+### Persistence
+
+Pi-hole stores its configuration, gravity (block lists) and query database under `/etc/pihole`. Enable a `PersistentVolumeClaim` so this survives pod restarts:
+
+```yaml
+persistentVolumeClaim:
+  enabled: true
+  size: 500Mi
+```
+
+Without persistence, block lists and settings are re-created from your Helm values on every restart.
+
+### NetworkPolicy
+
+Set `networkPolicy.enabled: true` to restrict pod traffic. The default ingress allows web, DNS and DHCP (plus DoH when enabled); the default egress permits DNS resolution and HTTP/HTTPS for ad-list updates. Customize via `networkPolicy.ingress` and `networkPolicy.egress`.
+
+### ServiceAccount
+
+A dedicated ServiceAccount is created by default (`serviceAccount.create: true`) with `automountServiceAccountToken: false`. To use an existing one, set `serviceAccount.create: false` and `serviceAccount.name`.
+
+### Security context (experimental)
+
+`podSecurityContext` and `containerSecurityContext` are available. Pi-hole requires root at startup, so `runAsNonRoot: true`, `allowPrivilegeEscalation: false` and `readOnlyRootFilesystem: true` are **not** supported. The legacy `privileged` and `capabilities` values still work.
+
+### Health probes
+
+The chart configures `startupProbe`, `livenessProbe` and `readinessProbe`. The default probe commands use `curl`, `jq` and `dig` to verify actual DNS resolution, so custom images must include these binaries.
+
 ## Upgrading
 
-### To 2.0.0
+### To 3.0.0
 
-This version splits the DHCP service into its own resource and puts the configuration to `serviceDhcp`.
+This is a major release with several breaking changes. **You must fully uninstall and reinstall**, because the Kubernetes selector labels changed and pod selectors are immutable.
 
-**If you have not changed any configuration for `serviceDns`, you don’t need to do anything.**
+Breaking changes:
+- **Selector labels** changed from `app`/`release` to `app.kubernetes.io/name` / `app.kubernetes.io/instance`. An in-place `helm upgrade` will fail with an immutable-field error.
+- **`adminPassword`** moved to **`admin.password`**.
+- **`whitelist`** renamed to **`allowed`**, and **`blacklist`** renamed to **`denied`**.
+- **DNS-over-HTTPS** now uses `dnscrypt-proxy` instead of `cloudflared`. Review the new `doh.*` values (notably `doh.config`).
 
-If you have changed your `serviceDns` configuration, **copy** your `serviceDns` section into a new `serviceDhcp` section.
+A helper script, [`scripts/migrate-values.py`](../../scripts/migrate-values.py), automates the key renames above and warns about the DoH changes. It requires Python 3 and PyYAML (`pip install pyyaml`). Comments are not preserved, so review its output before use.
 
-### To 1.8.22
+Migration:
 
-To enhance compatibility for Traefik, we split the TCP and UDP service into Web and DNS. This means, if you have a dedicated configuration for the service, you have to
-update your `values.yaml` and add a new configuration for this new service.
+```bash
+# 1. Backup your Pi-hole config (if using persistent storage)
+kubectl cp <namespace>/<pihole-pod>:/etc/pihole ./pihole-backup
 
-Before (In my case, with metallb):
-```
-serviceTCP:
-  loadBalancerIP: 192.168.178.252
-  annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
+# 2. Backup your Helm values
+helm get values <release-name> -n <namespace> > pihole-values-backup.yaml
 
-serviceUDP:
-  loadBalancerIP: 192.168.178.252
-  annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
-```
+# 3. Convert the backed-up values to the new format (renames adminPassword,
+#    whitelist and blacklist; warns about the DoH/dnscrypt-proxy changes)
+python3 scripts/migrate-values.py pihole-values-backup.yaml -o pihole-values-new.yaml
 
-After:
-```
-serviceWeb:
-  loadBalancerIP: 192.168.178.252
-  annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
+# 4. Uninstall the existing release
+helm uninstall <release-name> -n <namespace>
 
-serviceDns:
-  loadBalancerIP: 192.168.178.252
-  annotations:
-    metallb.universe.tf/allow-shared-ip: pihole-svc
-```
-
-Version 1.8.22 has switched from the deprecated ingress api `extensions/v1beta1` to the go forward version `networking.k8s.io/v1`. This means that your cluster must be running 1.19.x as this api is not available on older versions. If necessary to run on an older Kubernetes Version, it can be done by modifying the ingress.yaml and changing the api definition back. The backend definition would also change from:
-
-```
-            backend:
-              service:
-                name: \{\{ $serviceName \}\}
-                port:
-                  name: http
-```
-to:
-```
-            backend:
-              serviceName: \{\{ $serviceName \}\}
-              servicePort: http
+# 5. Reinstall
+helm install <release-name> mojo2600/pihole -n <namespace> -f pihole-values-new.yaml
 ```
 
 ## Uninstallation
 
-To uninstall/delete the `my-release` deployment (NOTE: `--purge` is default behaviour in Helm 3+ and will error):
+To uninstall/delete the `pihole` release:
 
 ```bash
-helm delete --purge my-release
+helm uninstall pihole -n pihole
 ```
 
-## Configuration
+## Values
 
-The following table lists the configurable parameters of the pihole chart and the default values.
+The following table lists the configurable parameters of the pihole chart and their default values.
 
 ## Values
 
@@ -187,7 +331,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | DNS2 | string | `"8.8.4.4"` | default upstream DNS 2 server to use |
 | adlists | object | `{}` | list of adlists to import during initial start of the container |
 | admin | object | `{"annotations":null,"enabled":true,"existingSecret":"","password":"admin","passwordKey":"password"}` | Use an existing secret for the admin password. |
-| admin.annotations | string | `nil` | Specify [annotations](docs/Values.md#admin.annotations) to be added to the secret |
+| admin.annotations | string | `nil` | Specify [annotations](docs/Values.md#adminannotations) to be added to the secret |
 | admin.enabled | bool | `true` | If set to false admin password will be disabled, password specified below and the pre-existing secret (if specified) will be ignored. |
 | admin.existingSecret | string | `""` | Specify an existing secret to use as admin password |
 | admin.password | string | `"admin"` | Administrator password when not using an existing secret (see below) |
@@ -232,21 +376,21 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.probes.liveness.failureThreshold | int | `3` | defines the failure threshold for the liveness probe |
 | doh.probes.liveness.initialDelaySeconds | int | `0` | defines the initial delay for the liveness probe (can be 0 when startup probe is enabled) |
 | doh.probes.liveness.periodSeconds | int | `10` | probe interval in seconds |
-| doh.probes.liveness.probe | object | `{}` | customize the liveness probe (leave empty for default using doh.port) |
+| doh.probes.liveness.probe | object | `{}` | customize the liveness probe (leave empty for default using doh.port) Default command: /usr/local/bin/dnsprobe cloudflare.com "127.0.0.1:${doh.port}" |
 | doh.probes.liveness.successThreshold | int | `1` | threshold until the probe is considered successful |
 | doh.probes.liveness.timeoutSeconds | int | `5` | defines the timeout in seconds for the liveness probe |
 | doh.probes.readiness.enabled | bool | `true` | set to true to enable readiness probe |
 | doh.probes.readiness.failureThreshold | int | `3` | defines the failure threshold for the readiness probe |
 | doh.probes.readiness.initialDelaySeconds | int | `0` | defines the initial delay for the readiness probe (can be 0 when startup probe is enabled) |
 | doh.probes.readiness.periodSeconds | int | `10` | probe interval in seconds |
-| doh.probes.readiness.probe | object | `{}` | customize the readiness probe (leave empty for default using doh.port) |
+| doh.probes.readiness.probe | object | `{}` | customize the readiness probe (leave empty for default using doh.port) Default command: /usr/local/bin/dnsprobe cloudflare.com "127.0.0.1:${doh.port}" |
 | doh.probes.readiness.successThreshold | int | `1` | threshold until the probe is considered successful |
 | doh.probes.readiness.timeoutSeconds | int | `5` | defines the timeout in seconds for the readiness probe |
 | doh.probes.startup.enabled | bool | `true` | set to true to enable startup probe |
 | doh.probes.startup.failureThreshold | int | `30` | threshold until the container is considered failed (30 * 5s = 150s max startup time) |
 | doh.probes.startup.initialDelaySeconds | int | `5` | defines the initial delay for the startup probe |
 | doh.probes.startup.periodSeconds | int | `5` | probe interval in seconds |
-| doh.probes.startup.probe | object | `{}` | customize the startup probe (leave empty for default using doh.port) |
+| doh.probes.startup.probe | object | `{}` | customize the startup probe (leave empty for default using doh.port) Default command: /usr/local/bin/dnsprobe cloudflare.com "127.0.0.1:${doh.port}" |
 | doh.probes.startup.timeoutSeconds | int | `5` | defines the timeout in seconds for the startup probe |
 | doh.pullPolicy | string | `"IfNotPresent"` | Pull policy |
 | doh.repository | string | `"ghcr.io/klutchell/dnscrypt-proxy"` | repository (using GHCR) |
@@ -296,21 +440,21 @@ The following table lists the configurable parameters of the pihole chart and th
 | podSecurityContext | object | `{}` | Pod-level security context EXPERIMENTAL: These settings are not fully tested with all Pi-hole features! See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/  Pi-hole Docker image limitations: - Requires root at startup for: gravity database, crontab, permissions, setcap - runAsNonRoot, runAsUser, runAsGroup are NOT SUPPORTED - Pi-hole internally drops privileges after initialization |
 | privileged | string | `"false"` | should container run in privileged mode @deprecated Use containerSecurityContext.privileged instead |
 | probes | object | `{"liveness":{"command":[],"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":5,"type":"command"},"readiness":{"command":[],"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":5,"type":"command"},"startup":{"command":[],"enabled":true,"failureThreshold":30,"initialDelaySeconds":5,"periodSeconds":5,"timeoutSeconds":5,"type":"command"}}` | Probes configuration |
-| probes.liveness.command | list | `[]` | Custom command for the liveness probe (leave empty for default using webHttp/dnsPort) |
+| probes.liveness.command | list | `[]` | Custom command for the liveness probe (leave empty for default using webHttp/dnsPort) Default command: /bin/sh -c "curl --silent http://localhost:${webHttp}/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1 -p ${dnsPort}" |
 | probes.liveness.failureThreshold | int | `3` | threshold until the probe is considered failing |
 | probes.liveness.initialDelaySeconds | int | `0` | wait time before trying the liveness probe (can be 0 when startup probe is enabled) |
 | probes.liveness.periodSeconds | int | `10` | probe interval in seconds |
 | probes.liveness.successThreshold | int | `1` | threshold until the probe is considered successful |
 | probes.liveness.timeoutSeconds | int | `5` | timeout in seconds |
 | probes.liveness.type | string | `"command"` | Generate a liveness probe 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type liveness probe. |
-| probes.readiness.command | list | `[]` | Custom command for the readiness probe (leave empty for default using webHttp/dnsPort) |
+| probes.readiness.command | list | `[]` | Custom command for the readiness probe (leave empty for default using webHttp/dnsPort) Default command: /bin/sh -c "curl --silent http://localhost:${webHttp}/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1 -p ${dnsPort}" |
 | probes.readiness.failureThreshold | int | `3` | threshold until the probe is considered failing |
 | probes.readiness.initialDelaySeconds | int | `0` | wait time before trying the readiness probe (can be 0 when startup probe is enabled) |
 | probes.readiness.periodSeconds | int | `10` | probe interval in seconds |
 | probes.readiness.successThreshold | int | `1` | threshold until the probe is considered successful |
 | probes.readiness.timeoutSeconds | int | `5` | timeout in seconds |
 | probes.readiness.type | string | `"command"` | Generate a readiness probe 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type readiness probe. |
-| probes.startup.command | list | `[]` | Custom command for the startup probe (leave empty for default using webHttp/dnsPort) |
+| probes.startup.command | list | `[]` | Custom command for the startup probe (leave empty for default using webHttp/dnsPort) Default command: /bin/sh -c "curl --silent http://localhost:${webHttp}/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1 -p ${dnsPort}" |
 | probes.startup.failureThreshold | int | `30` | threshold until the container is considered failed (30 * 5s = 150s max startup time) |
 | probes.startup.initialDelaySeconds | int | `5` | wait time before trying the startup probe |
 | probes.startup.periodSeconds | int | `5` | probe interval in seconds |
@@ -375,16 +519,6 @@ The following table lists the configurable parameters of the pihole chart and th
 | Name | Email | Url |
 | ---- | ------ | --- |
 | MoJo2600 | <christian.erhardt@mojo2k.de> |  |
-
-## Remarks
-
-### MetalLB 0.8.1+
-
-pihole seems to work without issue in MetalLB 0.8.1+
-
-### MetalLB 0.7.3
-
-MetalLB 0.7.3 has a bug, where the service is not announced anymore, when the pod changes (e.g. update of a deployment). My workaround is to restart the `metallb-speaker-*` pods.
 
 ## Credits
 
