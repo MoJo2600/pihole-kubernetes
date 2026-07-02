@@ -21,11 +21,11 @@ jobs:
 
     steps:
       - name: ✨ Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v5
         name: 🙌 Prepare release
         id: release-please
         with:
@@ -38,7 +38,7 @@ jobs:
           echo "$RELEASE_PLEASE_OUTPUT"
 
       - name: 📦 Determine what should be published
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         id: items-to-publish
         env:
           CHANGED_ITEMS: "${{ steps.release-please.outputs.paths_released }}"
@@ -88,7 +88,7 @@ jobs:
           echo ${{ matrix.path }}
 
       - name: ✨ Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 

@@ -13,7 +13,7 @@ jobs:
     steps:
 
       - name: ✨ Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -46,7 +46,7 @@ jobs:
       
       - name: 📢 Create Pull Request
         id: create-pr
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ github.token }}
           commit-message: >-
