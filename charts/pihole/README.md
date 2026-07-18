@@ -212,6 +212,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.pullPolicy | string | `"IfNotPresent"` | Pull policy |
 | doh.repository | string | `"crazymax/cloudflared"` | repository |
 | doh.tag | string | `"latest"` |  |
+| domains | object | `{"alwaysNuke":false,"deny":[],"denyRegex":[],"denyWildcard":[],"permit":[],"permitRegex":[],"permitWildcard":[]}` | An alternate method of configuration using pihole cmd script rather than reading legacy files at startup This will allow for permit wildcards which can't be done with the old config manner |
 | dualStack.enabled | bool | `false` | set this to true to enable creation of DualStack services or creation of separate IPv6 services if `serviceDns.type` is set to `"LoadBalancer"` |
 | extraContainers | list | `[]` |  |
 | extraEnvVars | object | `{"FTLCONF_dns_listeningMode":"all"}` | extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use. You can use either scalars or project cm, secrets or pod fields via valueFrom |
