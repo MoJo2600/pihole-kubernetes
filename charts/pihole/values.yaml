@@ -170,6 +170,39 @@ ingress:
   #    hosts:
   #     #- virtualHost (default value is pi.hole) will be appended to the hosts
   #      - chart-example.local
+  
+# -- Configuration for the HTTPRoute
+route:
+  # -- Generate a Gateway API route resource
+  enabled: false
+
+  # -- Set the route apiVersion
+  apiVersion: gateway.networking.k8s.io/v1
+  # -- Set the route kind
+  kind: HTTPRoute
+
+  # -- Annotations for the route
+  annotations: {}
+  # -- Labels for the route
+  labels: {}
+
+  # -- List of hostnames of the route
+  hostnames: []
+  # - chart-example.local
+
+  # -- parentsRefs definition of the route
+  parentRefs: []
+  
+  matches:
+    - path:
+        type: PathPrefix
+        value: /
+
+  # -- Timeouts define the timeouts that can be configured for an HTTP request.
+  timeouts: {}
+
+  # -- Filters that are applied to requests that match this rule
+  filters: []
 
 # -- Probes configuration
 probes:
