@@ -452,8 +452,11 @@ ftl: {}
 # -- port the container should use to expose HTTP traffic
 webHttp: "80"
 
-# -- port the container should use to expose HTTPS traffic
+# -- port the container should use to expose HTTPS traffic. When empty Pi-hole does not listen on HTTPS
 webHttps: "443"
+
+# -- set Pi-hole to redirect traffic sent to the HTTP port to HTTPS
+redirectToHttps: false
 
 # -- hostname of pod
 hostname: ""
