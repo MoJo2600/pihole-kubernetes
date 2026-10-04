@@ -326,7 +326,8 @@ doh:
   name: "cloudflared"
   # -- repository
   repository: "crazymax/cloudflared"
-  tag: latest
+  # -- cloudflared docker tag is hardcoded because cloudflared proxy-dns command will be removed in future versions
+  tag: 2025.9.1
   # -- Pull policy
   pullPolicy: IfNotPresent
   # -- Here you can pass environment variables to the DoH container, for example:
