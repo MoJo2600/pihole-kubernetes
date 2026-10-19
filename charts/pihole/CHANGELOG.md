@@ -1,5 +1,40 @@
 # Changelog
 
+## [2.38.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.37.0...pihole-2.38.0) (2026-07-09)
+
+
+### Features
+
+* bump pihole version to 2026.07.1 ([#430](https://github.com/MoJo2600/pihole-kubernetes/issues/430)) ([7d09bc6](https://github.com/MoJo2600/pihole-kubernetes/commit/7d09bc6973fd18b21e02c701d7ea842027e8d915))
+* bump pihole version to 2026.07.2 ([#432](https://github.com/MoJo2600/pihole-kubernetes/issues/432)) ([3de2d8b](https://github.com/MoJo2600/pihole-kubernetes/commit/3de2d8bc07e37afb3d688de01d0ccabf0cfc2fb4))
+
+## [2.37.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.36.0...pihole-2.37.0) (2026-07-01)
+
+
+### Features
+
+* bump pihole version to 2026.06.0 ([#423](https://github.com/MoJo2600/pihole-kubernetes/issues/423)) ([0d54a54](https://github.com/MoJo2600/pihole-kubernetes/commit/0d54a54e67f6f229bd2c8bd541cc6fc03fefe045))
+
+## [2.36.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.35.0...pihole-2.36.0) (2026-06-12)
+
+
+### Features
+
+* bump pihole version to 2026.04.1 ([#411](https://github.com/MoJo2600/pihole-kubernetes/issues/411)) ([8d9f2dc](https://github.com/MoJo2600/pihole-kubernetes/commit/8d9f2dc72127468cf81ac623f24e0bc53780fdc9))
+* bump pihole version to 2026.05.0 ([#417](https://github.com/MoJo2600/pihole-kubernetes/issues/417)) ([7dbcaf4](https://github.com/MoJo2600/pihole-kubernetes/commit/7dbcaf4d278a39ba30524edde3d64c92d1354d29))
+
+
+### Bug Fixes
+
+* Retrigger release ([#420](https://github.com/MoJo2600/pihole-kubernetes/issues/420)) ([0db6a4c](https://github.com/MoJo2600/pihole-kubernetes/commit/0db6a4c86f1500da2b70288595dc819270502db0))
+
+## [2.35.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.34.0...pihole-2.35.0) (2025-12-11)
+
+
+### Features
+
+* bump pihole version to 2025.11.1 ([#396](https://github.com/MoJo2600/pihole-kubernetes/issues/396)) ([1d9c294](https://github.com/MoJo2600/pihole-kubernetes/commit/1d9c29410fb6bac45500a2b5d27a26eb7010fcb0))
+
 ## [2.34.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.33.0...pihole-2.34.0) (2025-08-14)
 
 
