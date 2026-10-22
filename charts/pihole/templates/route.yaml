@@ -1,0 +1,46 @@
+{{- if .Values.route.enabled -}}
+{{- $serviceName := printf "%s-%s" (include "pihole.fullname" .) "web" -}}
+{{- $ingressPath := .Values.route.path -}}
+{{- $pathType := .Values.route.pathType -}}
+apiVersion: {{ .Values.route.apiVersion | default "gateway.networking.k8s.io/v1" }}
+kind: {{ .Values.route.kind | default "HTTPRoute" }}
+metadata:
+  name: {{ template "pihole.fullname" . }}
+  labels:
+    app: {{ template "pihole.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  {{- with .Values.route.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.route.parentRefs }}
+  parentRefs:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.route.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    - backendRefs:
+      - name: {{ $serviceName }}
+        port: 80
+        group: ''
+        kind: Service
+        weight: 1
+      {{- with .Values.route.filters }}
+      filters:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.route.matches }}
+      matches:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.route.timeouts }}
+      timeouts:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
