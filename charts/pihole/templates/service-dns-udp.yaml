@@ -4,11 +4,7 @@ kind: Service
 metadata:
   name: {{ template "pihole.fullname" . }}-dns-udp
   labels:
-    app: {{ template "pihole.name" . }}
-    app.kubernetes.io/name: {{ template "pihole.name" . }}
-    chart: {{ template "pihole.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pihole.labels" . | nindent 4 }}
 {{- if .Values.serviceDns.extraLabels }}
 {{ toYaml .Values.serviceDns.extraLabels | indent 4  }}
 {{- end }}
@@ -42,8 +38,7 @@ spec:
       protocol: UDP
       name: dns-udp
   selector:
-    app: {{ template "pihole.name" . }}
-    release: {{ .Release.Name }}
+    {{- include "pihole.selectorLabels" . | nindent 4 }}
 ---
 {{- if and (.Values.dualStack.enabled) (eq .Values.serviceDns.type "LoadBalancer") -}}
 apiVersion: v1
@@ -51,11 +46,7 @@ kind: Service
 metadata:
   name: {{ template "pihole.fullname" . }}-dns-udp-ipv6
   labels:
-    app: {{ template "pihole.name" . }}
-    app.kubernetes.io/name: {{ template "pihole.name" . }}
-    chart: {{ template "pihole.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pihole.labels" . | nindent 4 }}
 {{- if .Values.serviceDns.annotations }}
   annotations:
 {{ toYaml .Values.serviceDns.annotations | indent 4 }}
@@ -80,7 +71,6 @@ spec:
       protocol: UDP
       name: dns-udp
   selector:
-    app: {{ template "pihole.name" . }}
-    release: {{ .Release.Name }}
+    {{- include "pihole.selectorLabels" . | nindent 4 }}
 {{- end }}
 {{- end }}

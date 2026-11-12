@@ -4,10 +4,7 @@ kind: PodDisruptionBudget
 metadata:
   name: {{ template "pihole.fullname" . }}-pdb
   labels:
-    app: {{ template "pihole.name" . }}
-    chart: {{ template "pihole.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pihole.labels" . | nindent 4 }}
 spec:
 {{- if .Values.podDisruptionBudget.minAvailable }}
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
@@ -17,5 +14,5 @@ spec:
 {{- end }}
   selector:
     matchLabels:
-      app: {{ template "pihole.name" . }}
+      {{- include "pihole.selectorLabels" . | nindent 6 }}
 {{- end }}

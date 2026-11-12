@@ -2,15 +2,16 @@
 {{- $serviceName := printf "%s-%s" (include "pihole.fullname" .) "web" -}}
 {{- $ingressPath := .Values.ingress.path -}}
 {{- $pathType := .Values.ingress.pathType -}}
+{{- $hosts := .Values.ingress.hosts | default list -}}
+{{- if .Values.virtualHost -}}
+{{- $hosts = append $hosts .Values.virtualHost | uniq -}}
+{{- end -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ template "pihole.fullname" . }}
   labels:
-    app: {{ template "pihole.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pihole.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -24,7 +25,7 @@ spec:
 {{ toYaml .Values.ingress.tls | indent 4 }}
 {{- end }}
   rules:
-  {{- range .Values.ingress.hosts }}
+  {{- range $hosts }}
     - host: {{ . | quote }}
       http:
         paths:
@@ -33,7 +34,7 @@ spec:
             backend:
               service:
                 name: {{ $serviceName }}
-                port: 
+                port:
                   name: http
   {{- end }}
 {{- end }}

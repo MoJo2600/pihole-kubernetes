@@ -3,8 +3,11 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > Additional maintainers wanted! I need help maintaining this chart. Please see [the discussion here](https://github.com/MoJo2600/pihole-kubernetes/discussions/393)
+
+> [!WARNING]
+> **v3 Proposal Repository**: This Repository contains an unfinished rewrite with breaking changes intended as a proposal for v3. Do not use in production. For the stable version, please use the https://github.com/MoJo2600/pihole-kubernetes. For an overview of the changes, take a look at the [CHANGELOG.md](CHANGELOG.md).
 
 [Helm](https://helm.sh) repo for different charts which can be installed on [Kubernetes](https://kubernetes.io)
 
@@ -27,6 +30,28 @@ helm repo update
   helm install your-release mojo2600/pihole
   ```
 
+
+## Troubleshooting
+
+### pihole-FTL: no process found (with hostNetwork: true)
+
+When deploying Pi-hole with `hostNetwork: true`, the container may crash with the error `pihole-FTL: no process found`.
+
+**Cause:** A port required by FTL (e.g., UDP port 53, 67, or others) is already in use on the host, preventing the FTL process from binding.
+
+**Solutions:**
+
+1. **DHCP Helper Approach** (recommended for DHCP):
+   - Deploy Pi-hole WITHOUT `hostNetwork: true`
+   - Use a separate [dhcphelper](https://github.com/homeall/dhcphelper) pod with host networking
+   - The helper receives DHCP broadcasts and forwards them as unicast to Pi-hole
+   - See the complete example: [charts/pihole/examples/dhcphelper/](charts/pihole/examples/dhcphelper/)
+
+2. **LoadBalancer with MetalLB**:
+   - Use MetalLB to expose services without host networking
+   - Note: This does NOT work for DHCP (Layer 2 broadcast limitation)
+
+**Why DHCP requires special handling:** DHCP operates at OSI Layer 2 using broadcast messages. Standard Kubernetes networking and LoadBalancers work at Layer 3 (IP) and cannot forward these broadcasts. Either the Pi-hole pod needs direct access to the host network, or a relay/helper must bridge the gap.
 
 ## Contributors ✨
 
