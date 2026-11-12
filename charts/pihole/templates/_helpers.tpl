@@ -79,7 +79,13 @@ never an upstream resolver, so an internet outage does not restart Pi-hole.
 dig exits 0 even on SERVFAIL, therefore a non-empty answer is required.
 Every step has its own timeout (max ~4s) so the probe never outlives timeoutSeconds:
 a hanging exec probe stalls the kubelet and the container would never be restarted.
+With redirectToHttps the HTTP port only answers with redirects, so the API is called via
+HTTPS (-k: Pi-hole's own certificate is self-signed, and this is the pod talking to itself).
 */}}
 {{- define "pihole.probeCommand" -}}
-curl -sf --max-time 2 http://localhost:{{ .Values.webHttp }}/api/info/login | jq -e '.dns == true' >/dev/null && [ -n "$(dig +short +norecurse +retry=0 +time=2 -p {{ .Values.dnsPort }} @127.0.0.1 pi.hole)" ]
+{{- if and .Values.webHttps .Values.redirectToHttps -}}
+curl -skf --max-time 2 https://localhost:{{ .Values.webHttps }}/api/info/login
+{{- else -}}
+curl -sf --max-time 2 http://localhost:{{ .Values.webHttp }}/api/info/login
+{{- end }} | jq -e '.dns == true' >/dev/null && [ -n "$(dig +short +norecurse +retry=0 +time=2 -p {{ .Values.dnsPort }} @127.0.0.1 pi.hole)" ]
 {{- end }}

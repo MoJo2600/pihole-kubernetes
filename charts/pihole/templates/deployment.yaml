@@ -87,6 +87,9 @@ spec:
         {{- toYaml .Values.extraContainers | nindent 8 }}
         {{- end }}
         {{- if .Values.monitoring.sidecar.enabled }}
+        {{- if and .Values.webHttps .Values.redirectToHttps }}
+        {{- fail "monitoring.sidecar.enabled cannot be combined with redirectToHttps: Pi-hole then only answers via HTTPS with its self-signed certificate, which pihole-exporter rejects." }}
+        {{- end }}
         - name: exporter
           image: "{{ .Values.monitoring.sidecar.image.repository }}:{{ .Values.monitoring.sidecar.image.tag }}"
           imagePullPolicy: {{ .Values.monitoring.sidecar.image.pullPolicy }}
