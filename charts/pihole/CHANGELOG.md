@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0-rc.1](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.39.0...pihole-3.0.0-rc.1) (2026-11-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* selector labels changed, so existing releases must be uninstalled and reinstalled. adminPassword moved to admin.password, whitelist/blacklist were renamed to allowed/denied, cloudflared was replaced by dnscrypt-proxy (doh.* values), virtualHost now sets webserver.domain, and a PodMonitor for DoH metrics now also requires monitoring.podMonitor.enabled.
+
+### Features
+
+* Major refactor with standardized labels, admin config restructure, doh replacement and security features ([#406](https://github.com/MoJo2600/pihole-kubernetes/issues/406)) ([9ea6158](https://github.com/MoJo2600/pihole-kubernetes/commit/9ea615860cf92e06b6552d6d5f8f31ee68958a3e))
+
 ## [2.39.0](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.38.0...pihole-2.39.0) (2026-11-12)
 
 
