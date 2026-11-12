@@ -139,7 +139,7 @@ spec:
               protocol: TCP
             {{- if .Values.doh.metrics.enabled }}
             - containerPort: {{ .Values.doh.metrics.port }}
-              name: dnscrypt-metrics
+              name: dnscrypt-met
               protocol: TCP
             {{- end }}
           {{- if .Values.doh.envVars }}

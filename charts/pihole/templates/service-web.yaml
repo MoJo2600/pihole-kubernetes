@@ -50,9 +50,9 @@ spec:
     {{- end }}
     {{- if and .Values.doh.enabled .Values.doh.metrics.enabled }}
     - port: {{ .Values.doh.metrics.port }}
-      targetPort: dnscrypt-metrics
+      targetPort: dnscrypt-met
       protocol: TCP
-      name: dnscrypt-metrics
+      name: dnscrypt-met
     {{- end }}
   selector:
     {{- include "pihole.selectorLabels" . | nindent 4 }}
@@ -97,9 +97,9 @@ spec:
     {{- end }}
     {{- if and .Values.doh.enabled .Values.doh.metrics.enabled }}
     - port: {{ .Values.doh.metrics.port }}
-      targetPort: dnscrypt-metrics
+      targetPort: dnscrypt-met
       protocol: TCP
-      name: dnscrypt-metrics
+      name: dnscrypt-met
     {{- end }}
   selector:
     {{- include "pihole.selectorLabels" . | nindent 4 }}

@@ -11,6 +11,44 @@ Any type of contribution is welcome; from new features, bug fixes, [tests](#test
 3. Ensure your Chart changes follow the [technical](#technical-requirements) and [documentation](#documentation-requirements) guidelines, described below.
 4. Submit a pull request.
 
+## Development Tooling
+
+The following tools are used to develop, lint, and test this chart. Everything the
+CI pipeline runs can be reproduced locally with them.
+
+| Tool | Purpose | Install |
+| ---- | ------- | ------- |
+| [Helm](https://helm.sh/docs/intro/install/) 3+ | Render, lint, and install the chart | `brew install helm` / [docs](https://helm.sh/docs/intro/install/) |
+| [Docker](https://docs.docker.com/get-docker/) | Runs `helm-docs` (README generation) and backs `kind` | [docs](https://docs.docker.com/get-docker/) |
+| [helm-docs](https://github.com/norwoodj/helm-docs) | Generates `README.md` from `values.yaml` (run via Docker, no local install needed) | used through `make generate-documentation` |
+| [kube-linter](https://docs.kubelinter.io/#/?id=installing-kubelinter) | Static analysis of the rendered manifests | `go install golang.stackrox.io/kube-linter/cmd/kube-linter@latest` / [releases](https://github.com/stackrox/kube-linter/releases) |
+| [kubeconform](https://github.com/yannh/kubeconform#installation) | Validates rendered manifests against Kubernetes (and CRD) schemas | [releases](https://github.com/yannh/kubeconform/releases) |
+| [chart-testing (`ct`)](https://github.com/helm/chart-testing#installation) | Lint + install exactly as CI does | `brew install chart-testing` / [docs](https://github.com/helm/chart-testing#installation) |
+| [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) + [kubectl](https://kubernetes.io/docs/tasks/tools/) | Spin up a throwaway cluster to install and smoke-test the chart | [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) / [kubectl](https://kubernetes.io/docs/tasks/tools/) |
+| [Python](https://www.python.org/downloads/) 3.8+ with [PyYAML](https://pypi.org/project/PyYAML/) | Runs `scripts/migrate-values.py` (2.x → 3.x values migration) | `pip install pyyaml` |
+
+### Common commands
+
+Run these from the `charts/pihole` directory (see the `Makefile`):
+
+```bash
+make help                     # list available make targets
+make generate-documentation   # regenerate README.md from values.yaml (helm-docs)
+make lint-manifests           # run kube-linter against the rendered manifests
+
+# Validate manifests against Kubernetes schemas (as CI does):
+helm template pihole . | kubeconform -strict -summary -schema-location default \
+  -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+
+# Lint and install on a local kind cluster (as CI does):
+ct lint --charts charts/pihole
+ct install --charts charts/pihole
+```
+
+> **Note:** `make lint-manifests` uses [`charts/pihole/.kube-linter.yaml`](charts/pihole/.kube-linter.yaml),
+> which disables the checks that conflict with how the upstream Pi-hole container
+> runs (writable root filesystem, running as root, operator-defined resources).
+
 ### Reporting a Bug in Helm
 
 This repository is used by Chart developers for maintaining the inofficial pihole helm chart. If your issue is in the Helm tool itself, please use the issue tracker in the [helm/helm](https://github.com/helm/helm) repository.

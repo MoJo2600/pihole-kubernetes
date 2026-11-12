@@ -16,6 +16,6 @@ spec:
       - -c
       - |
         echo "Testing DNS resolution via Pi-hole..."
-        nslookup cloudflare.com {{ include "pihole.fullname" . }}-dns
+        nslookup cloudflare.com {{ include "pihole.fullname" . }}-dns{{- if not .Values.serviceDns.mixedService }}-udp{{- end }}
   restartPolicy: Never
   terminationGracePeriodSeconds: 0
