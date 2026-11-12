@@ -158,11 +158,10 @@ spec:
             {{- if .Values.doh.probes.liveness.probe }}
 {{ toYaml .Values.doh.probes.liveness.probe | indent 12 }}
             {{- else }}
-            exec:
-              command:
-                - /usr/local/bin/dnsprobe
-                - cloudflare.com
-                - "127.0.0.1:{{ .Values.doh.port }}"
+            # Only checks that dnscrypt-proxy is listening: resolving a name always needs
+            # the upstream, and restarting the sidecar does not fix an internet outage.
+            tcpSocket:
+              port: dnscrypt-tcp
             {{- end }}
             failureThreshold: {{ .Values.doh.probes.liveness.failureThreshold }}
             periodSeconds: {{ .Values.doh.probes.liveness.periodSeconds }}
@@ -209,8 +208,10 @@ spec:
           - name: 'FTLCONF_webserver_port'
             value: "{{ .Values.webHttp }}"
           {{- end }}
-          - name: VIRTUAL_HOST
-            value: {{ .Values.virtualHost }}
+          {{- if and .Values.virtualHost (not (hasKey .Values.extraEnvVars "FTLCONF_webserver_domain")) (not (hasKey .Values.ftl "webserver_domain")) }}
+          - name: 'FTLCONF_webserver_domain'
+            value: {{ .Values.virtualHost | quote }}
+          {{- end }}
           - name: FTLCONF_misc_etc_dnsmasq_d
             value: {{ ne .Values.dnsmasq.enableCustomDnsMasq false | quote }}
           - name: FTLCONF_webserver_api_password
@@ -299,7 +300,7 @@ spec:
               command:
                 - /bin/sh
                 - -c
-                - "curl --silent http://localhost:{{ .Values.webHttp }}/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1 -p {{ .Values.dnsPort }}"
+                - {{ include "pihole.probeCommand" . | quote }}
               {{- end }}
             {{- else }}
             httpGet:
@@ -322,7 +323,7 @@ spec:
               command:
                 - /bin/sh
                 - -c
-                - "curl --silent http://localhost:{{ .Values.webHttp }}/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1 -p {{ .Values.dnsPort }}"
+                - {{ include "pihole.probeCommand" . | quote }}
               {{- end }}
             {{- else }}
             httpGet:
@@ -345,7 +346,7 @@ spec:
               command:
                 - /bin/sh
                 - -c
-                - "curl --silent http://localhost:{{ .Values.webHttp }}/api/info/login | jq 'if (.dns | not) then halt_error(1) end' && dig cloudflare.com @127.0.0.1 -p {{ .Values.dnsPort }}"
+                - {{ include "pihole.probeCommand" . | quote }}
               {{- end }}
             {{- else }}
             httpGet:
