@@ -29,6 +29,17 @@ This release brings significant improvements to the Pi-hole Helm chart, includin
   - `whitelist: [...]` → `allowed: [...]`
   - `blacklist: [...]` → `denied: [...]`
 
+### Web domain and probes follow Pi-hole v6
+- **`virtualHost` now sets Pi-hole's web domain** (`FTLCONF_webserver_domain`) and is added to the ingress hosts. The old `VIRTUAL_HOST` variable was a Pi-hole v5 setting that v6 ignores. Since Pi-hole FTL v6.8, `/` on any other host name returns 404 (only `/admin/` still works), so set `virtualHost` to the host name you use for the web interface. Set it to `""` to opt out.
+- **Health probes no longer depend on upstream DNS.** The default probes check Pi-hole itself (API plus a local `pi.hole` lookup) instead of resolving `cloudflare.com`, so an internet outage no longer restarts Pi-hole. Each step has its own timeout, so a hung Pi-hole is now reliably restarted. The dnscrypt-proxy sidecar's liveness probe is a TCP check.
+- **`doh.metrics.enabled` no longer creates a PodMonitor by itself.** It only exposes the dnscrypt-proxy metrics port. A PodMonitor (which needs the Prometheus Operator CRDs) is created only with `monitoring.podMonitor.enabled: true`, and then also scrapes dnscrypt-proxy. Previously, enabling DoH metrics on a cluster without the Prometheus Operator made the install fail.
+
+### Pi-hole image changes to be aware of
+- Since FTL v6.8, files that are symlinks in `/etc/pihole` and `/var/log/pihole` are no longer handed over to the `pihole` user. Mount ConfigMaps/Secrets there with `subPath` (as the chart does).
+- FTL v6.9 changed `webserver.acl`: IPv4 entries now match IPv4 clients everywhere, and IPv6 entries such as `[::]/0` no longer admit IPv4 clients.
+- FTL v6.9 changed regex filters: `{,n}` now means `{0,n}`.
+- `adlists`, `allowed`, `denied` and `regex` are only imported when the gravity database is first created. With a persistent volume, later changes to these values have no effect.
+
 ## Features
 
 - add commonLabels option to apply labels to all deployed objects ([#347](https://github.com/MoJo2600/pihole-kubernetes/issues/347))
@@ -37,7 +48,7 @@ This release brings significant improvements to the Pi-hole Helm chart, includin
 - **Added startup probes** for both Pi-hole and DoH containers
 - Startup probes allow containers sufficient time to initialize before liveness/readiness probes begin
 - Reduced `initialDelaySeconds` to 0 (startup probe handles the delay)
-- Added DNS resolution check (`dig`) to probe commands for more accurate health detection
+- Probe commands check the Pi-hole API and a local `pi.hole` lookup with `dig`, without depending on upstream DNS
 - Leads to faster pod startups (estimated around 80% or higher)
 
 **Why this matters:**
