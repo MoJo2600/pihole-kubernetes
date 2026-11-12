@@ -19,9 +19,11 @@ spec:
         # Web interface HTTP
         - protocol: TCP
           port: {{ .Values.webHttp }}
+        {{- if .Values.webHttps }}
         # Web interface HTTPS
         - protocol: TCP
           port: {{ .Values.webHttps }}
+        {{- end }}
         # DNS UDP
         - protocol: UDP
           port: {{ .Values.serviceDns.port }}

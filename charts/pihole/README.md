@@ -290,6 +290,7 @@ Breaking changes:
 - **DNS-over-HTTPS** now uses `dnscrypt-proxy` instead of `cloudflared`. Review the new `doh.*` values (notably `doh.config`).
 - **`virtualHost` now sets Pi-hole's web domain** (`FTLCONF_webserver_domain`) and is added to the ingress hosts. The old `VIRTUAL_HOST` variable was a Pi-hole v5 setting that v6 ignores. Since Pi-hole FTL v6.8, `/` on any other host name returns 404 (only `/admin/` still works), so set `virtualHost` to the host name you use for the web interface. Set it to `""` to opt out.
 - **Health probes no longer depend on upstream DNS.** The default probes check Pi-hole itself (API plus a local `pi.hole` lookup) instead of resolving `cloudflare.com`, so an internet outage no longer restarts Pi-hole. Each step has its own timeout, so a hung Pi-hole is now reliably restarted. The dnscrypt-proxy sidecar's liveness probe is a TCP check.
+- **Pi-hole now also serves the web interface via HTTPS** on `webHttps` (default 443, with Pi-hole's self-signed certificate) and listens on IPv6 as well. Previously the chart limited Pi-hole to plain HTTP. Set `webHttps: ""` to turn HTTPS off, or `redirectToHttps: true` to redirect HTTP to HTTPS (not compatible with `monitoring.sidecar`).
 - **`doh.metrics.enabled` no longer creates a PodMonitor by itself.** It only exposes the dnscrypt-proxy metrics port. A PodMonitor (which needs the Prometheus Operator CRDs) is created only with `monitoring.podMonitor.enabled: true`, and then also scrapes dnscrypt-proxy. Previously, enabling DoH metrics on a cluster without the Prometheus Operator made the install fail.
 
 Pi-hole image changes since the 2.x charts (container 2026.11.0, FTL v6.9) that may affect you:
@@ -449,26 +450,27 @@ The following table lists the configurable parameters of the pihole chart and th
 | podSecurityContext | object | `{}` | Pod-level security context EXPERIMENTAL: These settings are not fully tested with all Pi-hole features! See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/  Pi-hole Docker image limitations: - Requires root at startup for: gravity database, crontab, permissions, setcap - runAsNonRoot, runAsUser, runAsGroup are NOT SUPPORTED - Pi-hole internally drops privileges after initialization |
 | privileged | string | `"false"` | should container run in privileged mode @deprecated Use containerSecurityContext.privileged instead |
 | probes | object | `{"liveness":{"command":[],"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":5,"type":"command"},"readiness":{"command":[],"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":5,"type":"command"},"startup":{"command":[],"enabled":true,"failureThreshold":30,"initialDelaySeconds":5,"periodSeconds":5,"timeoutSeconds":5,"type":"command"}}` | Probes configuration |
-| probes.liveness.command | list | `[]` | Custom command for the liveness probe (leave empty for default using webHttp/dnsPort) Default command (checks only Pi-hole itself, not the upstream DNS servers): /bin/sh -c "curl -sf --max-time 2 http://localhost:${webHttp}/api/info/login | jq -e '.dns == true' >/dev/null && [ -n \"$(dig +short +norecurse +retry=0 +time=2 -p ${dnsPort} @127.0.0.1 pi.hole)\" ]" |
+| probes.liveness.command | list | `[]` | Custom command for the liveness probe (leave empty for default using webHttp/dnsPort) Default command (checks only Pi-hole itself, not the upstream DNS servers; with redirectToHttps the API is called via https://localhost:${webHttps} with -k): /bin/sh -c "curl -sf --max-time 2 http://localhost:${webHttp}/api/info/login | jq -e '.dns == true' >/dev/null && [ -n \"$(dig +short +norecurse +retry=0 +time=2 -p ${dnsPort} @127.0.0.1 pi.hole)\" ]" |
 | probes.liveness.failureThreshold | int | `3` | threshold until the probe is considered failing |
 | probes.liveness.initialDelaySeconds | int | `0` | wait time before trying the liveness probe (can be 0 when startup probe is enabled) |
 | probes.liveness.periodSeconds | int | `10` | probe interval in seconds |
 | probes.liveness.successThreshold | int | `1` | threshold until the probe is considered successful |
 | probes.liveness.timeoutSeconds | int | `5` | timeout in seconds |
 | probes.liveness.type | string | `"command"` | Generate a liveness probe 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type liveness probe. |
-| probes.readiness.command | list | `[]` | Custom command for the readiness probe (leave empty for default using webHttp/dnsPort) Default command (checks only Pi-hole itself, not the upstream DNS servers): /bin/sh -c "curl -sf --max-time 2 http://localhost:${webHttp}/api/info/login | jq -e '.dns == true' >/dev/null && [ -n \"$(dig +short +norecurse +retry=0 +time=2 -p ${dnsPort} @127.0.0.1 pi.hole)\" ]" |
+| probes.readiness.command | list | `[]` | Custom command for the readiness probe (leave empty for default using webHttp/dnsPort) Default command (checks only Pi-hole itself, not the upstream DNS servers; with redirectToHttps the API is called via https://localhost:${webHttps} with -k): /bin/sh -c "curl -sf --max-time 2 http://localhost:${webHttp}/api/info/login | jq -e '.dns == true' >/dev/null && [ -n \"$(dig +short +norecurse +retry=0 +time=2 -p ${dnsPort} @127.0.0.1 pi.hole)\" ]" |
 | probes.readiness.failureThreshold | int | `3` | threshold until the probe is considered failing |
 | probes.readiness.initialDelaySeconds | int | `0` | wait time before trying the readiness probe (can be 0 when startup probe is enabled) |
 | probes.readiness.periodSeconds | int | `10` | probe interval in seconds |
 | probes.readiness.successThreshold | int | `1` | threshold until the probe is considered successful |
 | probes.readiness.timeoutSeconds | int | `5` | timeout in seconds |
 | probes.readiness.type | string | `"command"` | Generate a readiness probe 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type readiness probe. |
-| probes.startup.command | list | `[]` | Custom command for the startup probe (leave empty for default using webHttp/dnsPort) Default command (checks only Pi-hole itself, not the upstream DNS servers): /bin/sh -c "curl -sf --max-time 2 http://localhost:${webHttp}/api/info/login | jq -e '.dns == true' >/dev/null && [ -n \"$(dig +short +norecurse +retry=0 +time=2 -p ${dnsPort} @127.0.0.1 pi.hole)\" ]" |
+| probes.startup.command | list | `[]` | Custom command for the startup probe (leave empty for default using webHttp/dnsPort) Default command (checks only Pi-hole itself, not the upstream DNS servers; with redirectToHttps the API is called via https://localhost:${webHttps} with -k): /bin/sh -c "curl -sf --max-time 2 http://localhost:${webHttp}/api/info/login | jq -e '.dns == true' >/dev/null && [ -n \"$(dig +short +norecurse +retry=0 +time=2 -p ${dnsPort} @127.0.0.1 pi.hole)\" ]" |
 | probes.startup.failureThreshold | int | `30` | threshold until the container is considered failed (30 * 5s = 150s max startup time) |
 | probes.startup.initialDelaySeconds | int | `5` | wait time before trying the startup probe |
 | probes.startup.periodSeconds | int | `5` | probe interval in seconds |
 | probes.startup.timeoutSeconds | int | `5` | timeout in seconds |
 | probes.startup.type | string | `"command"` | Generate a startup probe 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type startup probe. The startup probe runs before liveness/readiness probes begin. Once it succeeds, liveness and readiness probes take over. |
+| redirectToHttps | bool | `false` | set Pi-hole to redirect traffic sent to the HTTP port to HTTPS. Requires webHttps. The default probes then use HTTPS. Not compatible with monitoring.sidecar (pihole-exporter rejects Pi-hole's self-signed certificate). |
 | regex | object | `{}` | list of denied regex expressions to import when the gravity database is first created (see `adlists`) |
 | replicaCount | int | `1` | The number of replicas |
 | resources | object | `{}` | lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
@@ -521,7 +523,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | topologySpreadConstraints | list | `[]` | Specify a priorityClassName priorityClassName: "" Reference: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/ |
 | virtualHost | string | `"pi.hole"` | Domain of the web interface. Sets Pi-hole's `webserver.domain` (FTLCONF_webserver_domain) and is added to `ingress.hosts`. Since FTL v6.8, `/` on any other host name returns 404 unless `webserver.serve_all` is enabled. Set to "" to leave both untouched. |
 | webHttp | string | `"80"` | port the container should use to expose HTTP traffic |
-| webHttps | string | `"443"` | port the container should use to expose HTTPS traffic |
+| webHttps | string | `"443"` | port the container should use to expose HTTPS traffic. When empty Pi-hole does not listen on HTTPS |
 
 ## Maintainers
 

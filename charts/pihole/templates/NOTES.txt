@@ -15,7 +15,7 @@ Pi-hole Helm Chart Deployment
 {{- if .Values.serviceWeb.http.enabled }}
    - HTTP Port: {{ .Values.serviceWeb.http.port }}
 {{- end }}
-{{- if .Values.serviceWeb.https.enabled }}
+{{- if and .Values.serviceWeb.https.enabled .Values.webHttps }}
    - HTTPS Port: {{ .Values.serviceWeb.https.port }}
 {{- end }}
 

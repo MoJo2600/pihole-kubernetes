@@ -87,6 +87,9 @@ spec:
         {{- toYaml .Values.extraContainers | nindent 8 }}
         {{- end }}
         {{- if .Values.monitoring.sidecar.enabled }}
+        {{- if and .Values.webHttps .Values.redirectToHttps }}
+        {{- fail "monitoring.sidecar.enabled cannot be combined with redirectToHttps: Pi-hole then only answers via HTTPS with its self-signed certificate, which pihole-exporter rejects." }}
+        {{- end }}
         - name: exporter
           image: "{{ .Values.monitoring.sidecar.image.repository }}:{{ .Values.monitoring.sidecar.image.tag }}"
           imagePullPolicy: {{ .Values.monitoring.sidecar.image.pullPolicy }}
@@ -206,7 +209,13 @@ spec:
           env:
           {{- if not (hasKey .Values.extraEnvVars "FTLCONF_webserver_port") }}
           - name: 'FTLCONF_webserver_port'
-            value: "{{ .Values.webHttp }}"
+            {{- if and .Values.webHttps .Values.redirectToHttps }}
+            value: "{{ .Values.webHttp }}or,{{ .Values.webHttps }}os,[::]:{{ .Values.webHttp }}or,[::]:{{ .Values.webHttps }}os"
+            {{- else if .Values.webHttps }}
+            value: "{{ .Values.webHttp }}o,{{ .Values.webHttps }}os,[::]:{{ .Values.webHttp }}o,[::]:{{ .Values.webHttps }}os"
+            {{- else }}
+            value: "{{ .Values.webHttp }}o,[::]:{{ .Values.webHttp }}o"
+            {{- end }}
           {{- end }}
           {{- if and .Values.virtualHost (not (hasKey .Values.extraEnvVars "FTLCONF_webserver_domain")) (not (hasKey .Values.ftl "webserver_domain")) }}
           - name: 'FTLCONF_webserver_domain'
@@ -284,9 +293,11 @@ spec:
           {{- if .Values.dnsHostPort.enabled }}
             hostPort: {{ .Values.dnsHostPort.port }}
           {{- end }}
+          {{- if .Values.webHttps }}
           - containerPort:  {{ .Values.webHttps }}
             name: https
             protocol: TCP
+          {{- end }}
           - containerPort: {{ .Values.dhcpPort }}
             name: client-udp
             protocol: UDP

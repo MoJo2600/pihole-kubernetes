@@ -185,7 +185,7 @@ probes:
     # 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type liveness probe.
     type: command
     # -- Custom command for the liveness probe (leave empty for default using webHttp/dnsPort)
-    # Default command (checks only Pi-hole itself, not the upstream DNS servers):
+    # Default command (checks only Pi-hole itself, not the upstream DNS servers; with redirectToHttps the API is called via https://localhost:${webHttps} with -k):
     # /bin/sh -c "curl -sf --max-time 2 http://localhost:${webHttp}/api/info/login | jq -e '.dns == true' >/dev/null && [ -n \"$(dig +short +norecurse +retry=0 +time=2 -p ${dnsPort} @127.0.0.1 pi.hole)\" ]"
     command: []
     enabled: true
@@ -206,7 +206,7 @@ probes:
     # 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type readiness probe.
     type: command
     # -- Custom command for the readiness probe (leave empty for default using webHttp/dnsPort)
-    # Default command (checks only Pi-hole itself, not the upstream DNS servers):
+    # Default command (checks only Pi-hole itself, not the upstream DNS servers; with redirectToHttps the API is called via https://localhost:${webHttps} with -k):
     # /bin/sh -c "curl -sf --max-time 2 http://localhost:${webHttp}/api/info/login | jq -e '.dns == true' >/dev/null && [ -n \"$(dig +short +norecurse +retry=0 +time=2 -p ${dnsPort} @127.0.0.1 pi.hole)\" ]"
     command: []
     enabled: true
@@ -229,7 +229,7 @@ probes:
     # Once it succeeds, liveness and readiness probes take over.
     type: command
     # -- Custom command for the startup probe (leave empty for default using webHttp/dnsPort)
-    # Default command (checks only Pi-hole itself, not the upstream DNS servers):
+    # Default command (checks only Pi-hole itself, not the upstream DNS servers; with redirectToHttps the API is called via https://localhost:${webHttps} with -k):
     # /bin/sh -c "curl -sf --max-time 2 http://localhost:${webHttp}/api/info/login | jq -e '.dns == true' >/dev/null && [ -n \"$(dig +short +norecurse +retry=0 +time=2 -p ${dnsPort} @127.0.0.1 pi.hole)\" ]"
     command: []
     enabled: true
@@ -558,8 +558,12 @@ ftl: {}
 # -- port the container should use to expose HTTP traffic
 webHttp: "80"
 
-# -- port the container should use to expose HTTPS traffic
+# -- port the container should use to expose HTTPS traffic. When empty Pi-hole does not listen on HTTPS
 webHttps: "443"
+
+# -- set Pi-hole to redirect traffic sent to the HTTP port to HTTPS. Requires webHttps.
+# The default probes then use HTTPS. Not compatible with monitoring.sidecar (pihole-exporter rejects Pi-hole's self-signed certificate).
+redirectToHttps: false
 
 # -- port the container should use to expose DNS traffic
 dnsPort: "53"
