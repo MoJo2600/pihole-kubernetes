@@ -43,6 +43,7 @@ Kubernetes: `>=1.26.0-0`
   - [Security context (experimental)](#security-context-experimental)
   - [Health probes](#health-probes)
   - [Upgrades without downtime](#upgrades-without-downtime)
+  - [High availability](#high-availability)
 - [Troubleshooting](#troubleshooting)
   - [Pi-hole does not start with hostNetwork](#pi-hole-does-not-start-with-hostnetwork)
   - [DHCP](#dhcp)
@@ -353,7 +354,35 @@ maxUnavailable: 0
 maxSurge: 1
 ```
 
-Keep the default when a second pod cannot start while the first one runs: with `persistentVolumeClaim.enabled` (a `ReadWriteOnce` volume cannot be mounted on another node, and two Pi-holes must not share one `gravity.db`), with `dnsHostPort.enabled`, or with `hostNetwork`. The rollout would then wait forever. For real high availability run two independent releases and give clients both DNS servers.
+Keep the default when a second pod cannot start while the first one runs: with `persistentVolumeClaim.enabled` (a `ReadWriteOnce` volume cannot be mounted on another node, and two Pi-holes must not share one `gravity.db`), with `dnsHostPort.enabled`, or with `hostNetwork`. The rollout would then wait forever. For real high availability, see the next section.
+
+### High availability
+
+`replicaCount` greater than 1 does not give you HA: every pod has its own `gravity.db`, and the web interface breaks when the Service sends you to another pod (login loop). Pi-hole can't share its database, so run two independent releases instead and keep them in sync:
+
+1. **Two releases on different nodes.** Each gets its own PVC and its own DNS LoadBalancer IP. Install the same values twice (e.g. `helm install pihole ...` and `helm install pihole-2 ...` in one namespace) with a pod anti-affinity on the label both releases share:
+
+   ```yaml
+   serviceDns:
+     type: LoadBalancer
+     annotations:
+       metallb.io/loadBalancerIPs: 192.168.1.53   # a different IP per release
+   affinity:
+     podAntiAffinity:
+       requiredDuringSchedulingIgnoredDuringExecution:
+         - labelSelector:
+             matchLabels:
+               app.kubernetes.io/name: pihole
+           topologyKey: kubernetes.io/hostname
+   ```
+
+   Keep `serviceDhcp` / Pi-hole's DHCP server on one release only.
+
+2. **Sync with [nebula-sync](https://github.com/lovelaze/nebula-sync).** It copies lists, groups, clients and settings from a primary to the replicas through the Pi-hole v6 API, using the in-cluster web Services (`http://pihole-web.<namespace>.svc|<password>` as `PRIMARY`, `http://pihole-2-web.<namespace>.svc|<password>` as `REPLICAS`). Run it as a small Deployment and pass the passwords from a Secret. Make changes only on the primary; the sync is one-way. With `FULL_SYNC: "false"` you can exclude settings that must differ, e.g. `SYNC_CONFIG_DHCP_EXCLUDE: active` so the replica never starts a second DHCP server.
+
+3. **Give clients both DNS IPs** (router or DHCP settings, e.g. `dhcp-option=6,<ip1>,<ip2>`). DNS clients fail over on their own, no shared virtual IP needed.
+
+Settings from values (`ftl`, `extraEnvVars`, `dnsmasq.*`) are not synced: Pi-hole locks `FTLCONF_*` settings against changes through the API, so set them in both releases' values. A full example is in [discussion #182](https://github.com/MoJo2600/pihole-kubernetes/discussions/182).
 
 ## Troubleshooting
 
