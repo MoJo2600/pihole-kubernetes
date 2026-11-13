@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.0-rc.2](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-3.0.0-rc.1...pihole-3.0.0-rc.2) (2026-11-13)
+
+
+### Features
+
+* bring open community PRs into v3 (DHCP labels fix, ingress labels, default container, Gateway API route) ([#448](https://github.com/MoJo2600/pihole-kubernetes/issues/448)) ([f4c0a08](https://github.com/MoJo2600/pihole-kubernetes/commit/f4c0a083167a146c4679be4bdd1547d59dafb67c))
+* Enhanced the charts support for web server ports ([#415](https://github.com/MoJo2600/pihole-kubernetes/issues/415)) ([6f94320](https://github.com/MoJo2600/pihole-kubernetes/commit/6f94320ba59a874a9b07769fda1d92f8bed38401))
+
 ## [3.0.0-rc.1](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-2.39.0...pihole-3.0.0-rc.1) (2026-11-12)
 
 
