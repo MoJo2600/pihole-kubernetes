@@ -136,6 +136,8 @@ A maintainer will review the Chart change submission, a validation job in the CI
 
 Once the Chart has been merged, the release job will automatically run in the CI to package and release the Chart.
 
+You don't need to add yourself to the contributors list. After each merge, the `Update contributors` workflow adds new PR authors and `Co-authored-by` users and opens a `chore: update contributors` pull request (`scripts/update-contributors.sh`, run with `--dry-run` to preview).
+
 ## Support Channels
 
 Whether you are a user or contributor, official support channels include:
