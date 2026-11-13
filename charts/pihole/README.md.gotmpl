@@ -113,6 +113,7 @@ Choose how the DNS and web services are exposed:
 - **ClusterIP** — reachable only inside the cluster (default for the web service). Use with an Ingress or a port-forward.
 - **LoadBalancer** — exposes the service on an external IP via your cloud provider or MetalLB.
 - **Ingress** — set `ingress.enabled: true` to route the web interface through an ingress controller (which must already be installed).
+- **Gateway API** — set `route.enabled: true` and `route.parentRefs` to create an `HTTPRoute` instead of an Ingress (needs the Gateway API CRDs and a Gateway).
 
 #### Making DNS reachable on port 53 (start here)
 

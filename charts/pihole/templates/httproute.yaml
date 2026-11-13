@@ -1,0 +1,47 @@
+{{- if .Values.route.enabled -}}
+{{- if not .Values.serviceWeb.http.enabled }}
+{{- fail "route.enabled requires serviceWeb.http.enabled: the HTTPRoute sends traffic to the HTTP port of the web service" }}
+{{- end }}
+{{- $hostnames := .Values.route.hostnames | default list -}}
+{{- if .Values.virtualHost -}}
+{{- $hostnames = append $hostnames .Values.virtualHost | uniq -}}
+{{- end -}}
+apiVersion: {{ .Values.route.apiVersion }}
+kind: HTTPRoute
+metadata:
+  name: {{ template "pihole.fullname" . }}
+  labels:
+    {{- include "pihole.labels" . | nindent 4 }}
+    {{- with .Values.route.extraLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.route.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.route.parentRefs }}
+  parentRefs:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    - backendRefs:
+        - name: {{ template "pihole.fullname" . }}-web
+          port: {{ .Values.serviceWeb.http.port }}
+      {{- with .Values.route.matches }}
+      matches:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.route.filters }}
+      filters:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.route.timeouts }}
+      timeouts:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

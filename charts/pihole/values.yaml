@@ -180,6 +180,35 @@ ingress:
   #     # virtualHost is NOT added here automatically; list it if your certificate covers it
   #      - chart-example.local
 
+# -- Gateway API HTTPRoute for the web interface, an alternative to `ingress`.
+# Needs the Gateway API CRDs and a Gateway to attach to (`parentRefs`).
+route:
+  # -- Generate an HTTPRoute resource
+  enabled: false
+  # -- API version of the HTTPRoute (use `gateway.networking.k8s.io/v1beta1` on Gateway API < 1.0)
+  apiVersion: gateway.networking.k8s.io/v1
+  # -- Annotations for the HTTPRoute
+  annotations: {}
+  # -- Labels for the HTTPRoute
+  extraLabels: {}
+  # -- Gateways (listeners) the route attaches to
+  parentRefs: []
+  #  - name: my-gateway
+  #    namespace: gateway-system
+  #    sectionName: https
+  # -- Host names of the route. `virtualHost` is added automatically.
+  hostnames: []
+  #  - pihole.example.com
+  # -- Request matches of the route rule
+  matches:
+    - path:
+        type: PathPrefix
+        value: /
+  # -- Filters applied to matching requests (e.g. RequestRedirect, RequestHeaderModifier)
+  filters: []
+  # -- Request timeouts of the route rule
+  timeouts: {}
+
 # -- Probes configuration
 probes:
   # -- probes.liveness -- Configure the healthcheck for the ingress controller
