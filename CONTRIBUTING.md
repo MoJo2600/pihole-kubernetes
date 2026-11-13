@@ -48,7 +48,7 @@ ct install --charts charts/pihole
 
 ### Tests
 
-The chart is tested on three levels. All of them run in CI for every pull request.
+The chart is tested on three levels. All of them run in CI for every pull request, and the unit test results are posted as a comment on the pull request.
 
 | Level | Where | What it catches | Run locally |
 | --- | --- | --- | --- |

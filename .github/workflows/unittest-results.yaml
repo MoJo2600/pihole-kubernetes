@@ -1,0 +1,39 @@
+name: Unit test results
+
+# Posts the helm-unittest results of "Lint and Test Charts" as a PR comment and a check.
+# Runs as a separate workflow_run workflow, because PRs from forks get a read-only token.
+# Only the uploaded JUnit XML and event file are read; no PR code is checked out or run.
+on:
+  workflow_run:
+    workflows: ["Lint and Test Charts"]
+    types:
+      - completed
+
+permissions: {}
+
+jobs:
+  publish:
+    name: Publish unit test results
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure'
+    permissions:
+      actions: read
+      checks: write
+      pull-requests: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: artifacts
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@da5b7be67623cd59bbbd1a0ce4f022050a55605f # v2.26.0
+        with:
+          check_name: Unit test results
+          commit: ${{ github.event.workflow_run.head_sha }}
+          event_file: artifacts/event-file/event.json
+          event_name: ${{ github.event.workflow_run.event }}
+          files: artifacts/unittest-results/*.xml
+          comment_mode: always

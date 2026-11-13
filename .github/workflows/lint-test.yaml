@@ -130,8 +130,27 @@ jobs:
       # Same pinned image as `make unittest` in charts/pihole, so local and CI runs match.
       # HOME=/tmp: the runner uid has no home in the image; without a writable cache dir
       # helm silently skips the unittest plugin ("unknown command unittest").
+      # The JUnit report is published as a PR comment by unittest-results.yaml
       - name: Run helm-unittest
         run: |
+          mkdir -p test-results
           docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -v "$PWD/charts/pihole:/apps" \
-            helmunittest/helm-unittest:4.3.0-1.2.1 .
+            -v "$PWD/test-results:/results" \
+            helmunittest/helm-unittest:4.3.0-1.2.1 -t JUnit -o /results/unittest.xml .
 
+      - name: Upload test results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: unittest-results
+          path: test-results/unittest.xml
+
+  # The PR event, so unittest-results.yaml can find the PR (also for PRs from forks)
+  event-file:
+    name: Upload event file
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: event-file
+          path: ${{ github.event_path }}
