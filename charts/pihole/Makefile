@@ -12,3 +12,7 @@ generate-documentation: ## Generate README.md from template
 .PHONY: lint-manifests
 lint-manifests: ## Lint the rendered manifests with kube-linter
 	kube-linter lint . --config .kube-linter.yaml
+
+.PHONY: unittest
+unittest: ## Run the helm-unittest template tests in tests/ (same pinned image as CI)
+	docker run --rm -u $$(id -u):$$(id -g) -e HOME=/tmp --volume "$$(pwd):/apps" helmunittest/helm-unittest:4.3.0-1.2.1 .

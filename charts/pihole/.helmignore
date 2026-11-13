@@ -34,3 +34,5 @@ ci/
 examples/
 Makefile
 README.md.gotmpl
+# helm-unittest tests (anchored: templates/tests/ holds the helm test hooks and must stay)
+/tests/

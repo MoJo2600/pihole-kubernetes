@@ -35,6 +35,7 @@ Run these from the `charts/pihole` directory (see the `Makefile`):
 make help                     # list available make targets
 make generate-documentation   # regenerate README.md from values.yaml (helm-docs)
 make lint-manifests           # run kube-linter against the rendered manifests
+make unittest                 # run the template unit tests in tests/ (helm-unittest via Docker)
 
 # Validate manifests against Kubernetes schemas (as CI does):
 helm template pihole . | kubeconform -strict -summary -schema-location default \
@@ -44,6 +45,22 @@ helm template pihole . | kubeconform -strict -summary -schema-location default \
 ct lint --charts charts/pihole
 ct install --charts charts/pihole
 ```
+
+### Tests
+
+The chart is tested on three levels. All of them run in CI for every pull request.
+
+| Level | Where | What it catches | Run locally |
+| --- | --- | --- | --- |
+| Template unit tests | `charts/pihole/tests/*_test.yaml` ([helm-unittest](https://github.com/helm-unittest/helm-unittest)) | Wrong rendering for a value combination: missing or duplicate env vars, ports, probes, conditional resources | `make unittest` (seconds) |
+| Schema validation | every file in `ci/` and `examples/` | Manifests Kubernetes would reject (1.23, 1.27, 1.31) | see `kubeconform` above |
+| Install scenarios | `charts/pihole/ci/*-values.yaml` | The chart does not come up with the real Pi-hole image: pods not ready, `helm test` (DNS + web) fails | `ct install --charts charts/pihole` on kind (minutes) |
+
+**When you add or change a value:**
+
+- Add a test case to `charts/pihole/tests/` that renders the chart with the new value and checks the result. Also cover the "off" case and combinations with existing options when they interact (for example `webHttps: ""` with `networkPolicy.enabled`).
+- If the value changes what runs in the pod (containers, ports, probes, security settings), add a scenario file `charts/pihole/ci/<name>-values.yaml`, or extend an existing one. Every file there is installed on kind and checked with `helm test`, and validated with kubeconform automatically.
+- Resources that need CRDs the CI cluster does not have (for example the `PodMonitor`) can only be covered by unit tests.
 
 > **Note:** `make lint-manifests` uses [`charts/pihole/.kube-linter.yaml`](charts/pihole/.kube-linter.yaml),
 > which disables the checks that conflict with how the upstream Pi-hole container

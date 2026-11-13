@@ -15,7 +15,16 @@ spec:
       - /bin/sh
       - -c
       - |
-        echo "Testing DNS resolution via Pi-hole..."
-        nslookup cloudflare.com {{ include "pihole.fullname" . }}-dns{{- if not .Values.serviceDns.mixedService }}-udp{{- end }}
+        # Resolves an external name through Pi-hole and its upstream servers. Retried,
+        # because right after install Pi-hole is still downloading its blocklists and
+        # a single slow upstream answer would make the test flaky.
+        server={{ include "pihole.fullname" . }}-dns{{- if not .Values.serviceDns.mixedService }}-udp{{- end }}
+        for attempt in 1 2 3 4 5; do
+          echo "Testing DNS resolution via Pi-hole ($server), attempt $attempt..."
+          nslookup cloudflare.com "$server" && exit 0
+          sleep 5
+        done
+        echo "DNS resolution via Pi-hole failed after 5 attempts"
+        exit 1
   restartPolicy: Never
   terminationGracePeriodSeconds: 0

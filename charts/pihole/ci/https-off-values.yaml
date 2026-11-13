@@ -1,0 +1,6 @@
+# HTTP only, with the NetworkPolicy and a persistent volume for /etc/pihole.
+webHttps: ""
+networkPolicy:
+  enabled: true
+persistentVolumeClaim:
+  enabled: true

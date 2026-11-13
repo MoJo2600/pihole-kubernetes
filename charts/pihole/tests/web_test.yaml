@@ -1,0 +1,100 @@
+suite: web service, ingress and network policy
+release:
+  name: pihole
+tests:
+  - it: exposes HTTP and HTTPS on the web service by default
+    template: templates/service-web.yaml
+    documentIndex: 0
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            name: https
+            port: 443
+            targetPort: https
+            protocol: TCP
+
+  - it: drops HTTPS from the web service when webHttps is empty
+    template: templates/service-web.yaml
+    set:
+      webHttps: ""
+    documentIndex: 0
+    asserts:
+      - notContains:
+          path: spec.ports
+          content:
+            name: https
+          any: true
+
+  - it: renders no web service when HTTP is disabled and HTTPS is off
+    template: templates/service-web.yaml
+    set:
+      webHttps: ""
+      serviceWeb.http.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: adds virtualHost to the ingress hosts exactly once
+    template: templates/ingress.yaml
+    set:
+      ingress.enabled: true
+      ingress.hosts: ["pi.hole", "pihole.example.com"]
+    asserts:
+      - lengthEqual:
+          path: spec.rules
+          count: 2
+      - contains:
+          path: spec.rules
+          content:
+            host: pi.hole
+          any: true
+          count: 1
+      - contains:
+          path: spec.rules
+          content:
+            host: pihole.example.com
+          any: true
+          count: 1
+
+  - it: appends virtualHost to the configured ingress hosts
+    template: templates/ingress.yaml
+    set:
+      ingress.enabled: true
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: chart-example.local
+      - equal:
+          path: spec.rules[1].host
+          value: pi.hole
+      - lengthEqual:
+          path: spec.rules
+          count: 2
+
+  - it: allows HTTPS in the network policy by default
+    template: templates/networkpolicy.yaml
+    set:
+      networkPolicy.enabled: true
+    asserts:
+      - contains:
+          path: spec.ingress[0].ports
+          content:
+            protocol: TCP
+            port: 443
+
+  - it: renders no empty port in the network policy when HTTPS is off
+    template: templates/networkpolicy.yaml
+    set:
+      networkPolicy.enabled: true
+      webHttps: ""
+    asserts:
+      - notContains:
+          path: spec.ingress[0].ports
+          content:
+            port: null
+          any: true
+      - notContains:
+          path: spec.ingress[0].ports
+          content:
+            port: 443

@@ -1,0 +1,80 @@
+suite: health probes
+templates:
+  - templates/deployment.yaml
+  - templates/configmap.yaml
+  - templates/configmap-adlists.yaml
+  - templates/configmap-allowed.yaml
+  - templates/configmap-denied.yaml
+  - templates/configmap-regex.yaml
+  - templates/configmap-static-dhcp.yaml
+release:
+  name: pihole
+tests:
+  - it: checks only Pi-hole itself, never an upstream resolver
+    template: templates/deployment.yaml
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[?(@.name == "pihole")].livenessProbe.exec.command[2]
+          pattern: "@127\\.0\\.0\\.1 pi\\.hole"
+      - notMatchRegex:
+          path: spec.template.spec.containers[?(@.name == "pihole")].livenessProbe.exec.command[2]
+          pattern: cloudflare
+      - notMatchRegex:
+          path: spec.template.spec.containers[?(@.name == "pihole")].readinessProbe.exec.command[2]
+          pattern: cloudflare
+      - notMatchRegex:
+          path: spec.template.spec.containers[?(@.name == "pihole")].startupProbe.exec.command[2]
+          pattern: cloudflare
+
+  - it: limits every step so the probe never outlives timeoutSeconds
+    template: templates/deployment.yaml
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[?(@.name == "pihole")].livenessProbe.exec.command[2]
+          pattern: "curl -s?k?f --max-time 2 .*dig .*\\+time=2"
+
+  - it: calls the API via HTTPS when redirectToHttps is set
+    template: templates/deployment.yaml
+    set:
+      redirectToHttps: true
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[?(@.name == "pihole")].readinessProbe.exec.command[2]
+          pattern: "^curl -skf --max-time 2 https://localhost:443/api/info/login"
+
+  - it: uses HTTP when redirectToHttps is set but HTTPS is off
+    template: templates/deployment.yaml
+    set:
+      redirectToHttps: true
+      webHttps: ""
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[?(@.name == "pihole")].readinessProbe.exec.command[2]
+          pattern: "^curl -sf --max-time 2 http://localhost:80/api/info/login"
+
+  - it: uses a custom probe command when given
+    template: templates/deployment.yaml
+    set:
+      probes.liveness.command: ["/bin/true"]
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "pihole")].livenessProbe.exec.command
+          value: ["/bin/true"]
+
+  - it: only checks the dnscrypt-proxy port for liveness
+    template: templates/deployment.yaml
+    set:
+      doh.enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "dnscrypt-proxy")].livenessProbe.tcpSocket.port
+          value: dnscrypt-tcp
+
+  - it: refuses the exporter sidecar together with redirectToHttps
+    template: templates/deployment.yaml
+    set:
+      redirectToHttps: true
+      monitoring.sidecar.enabled: true
+    asserts:
+      - failedTemplate:
+          errorPattern: cannot be combined with redirectToHttps

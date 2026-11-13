@@ -1,0 +1,116 @@
+suite: pihole container environment
+templates:
+  - templates/deployment.yaml
+  - templates/configmap.yaml
+  - templates/configmap-adlists.yaml
+  - templates/configmap-allowed.yaml
+  - templates/configmap-denied.yaml
+  - templates/configmap-regex.yaml
+  - templates/configmap-static-dhcp.yaml
+release:
+  name: pihole
+tests:
+  - it: sets webserver.domain from virtualHost
+    template: templates/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_webserver_domain
+            value: pi.hole
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: VIRTUAL_HOST
+          any: true
+
+  - it: does not set webserver.domain when virtualHost is empty
+    template: templates/deployment.yaml
+    set:
+      virtualHost: ""
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_webserver_domain
+          any: true
+
+  - it: lets ftl override webserver.domain without a duplicate env var
+    template: templates/deployment.yaml
+    set:
+      ftl:
+        webserver_domain: pihole.example.com
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_webserver_domain
+          any: true
+          count: 1
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_webserver_domain
+            value: pihole.example.com
+
+  - it: lets extraEnvVars override webserver.domain and webserver.port without duplicates
+    template: templates/deployment.yaml
+    set:
+      extraEnvVars:
+        FTLCONF_webserver_domain: pihole.example.com
+        FTLCONF_webserver_port: "8080"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_webserver_domain
+          any: true
+          count: 1
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_webserver_port
+          any: true
+          count: 1
+
+  - it: serves HTTP and HTTPS on IPv4 and IPv6 by default
+    template: templates/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_webserver_port
+            value: "80o,443os,[::]:80o,[::]:443os"
+
+  - it: serves only HTTP when webHttps is empty
+    template: templates/deployment.yaml
+    set:
+      webHttps: ""
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_webserver_port
+            value: "80o,[::]:80o"
+
+  - it: adds the redirect flag to the HTTP ports with redirectToHttps
+    template: templates/deployment.yaml
+    set:
+      redirectToHttps: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_webserver_port
+            value: "80or,443os,[::]:80or,[::]:443os"
+
+  - it: uses the dnscrypt-proxy sidecar as upstream when doh is enabled
+    template: templates/deployment.yaml
+    set:
+      doh.enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_dns_upstreams
+            value: "127.0.0.1#5053"

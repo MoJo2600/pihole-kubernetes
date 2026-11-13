@@ -1,6 +1,5 @@
+# Prometheus exporter sidecar (the PodMonitor needs the Prometheus Operator CRDs,
+# which the CI kind cluster does not have; it is covered by tests/monitoring_test.yaml).
 monitoring:
-  enabled: true
-  labels:
-    testExtraLabel: fofa
-  podMonitor:
-    enabled: false
+  sidecar:
+    enabled: true
