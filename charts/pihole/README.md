@@ -328,7 +328,7 @@ Set `networkPolicy.enabled: true` to restrict pod traffic:
 
 - **DNS (and DHCP with `serviceDhcp.enabled`)** is allowed from every source, because DNS clients are usually outside the cluster. Restrict it with `networkPolicy.ingress.dnsFrom`, e.g. an `ipBlock` for your LAN.
 - **The web interface and the metrics ports** are allowed from pods in all namespaces (`networkPolicy.ingress.from`), which covers ingress controllers and Prometheus. If `serviceWeb` is a `LoadBalancer`, add an `ipBlock` for your network.
-- **Egress** allows DNS, HTTP/HTTPS (ad lists, DoH), DNS over TLS, NTP and traffic inside the cluster (`networkPolicy.egress`). With `serviceDhcp.enabled`, the chart also allows UDP 67/68 out for the DHCP replies to the relay and the clients, even if you override `networkPolicy.egress`.
+- **Egress** allows DNS, HTTP/HTTPS (ad lists, DoH), DNS over TLS and traffic inside the cluster (`networkPolicy.egress`). With `serviceDhcp.enabled`, the chart also allows UDP 67/68 out for the DHCP replies to the relay and the clients, and with `ntp.sync` UDP 123 for NTP, even if you override `networkPolicy.egress`.
 - **ICMP** can't be allowed with a NetworkPolicy. With DHCP, dnsmasq pings an address before offering it; with the policy enabled that check gets no answer, so dnsmasq assumes the address is free. Keep static addresses outside the DHCP range.
 
 The rules use the pod's ports (`dnsPort`, `webHttp`, ...), not the Service ports.
@@ -365,6 +365,10 @@ WARNING: Insufficient permissions to set process priority to -10 (CAP_SYS_NICE r
     misc_nice: "-999"
   ```
 - **Capability names have no `CAP_` prefix.** `CAP_SYS_NICE` is accepted by the API but not granted to the container (visible in `CapEff` in `/proc/1/status`), so the warning stays.
+
+### NTP clock sync
+
+Pi-hole's NTP client (`ntp.sync.active`) is off by default (`ntp.sync: false`): the system clock is not namespaced, so setting it changes the time of the whole node and competes with the node's own chrony/timesyncd. With `ntp.sync: true`, the chart adds the `SYS_TIME` capability it needs, to `containerSecurityContext.capabilities` if that is set, otherwise to `capabilities` (not with `privileged`, and not twice), and allows NTP egress in the NetworkPolicy. Setting `ftl.ntp_sync_active` or `extraEnvVars.FTLCONF_ntp_sync_active` to `true` does the same. Pi-hole's NTP server (`ntp.ipv4/ipv6.active`) is not affected. As with `SYS_NICE`, the capability name has no `CAP_` prefix: `CAP_SYS_TIME` is accepted by the API but not granted.
 
 ### Health probes
 
@@ -464,6 +468,7 @@ Breaking changes:
   - `admin.password` is empty: a random password is generated and kept across upgrades (was `admin`).
   - `strategyType` is chosen automatically: `Recreate` with a persistent volume, `hostNetwork` or `dnsHostPort`, otherwise `RollingUpdate`.
   - `FTLCONF_dns_listeningMode: all` is set by the chart instead of `extraEnvVars`; override it with `ftl.dns_listeningMode`.
+  - Pi-hole's NTP client is off (`ntp.sync: false`). Without `SYS_TIME` it never ran anyway; `ntp.sync: true` turns it on and adds the capability. See [NTP clock sync](#ntp-clock-sync).
 - **NetworkPolicy:** DNS is allowed from every source by default (`networkPolicy.ingress.dnsFrom`); before, only pods could reach Pi-hole, so clients behind a LoadBalancer were blocked. The rules now use the pod ports.
 - **`ingress.pathType` defaults to `Prefix`** instead of `ImplementationSpecific`, which some ingress controllers (e.g. Cilium) treat as a regex or exact match.
 - **Dual-stack LoadBalancer services** are one dual-stack Service each instead of an IPv4 plus an `-ipv6` Service; put both addresses into the load balancer annotation. `dualStack.splitLoadBalancer: true` keeps separate services (needed for `loadBalancerIPv6`). See [Dual-stack](#dual-stack-ipv4--ipv6).
@@ -615,13 +620,14 @@ The following table lists the configurable parameters of the pihole chart and th
 | monitoring.sidecar | object | `{"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"ekofr/pihole-exporter","tag":"v1.3.1"},"port":9617,"resources":{"limits":{"memory":"128Mi"}}}` | Sidecar configuration |
 | monitoring.sidecar.enabled | bool | `false` | set this to true to enable podMonitor as sidecar |
 | monitoring.sidecar.image.repository | string | `"ekofr/pihole-exporter"` | the repository to use |
-| networkPolicy | object | `{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}]},{"ports":[{"port":80,"protocol":"TCP"},{"port":443,"protocol":"TCP"}]},{"ports":[{"port":853,"protocol":"TCP"},{"port":123,"protocol":"UDP"}]},{"to":[{"namespaceSelector":{}}]}],"enabled":false,"ingress":{"dnsFrom":[],"from":[{"namespaceSelector":{}}]}}` | NetworkPolicy configuration |
-| networkPolicy.egress | list | `[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}]},{"ports":[{"port":80,"protocol":"TCP"},{"port":443,"protocol":"TCP"}]},{"ports":[{"port":853,"protocol":"TCP"},{"port":123,"protocol":"UDP"}]},{"to":[{"namespaceSelector":{}}]}]` | Egress rules (allow DNS and HTTP/HTTPS for upstream resolution and ad list updates) |
+| networkPolicy | object | `{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}]},{"ports":[{"port":80,"protocol":"TCP"},{"port":443,"protocol":"TCP"}]},{"ports":[{"port":853,"protocol":"TCP"}]},{"to":[{"namespaceSelector":{}}]}],"enabled":false,"ingress":{"dnsFrom":[],"from":[{"namespaceSelector":{}}]}}` | NetworkPolicy configuration |
+| networkPolicy.egress | list | `[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}]},{"ports":[{"port":80,"protocol":"TCP"},{"port":443,"protocol":"TCP"}]},{"ports":[{"port":853,"protocol":"TCP"}]},{"to":[{"namespaceSelector":{}}]}]` | Egress rules (allow DNS and HTTP/HTTPS for upstream resolution and ad list updates) |
 | networkPolicy.enabled | bool | `false` | Enable NetworkPolicy |
 | networkPolicy.ingress | object | `{"dnsFrom":[],"from":[{"namespaceSelector":{}}]}` | Ingress rules configuration |
 | networkPolicy.ingress.dnsFrom | list | `[]` | Allowed sources for DNS (and DHCP with `serviceDhcp.enabled`). Empty (default) allows every source, because DNS clients are usually outside the cluster (through a LoadBalancer, the client IP is kept). Restrict it with ipBlocks for your networks if needed |
 | networkPolicy.ingress.from | list | `[{"namespaceSelector":{}}]` | Allowed sources for the web interface and the metrics ports. The default allows pods in all namespaces (ingress controllers, Prometheus); add an ipBlock for your network if `serviceWeb` is a LoadBalancer |
 | nodeSelector | object | `{}` | Node selector values |
+| ntp.sync | bool | `false` | Let Pi-hole set the system clock from an upstream NTP server (FTL `ntp.sync.active`). The clock is not namespaced: this changes the time of the whole node. Adds the `SYS_TIME` capability (not with privileged) and, with `networkPolicy.enabled`, allows NTP egress (UDP 123). `ftl.ntp_sync_active` or `extraEnvVars.FTLCONF_ntp_sync_active` take precedence. |
 | persistentVolumeClaim | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"keep":false,"size":"500Mi"}` | `PersistentVolumeClaim` for /etc/pihole |
 | persistentVolumeClaim.annotations | object | `{}` | Annotations for the `PersistentVolumeClaim` |
 | persistentVolumeClaim.enabled | bool | `false` | set to true to use pvc |

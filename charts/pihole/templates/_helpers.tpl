@@ -153,3 +153,38 @@ Recreate
 RollingUpdate
 {{- end -}}
 {{- end }}
+
+{{/*
+Non-empty when Pi-hole's NTP client (ntp.sync.active) is on: ftl.ntp_sync_active or
+extraEnvVars.FTLCONF_ntp_sync_active when set, otherwise ntp.sync.
+A valueFrom can't be evaluated here and counts as off.
+*/}}
+{{- define "pihole.ntpSync" -}}
+{{- $sync := .Values.ntp.sync -}}
+{{- if hasKey .Values.ftl "ntp_sync_active" -}}
+{{- $sync = index .Values.ftl "ntp_sync_active" -}}
+{{- else if hasKey .Values.extraEnvVars "FTLCONF_ntp_sync_active" -}}
+{{- $sync = index .Values.extraEnvVars "FTLCONF_ntp_sync_active" -}}
+{{- end -}}
+{{- if eq (toString $sync | lower) "true" -}}
+true
+{{- end -}}
+{{- end }}
+
+{{/*
+Capabilities of the Pi-hole container: the given capabilities map plus SYS_TIME, which the NTP
+client needs to set the clock. Call with (dict "root" $ "capabilities" <map> "privileged" <value>).
+Nothing is added when the container is privileged or SYS_TIME is already listed.
+*/}}
+{{- define "pihole.capabilities" -}}
+{{- $caps := deepCopy (.capabilities | default dict) -}}
+{{- if and (include "pihole.ntpSync" .root) (ne (toString .privileged) "true") -}}
+{{- $add := $caps.add | default list -}}
+{{- if not (has "SYS_TIME" $add) -}}
+{{- $_ := set $caps "add" (append $add "SYS_TIME") -}}
+{{- end -}}
+{{- end -}}
+{{- with $caps -}}
+{{- toYaml . -}}
+{{- end -}}
+{{- end }}

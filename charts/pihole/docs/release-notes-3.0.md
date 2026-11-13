@@ -45,6 +45,7 @@ Chart 3.0 brings significant improvements to the Pi-hole Helm chart, including m
 - **Dual-stack LoadBalancers** are one dual-stack Service each; `dualStack.splitLoadBalancer: true` restores separate `-ipv6` Services.
 - **NetworkPolicy** lets DNS in from every source (`networkPolicy.ingress.dnsFrom`); the web interface and metrics stay limited to pods. Before, LAN clients behind a LoadBalancer were blocked, and the rules used Service instead of pod ports.
 - **`ingress.pathType: Prefix`** (was `ImplementationSpecific`, which is a regex or exact match on some controllers).
+- **Pi-hole's NTP client is off** (`ntp.sync: false`, sets `FTLCONF_ntp_sync_active`). It needs `SYS_TIME`, which the chart never granted, so it never ran and only logged warnings. The clock belongs to the node, so letting a pod set it is rarely wanted. `ntp.sync: true` turns it on and adds `SYS_TIME` and the NTP egress rule itself.
 
 ### Pi-hole image changes to be aware of
 - Since FTL v6.8, files that are symlinks in `/etc/pihole` and `/var/log/pihole` are no longer handed over to the `pihole` user. Mount ConfigMaps/Secrets there with `subPath` (as the chart does).
