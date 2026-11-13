@@ -36,3 +36,18 @@ tests:
       - equal:
           path: metadata.labels["app.kubernetes.io/name"]
           value: pihole
+
+  - it: makes the pihole container the kubectl default container
+    template: templates/deployment.yaml
+    set:
+      doh.enabled: true
+      monitoring.sidecar.enabled: true
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations["kubectl.kubernetes.io/default-container"]
+          value: pihole
+      - contains:
+          path: spec.template.spec.containers
+          content:
+            name: pihole
+          any: true

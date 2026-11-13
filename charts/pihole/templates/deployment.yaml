@@ -26,6 +26,8 @@ spec:
   template:
     metadata:
       annotations:
+        # kubectl exec/logs/cp target the pihole container instead of the first sidecar
+        kubectl.kubernetes.io/default-container: {{ .Chart.Name }}
         checksum.config.adlists: {{ include (print $.Template.BasePath "/configmap-adlists.yaml") . | sha256sum | trunc 63 }}
         checksum.config.denied: {{ include (print $.Template.BasePath "/configmap-denied.yaml") . | sha256sum | trunc 63 }}
         checksum.config.regex: {{ include (print $.Template.BasePath "/configmap-regex.yaml") . | sha256sum | trunc 63 }}
