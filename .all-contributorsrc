@@ -6,7 +6,7 @@
   ],
   "imageSize": 100,
   "commit": false,
-  "badgeTemplate": "[![All Contributors](https://img.shields.io/badge/all_contributors-27-blue.svg?style=flat-square)](#contributors-)",
+  "badgeTemplate": "[![All Contributors](https://img.shields.io/badge/all_contributors-<%= contributors.length %>-blue.svg?style=flat-square)](#contributors-)",
   "contributorTemplate": "<a href=\"<%= contributor.profile %>\"><img src=\"<%= contributor.avatar_url %>\" width=\"<%= options.imageSize %>px;\" alt=\"\"/><br /><sub><b><%= contributor.name %></b></sub></a>",
   "contributors": [
     {
@@ -727,6 +727,132 @@
       "profile": "https://github.com/fernferret",
       "contributions": [
         "code"
+      ]
+    },
+    {
+      "login": "anokfireball",
+      "name": "Fabian Koller",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10155170?v=4",
+      "profile": "https://github.com/anokfireball",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "AresiusXP",
+      "name": "Patricio Danos",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20631840?v=4",
+      "profile": "https://github.com/AresiusXP",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "craigcabrey",
+      "name": "Craig Cabrey",
+      "avatar_url": "https://avatars.githubusercontent.com/u/894565?v=4",
+      "profile": "http://craigcabrey.com/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Crow-Control",
+      "name": "Kjeld Schouten",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7613738?v=4",
+      "profile": "https://kjeldschouten.nl/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ErikTMA",
+      "name": "Erik Andersen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13119759?v=4",
+      "profile": "https://github.com/ErikTMA",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "HakimHC",
+      "name": "hakahmed",
+      "avatar_url": "https://avatars.githubusercontent.com/u/113886603?v=4",
+      "profile": "https://github.com/HakimHC",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "i5Js",
+      "name": "Javi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1070363?v=4",
+      "profile": "https://github.com/i5Js",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Javex",
+      "name": "Flozza",
+      "avatar_url": "https://avatars.githubusercontent.com/u/641439?v=4",
+      "profile": "https://github.com/Javex",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "jomovo",
+      "name": "jomovo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/33429636?v=4",
+      "profile": "https://github.com/jomovo",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "madic-creates",
+      "name": "madic-creates",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3735459?v=4",
+      "profile": "https://www.geekbundle.org/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "nolte",
+      "name": "nolte",
+      "avatar_url": "https://avatars.githubusercontent.com/u/538808?v=4",
+      "profile": "https://github.com/nolte",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "rajsinghtech",
+      "name": "Raj Singh",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26187752?v=4",
+      "profile": "https://github.com/rajsinghtech",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Suiram1701",
+      "name": "Suiram1701",
+      "avatar_url": "https://avatars.githubusercontent.com/u/110390261?v=4",
+      "profile": "https://github.com/Suiram1701",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "whzy1314",
+      "name": "whzy1314",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6365365?v=4",
+      "profile": "https://github.com/whzy1314",
+      "contributions": [
+        "maintenance"
       ]
     }
   ],
