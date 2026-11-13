@@ -1,57 +1,42 @@
-# mojo2600.github.io
+# MoJo2600 Helm charts
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-94-blue.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 > [!IMPORTANT]
-> Additional maintainers wanted! I need help maintaining this chart. Please see [the discussion here](https://github.com/MoJo2600/pihole-kubernetes/discussions/393)
+> Additional maintainers wanted! I need help maintaining these charts. Please see [the discussion here](https://github.com/MoJo2600/pihole-kubernetes/discussions/393)
 
-> [!WARNING]
-> **v3 Proposal Repository**: This Repository contains an unfinished rewrite with breaking changes intended as a proposal for v3. Do not use in production. For the stable version, please use the https://github.com/MoJo2600/pihole-kubernetes. For an overview of the changes, take a look at the [CHANGELOG.md](CHANGELOG.md).
+A [Helm](https://helm.sh) repository with charts for [Kubernetes](https://kubernetes.io).
 
-[Helm](https://helm.sh) repo for different charts which can be installed on [Kubernetes](https://kubernetes.io)
+## Charts
 
-Further documentation including chart keys, types, and default values is at https://hub.helm.sh/charts/mojo2600/pihole
+| Chart | Description | Documentation |
+|-------|-------------|---------------|
+| `pihole` | [Pi-hole](https://pi-hole.net/), the network-wide ad blocker (DNS sinkhole) | [charts/pihole](charts/pihole/README.md) |
 
-### Add Helm repository
+Each chart's README covers its configuration, upgrade notes and troubleshooting. Its `CHANGELOG.md` lists every release.
 
-To install the repo just run:
+## Usage
+
+Add the repository:
 
 ```bash
 helm repo add mojo2600 https://mojo2600.github.io/pihole-kubernetes/
 helm repo update
+helm search repo mojo2600
 ```
 
-### Helm Charts
+Install a chart:
 
-* [pihole](https://mojo2600.github.io/pihole-kubernetes)
+```bash
+helm install <release-name> mojo2600/<chart> --namespace <namespace> --create-namespace
+```
 
-  ```bash
-  helm install your-release mojo2600/pihole
-  ```
+Pre-releases (versions such as `x.y.z-rc.1`) are only shown and installed with `--devel`, or by naming the exact `--version`.
 
+## Contributing
 
-## Troubleshooting
-
-### pihole-FTL: no process found (with hostNetwork: true)
-
-When deploying Pi-hole with `hostNetwork: true`, the container may crash with the error `pihole-FTL: no process found`.
-
-**Cause:** A port required by FTL (e.g., UDP port 53, 67, or others) is already in use on the host, preventing the FTL process from binding.
-
-**Solutions:**
-
-1. **DHCP Helper Approach** (recommended for DHCP):
-   - Deploy Pi-hole WITHOUT `hostNetwork: true`
-   - Use a separate [dhcphelper](https://github.com/homeall/dhcphelper) pod with host networking
-   - The helper receives DHCP broadcasts and forwards them as unicast to Pi-hole
-   - See the complete example: [charts/pihole/examples/dhcphelper/](charts/pihole/examples/dhcphelper/)
-
-2. **LoadBalancer with MetalLB**:
-   - Use MetalLB to expose services without host networking
-   - Note: This does NOT work for DHCP (Layer 2 broadcast limitation)
-
-**Why DHCP requires special handling:** DHCP operates at OSI Layer 2 using broadcast messages. Standard Kubernetes networking and LoadBalancers work at Layer 3 (IP) and cannot forward these broadcasts. Either the Pi-hole pod needs direct access to the host network, or a relay/helper must bridge the gap.
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development tools, tests and pull request rules. Releases are automated: pull request titles follow [Conventional Commits](https://www.conventionalcommits.org/), release-please opens a release pull request, and merged releases are published to the Helm repository above.
 
 ## Contributors ✨
 
