@@ -7,7 +7,7 @@ appVersion: "2026.11.0"
 # mixed TCP/UDP LoadBalancer services (serviceDns.mixedService) are stable since 1.26
 kubeVersion: ">=1.26.0-0"
 # Do not touch will be updated during release
-version: 3.0.0-rc.2
+version: 3.0.0-rc.3
 sources:
   - https://github.com/MoJo2600/pihole-kubernetes/tree/main/charts/pihole
   - https://pi-hole.net/

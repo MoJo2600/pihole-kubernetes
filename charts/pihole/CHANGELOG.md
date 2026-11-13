@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.0.0-rc.3](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-3.0.0-rc.2...pihole-3.0.0-rc.3) (2026-11-13)
+
+
+### Features
+
+* disable Pi-hole's NTP clock sync by default, add SYS_TIME when enabled ([#457](https://github.com/MoJo2600/pihole-kubernetes/issues/457)) ([66e960c](https://github.com/MoJo2600/pihole-kubernetes/commit/66e960c1e116903834ae21ce06a1f44ae7e6e288)), closes [#455](https://github.com/MoJo2600/pihole-kubernetes/issues/455)
+
+
+### Bug Fixes
+
+* allow DHCP replies through the NetworkPolicy ([#454](https://github.com/MoJo2600/pihole-kubernetes/issues/454)) ([9611aa6](https://github.com/MoJo2600/pihole-kubernetes/commit/9611aa6438443658d20588bc91f98cead5677d40)), closes [#453](https://github.com/MoJo2600/pihole-kubernetes/issues/453)
+* v3 issue fixes and safer defaults (dual-stack, services, NetworkPolicy, admin password) ([#451](https://github.com/MoJo2600/pihole-kubernetes/issues/451)) ([61d2c28](https://github.com/MoJo2600/pihole-kubernetes/commit/61d2c28378d4ca639482305ce7ff48154728e764))
+
 ## [3.0.0-rc.2](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-3.0.0-rc.1...pihole-3.0.0-rc.2) (2026-11-13)
 
 
