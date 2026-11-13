@@ -327,7 +327,8 @@ Set `networkPolicy.enabled: true` to restrict pod traffic:
 
 - **DNS (and DHCP with `serviceDhcp.enabled`)** is allowed from every source, because DNS clients are usually outside the cluster. Restrict it with `networkPolicy.ingress.dnsFrom`, e.g. an `ipBlock` for your LAN.
 - **The web interface and the metrics ports** are allowed from pods in all namespaces (`networkPolicy.ingress.from`), which covers ingress controllers and Prometheus. If `serviceWeb` is a `LoadBalancer`, add an `ipBlock` for your network.
-- **Egress** allows DNS, HTTP/HTTPS (ad lists, DoH), DNS over TLS, NTP and traffic inside the cluster (`networkPolicy.egress`).
+- **Egress** allows DNS, HTTP/HTTPS (ad lists, DoH), DNS over TLS, NTP and traffic inside the cluster (`networkPolicy.egress`). With `serviceDhcp.enabled`, the chart also allows UDP 67/68 out for the DHCP replies to the relay and the clients, even if you override `networkPolicy.egress`.
+- **ICMP** can't be allowed with a NetworkPolicy. With DHCP, dnsmasq pings an address before offering it; with the policy enabled that check gets no answer, so dnsmasq assumes the address is free. Keep static addresses outside the DHCP range.
 
 The rules use the pod's ports (`dnsPort`, `webHttp`, ...), not the Service ports.
 
