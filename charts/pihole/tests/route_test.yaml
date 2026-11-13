@@ -1,0 +1,72 @@
+suite: gateway api httproute
+templates:
+  - templates/httproute.yaml
+release:
+  name: pihole
+tests:
+  - it: renders no HTTPRoute by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: routes to the HTTP port of the web service
+    set:
+      route.enabled: true
+      route.parentRefs:
+        - name: gw
+      serviceWeb.http.port: 8080
+    asserts:
+      - isKind:
+          of: HTTPRoute
+      - equal:
+          path: spec.rules[0].backendRefs[0]
+          value:
+            name: pihole-web
+            port: 8080
+      - equal:
+          path: spec.parentRefs[0].name
+          value: gw
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: pihole
+
+  - it: adds virtualHost to the hostnames
+    set:
+      route.enabled: true
+      route.hostnames:
+        - pihole.example.com
+    asserts:
+      - equal:
+          path: spec.hostnames
+          value:
+            - pihole.example.com
+            - pi.hole
+
+  - it: does not duplicate virtualHost when it is already listed
+    set:
+      route.enabled: true
+      route.hostnames:
+        - pihole.example.com
+        - pi.hole
+    asserts:
+      - equal:
+          path: spec.hostnames
+          value:
+            - pihole.example.com
+            - pi.hole
+
+  - it: renders no hostnames when none are set and virtualHost is empty
+    set:
+      route.enabled: true
+      virtualHost: ""
+    asserts:
+      - notExists:
+          path: spec.hostnames
+
+  - it: refuses to render when the HTTP port of the web service is disabled
+    set:
+      route.enabled: true
+      serviceWeb.http.enabled: false
+    asserts:
+      - failedTemplate:
+          errorPattern: route.enabled requires serviceWeb.http.enabled

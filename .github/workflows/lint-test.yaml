@@ -108,6 +108,9 @@ jobs:
           echo "== podMonitor enabled =="
           helm template pihole charts/pihole --set monitoring.podMonitor.enabled=true \
             --set doh.enabled=true --set doh.metrics.enabled=true | validate
+          echo "== Gateway API HTTPRoute =="
+          helm template pihole charts/pihole --set route.enabled=true \
+            --set 'route.parentRefs[0].name=gw' | validate
 
   unittest:
     name: Template unit tests (helm-unittest)

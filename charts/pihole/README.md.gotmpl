@@ -33,6 +33,7 @@
   - [ServiceAccount](#serviceaccount)
   - [Security context (experimental)](#security-context-experimental)
   - [Health probes](#health-probes)
+  - [Upgrades without downtime](#upgrades-without-downtime)
 - [Upgrading](#upgrading)
 - [Uninstallation](#uninstallation)
 - [Values](#values)
@@ -113,6 +114,7 @@ Choose how the DNS and web services are exposed:
 - **ClusterIP** — reachable only inside the cluster (default for the web service). Use with an Ingress or a port-forward.
 - **LoadBalancer** — exposes the service on an external IP via your cloud provider or MetalLB.
 - **Ingress** — set `ingress.enabled: true` to route the web interface through an ingress controller (which must already be installed).
+- **Gateway API** — set `route.enabled: true` and `route.parentRefs` to create an `HTTPRoute` instead of an Ingress (needs the Gateway API CRDs and a Gateway).
 
 #### Making DNS reachable on port 53 (start here)
 
@@ -272,6 +274,17 @@ A dedicated ServiceAccount is created by default (`serviceAccount.create: true`)
 ### Health probes
 
 The chart configures `startupProbe`, `livenessProbe` and `readinessProbe`. The default probe command checks Pi-hole itself, not the upstream DNS servers: the API must report DNS as running, and FTL must answer a local `pi.hole` lookup. It uses `curl`, `jq` and `dig`, so custom images must include these binaries.
+
+### Upgrades without downtime
+
+By default a rolling update stops the old pod before the new one is ready (`maxUnavailable: 1`), so DNS is unavailable for a short time. If the new pod can run next to the old one, start it first:
+
+```yaml
+maxUnavailable: 0
+maxSurge: 1
+```
+
+Keep the default when a second pod cannot start while the first one runs: with `persistentVolumeClaim.enabled` (a `ReadWriteOnce` volume cannot be mounted on another node, and two Pi-holes must not share one `gravity.db`), with `dnsHostPort.enabled`, or with `hostNetwork`. The rollout would then wait forever. For real high availability run two independent releases and give clients both DNS servers.
 
 ## Upgrading
 
