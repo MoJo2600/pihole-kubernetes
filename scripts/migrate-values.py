@@ -113,6 +113,17 @@ def migrate(data):
         env.pop("FTLCONF_dns_listeningMode")
         changes.append("removed extraEnvVars.FTLCONF_dns_listeningMode=all (the chart sets it now)")
 
+    # The NTP client is off now; if SYS_TIME was granted, it ran before, so keep it on
+    sec = data.get("containerSecurityContext") or {}
+    caps = (sec.get("capabilities") if sec else data.get("capabilities")) or {}
+    ntp = data.get("ntp") if isinstance(data.get("ntp"), dict) else {}
+    ftl = data.get("ftl") if isinstance(data.get("ftl"), dict) else {}
+    if isinstance(caps, dict) and "SYS_TIME" in (caps.get("add") or []) and "sync" not in ntp \
+            and "ntp_sync_active" not in ftl \
+            and not (isinstance(env, dict) and "FTLCONF_ntp_sync_active" in env):
+        data["ntp"] = {**ntp, "sync": True}
+        changes.append("ntp.sync=true (SYS_TIME is granted, so Pi-hole's NTP client ran before; it is off by default now)")
+
     admin = data.get("admin") if isinstance(data.get("admin"), dict) else {}
     if admin.get("enabled", True) and not admin.get("password") and not admin.get("existingSecret"):
         warnings.append(

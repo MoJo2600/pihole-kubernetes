@@ -1,0 +1,201 @@
+suite: NTP clock sync (#455)
+templates:
+  - templates/deployment.yaml
+  - templates/networkpolicy.yaml
+  - templates/configmap.yaml
+  - templates/configmap-adlists.yaml
+  - templates/configmap-allowed.yaml
+  - templates/configmap-denied.yaml
+  - templates/configmap-regex.yaml
+  - templates/configmap-static-dhcp.yaml
+release:
+  name: pihole
+tests:
+  - it: turns the NTP client off and adds no SYS_TIME by default
+    template: templates/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_ntp_sync_active
+            value: "false"
+      - notExists:
+          path: spec.template.spec.containers[?(@.name == "pihole")].securityContext.capabilities
+
+  - it: turns the NTP client on and adds SYS_TIME to capabilities with ntp.sync
+    template: templates/deployment.yaml
+    set:
+      ntp.sync: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_ntp_sync_active
+            value: "true"
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "pihole")].securityContext
+          value:
+            privileged: false
+            capabilities:
+              add:
+                - SYS_TIME
+
+  - it: appends SYS_TIME to the legacy capabilities
+    template: templates/deployment.yaml
+    set:
+      ntp.sync: true
+      capabilities:
+        add:
+          - NET_ADMIN
+        drop:
+          - MKNOD
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "pihole")].securityContext.capabilities
+          value:
+            add:
+              - NET_ADMIN
+              - SYS_TIME
+            drop:
+              - MKNOD
+
+  - it: appends SYS_TIME to containerSecurityContext.capabilities when that is used
+    template: templates/deployment.yaml
+    set:
+      ntp.sync: true
+      capabilities:
+        add:
+          - NET_ADMIN
+      containerSecurityContext:
+        privileged: false
+        capabilities:
+          add:
+            - SYS_NICE
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "pihole")].securityContext
+          value:
+            privileged: false
+            capabilities:
+              add:
+                - SYS_NICE
+                - SYS_TIME
+
+  - it: adds capabilities to a containerSecurityContext without any
+    template: templates/deployment.yaml
+    set:
+      ntp.sync: true
+      containerSecurityContext:
+        seccompProfile:
+          type: RuntimeDefault
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "pihole")].securityContext
+          value:
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              add:
+                - SYS_TIME
+
+  - it: does not duplicate SYS_TIME
+    template: templates/deployment.yaml
+    set:
+      ntp.sync: true
+      containerSecurityContext:
+        capabilities:
+          add:
+            - SYS_TIME
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "pihole")].securityContext.capabilities.add
+          value:
+            - SYS_TIME
+
+  - it: adds nothing to a privileged container
+    template: templates/deployment.yaml
+    set:
+      ntp.sync: true
+      containerSecurityContext:
+        privileged: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "pihole")].securityContext
+          value:
+            privileged: true
+
+  - it: adds nothing with the legacy privileged value
+    template: templates/deployment.yaml
+    set:
+      ntp.sync: true
+      privileged: "true"
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[?(@.name == "pihole")].securityContext.capabilities
+
+  - it: respects FTLCONF_ntp_sync_active in extraEnvVars and adds SYS_TIME for it
+    template: templates/deployment.yaml
+    set:
+      extraEnvVars:
+        FTLCONF_ntp_sync_active: "true"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_ntp_sync_active
+          any: true
+          count: 1
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_ntp_sync_active
+            value: "true"
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].securityContext.capabilities.add
+          content: SYS_TIME
+
+  - it: lets ftl.ntp_sync_active override ntp.sync without a duplicate env var
+    template: templates/deployment.yaml
+    set:
+      ntp.sync: true
+      ftl.ntp_sync_active: false
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_ntp_sync_active
+          any: true
+          count: 1
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_ntp_sync_active
+            value: "false"
+      - notExists:
+          path: spec.template.spec.containers[?(@.name == "pihole")].securityContext.capabilities
+
+  - it: allows no NTP egress by default
+    template: templates/networkpolicy.yaml
+    set:
+      networkPolicy.enabled: true
+    asserts:
+      - notContains:
+          path: spec.egress
+          content:
+            ports:
+              - protocol: UDP
+                port: 123
+
+  - it: allows NTP egress with ntp.sync, also with overridden egress rules
+    template: templates/networkpolicy.yaml
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.egress: []
+      ntp.sync: true
+    asserts:
+      - equal:
+          path: spec.egress
+          value:
+            - ports:
+                - protocol: UDP
+                  port: 123

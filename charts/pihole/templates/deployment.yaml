@@ -235,6 +235,11 @@ spec:
           - name: 'FTLCONF_webserver_domain'
             value: {{ .Values.virtualHost | quote }}
           {{- end }}
+          {{- if not (or (hasKey .Values.extraEnvVars "FTLCONF_ntp_sync_active") (hasKey .Values.ftl "ntp_sync_active")) }}
+          # The clock belongs to the node; the NTP client needs SYS_TIME, which the chart adds with ntp.sync
+          - name: FTLCONF_ntp_sync_active
+            value: {{ .Values.ntp.sync | toString | quote }}
+          {{- end }}
           {{- if not (or (hasKey .Values.extraEnvVars "FTLCONF_dns_listeningMode") (hasKey .Values.ftl "dns_listeningMode")) }}
           # Pi-hole's default (LOCAL) drops queries that reach the pod through a Service or load balancer
           - name: FTLCONF_dns_listeningMode
@@ -286,14 +291,18 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.containerSecurityContext }}
+          {{- $securityContext := omit .Values.containerSecurityContext "capabilities" }}
+          {{- with include "pihole.capabilities" (dict "root" . "capabilities" .Values.containerSecurityContext.capabilities "privileged" .Values.containerSecurityContext.privileged) }}
+          {{- $_ := set $securityContext "capabilities" (fromYaml .) }}
+          {{- end }}
           securityContext:
-            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+            {{- toYaml $securityContext | nindent 12 }}
           {{- else }}
           securityContext:
             privileged: {{ .Values.privileged }}
-          {{- if .Values.capabilities }}
+          {{- with include "pihole.capabilities" (dict "root" . "capabilities" .Values.capabilities "privileged" .Values.privileged) }}
             capabilities:
-            {{- toYaml .Values.capabilities | nindent 14 }}
+            {{- . | nindent 14 }}
           {{- end }}
           {{- end }}
           ports:

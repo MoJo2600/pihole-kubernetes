@@ -605,6 +605,13 @@ ftl: {}
   #     fieldRef:
   #       fieldPath: status.podIP
 
+ntp:
+  # -- Let Pi-hole set the system clock from an upstream NTP server (FTL `ntp.sync.active`).
+  # The clock is not namespaced: this changes the time of the whole node. Adds the `SYS_TIME` capability
+  # (not with privileged) and, with `networkPolicy.enabled`, allows NTP egress (UDP 123).
+  # `ftl.ntp_sync_active` or `extraEnvVars.FTLCONF_ntp_sync_active` take precedence.
+  sync: false
+
 # -- port the container should use to expose HTTP traffic
 webHttp: "80"
 
@@ -809,12 +816,10 @@ networkPolicy:
           port: 80
         - protocol: TCP
           port: 443
-    # DNS over TLS (doh.config with DoT servers) and NTP (Pi-hole syncs its clock by default)
+    # DNS over TLS (doh.config with DoT servers)
     - ports:
         - protocol: TCP
           port: 853
-        - protocol: UDP
-          port: 123
     # Allow communication within the cluster
     - to:
         - namespaceSelector: {}
