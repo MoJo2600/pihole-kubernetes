@@ -5,11 +5,22 @@ release:
   name: pihole
 set:
   dualStack.enabled: true
-  serviceDns.mixedService: true
   serviceDns.type: LoadBalancer
 tests:
-  - it: splits the mixed DNS service into IPv4 and IPv6
+  - it: makes the mixed DNS service (the default) one dual-stack service
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.name
+          value: pihole-dns
+      - equal:
+          path: spec.ipFamilies
+          value: [IPv4, IPv6]
+
+  - it: splits the mixed DNS service into IPv4 and IPv6 with splitLoadBalancer
     set:
+      dualStack.splitLoadBalancer: true
       serviceDns.annotationsIPv6:
         metallb.io/loadBalancerIPs: fd00::53
     asserts:
@@ -27,13 +38,3 @@ tests:
           path: metadata.annotations["metallb.io/loadBalancerIPs"]
           value: fd00::53
         documentIndex: 1
-
-  - it: makes the mixed DNS service dual-stack with splitLoadBalancer false
-    set:
-      dualStack.splitLoadBalancer: false
-    asserts:
-      - hasDocuments:
-          count: 1
-      - equal:
-          path: spec.ipFamilies
-          value: [IPv4, IPv6]

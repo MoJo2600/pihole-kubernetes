@@ -35,6 +35,17 @@ Chart 3.0 brings significant improvements to the Pi-hole Helm chart, including m
 - **Pi-hole now also serves the web interface via HTTPS** on `webHttps` (default 443, with Pi-hole's self-signed certificate) and listens on IPv6 as well. Previously the chart limited Pi-hole to plain HTTP. Set `webHttps: ""` to turn HTTPS off, or `redirectToHttps: true` to redirect HTTP to HTTPS (not compatible with `monitoring.sidecar`).
 - **`doh.metrics.enabled` no longer creates a PodMonitor by itself.** It only exposes the dnscrypt-proxy metrics port. A PodMonitor (which needs the Prometheus Operator CRDs) is created only with `monitoring.podMonitor.enabled: true`, and then also scrapes dnscrypt-proxy. Previously, enabling DoH metrics on a cluster without the Prometheus Operator made the install fail.
 
+### Safer defaults
+3.0 needs a reinstall anyway, so these defaults changed in the same release. `scripts/migrate-values.py` warns when your values relied on the old ones.
+- **`serviceDns.type: ClusterIP`** (was `NodePort`). A NodePort never gave clients DNS on port 53, but published Pi-hole on every node; on nodes with public IPs that was an open resolver. Set `LoadBalancer` (or use `hostNetwork`) to serve your network.
+- **`serviceDns.mixedService: true`**: one `<release>-dns` Service for TCP and UDP (stable since Kubernetes 1.26, now the minimum). One Service needs one IP, without MetalLB's `allow-shared-ip` workaround.
+- **`serviceDhcp.enabled: false`**: DHCP broadcasts can't pass a Service, so the DHCP Service is only useful with a DHCP relay.
+- **No default admin password**: a random password is generated and kept across upgrades (was `admin`).
+- **Automatic update strategy**: `Recreate` with a persistent volume, `hostNetwork` or `dnsHostPort`, so two Pi-holes never share `gravity.db` and rollouts don't hang on ports; `RollingUpdate` otherwise.
+- **Dual-stack LoadBalancers** are one dual-stack Service each; `dualStack.splitLoadBalancer: true` restores separate `-ipv6` Services.
+- **NetworkPolicy** lets DNS in from every source (`networkPolicy.ingress.dnsFrom`); the web interface and metrics stay limited to pods. Before, LAN clients behind a LoadBalancer were blocked, and the rules used Service instead of pod ports.
+- **`ingress.pathType: Prefix`** (was `ImplementationSpecific`, which is a regex or exact match on some controllers).
+
 ### Pi-hole image changes to be aware of
 - Since FTL v6.8, files that are symlinks in `/etc/pihole` and `/var/log/pihole` are no longer handed over to the `pihole` user. Mount ConfigMaps/Secrets there with `subPath` (as the chart does).
 - FTL v6.9 changed `webserver.acl`: IPv4 entries now match IPv4 clients everywhere, and IPv6 entries such as `[::]/0` no longer admit IPv4 clients.
@@ -49,6 +60,13 @@ Chart 3.0 brings significant improvements to the Pi-hole Helm chart, including m
 - `kubectl exec`/`logs` without `-c` now reach the Pi-hole container instead of a sidecar ([#399](https://github.com/MoJo2600/pihole-kubernetes/pull/399))
 - HTTPS for the web interface can be turned off (`webHttps: ""`) or enforced (`redirectToHttps: true`) ([#415](https://github.com/MoJo2600/pihole-kubernetes/pull/415))
 - Fixed: `serviceDhcp.extraLabels` were never applied ([#286](https://github.com/MoJo2600/pihole-kubernetes/pull/286))
+- `dnsPort` now changes the port Pi-hole listens on, e.g. when port 53 is taken on the node ([#426](https://github.com/MoJo2600/pihole-kubernetes/issues/426))
+- Dual-stack: one dual-stack LoadBalancer Service (works with k3s ServiceLB, [#334](https://github.com/MoJo2600/pihole-kubernetes/issues/334)), or split Services with `annotationsIPv6` ([#336](https://github.com/MoJo2600/pihole-kubernetes/issues/336)) and the IPv4 Service pinned to IPv4 ([#228](https://github.com/MoJo2600/pihole-kubernetes/issues/228))
+- `commonLabels` and the new `podLabels` are applied to the pods ([#347](https://github.com/MoJo2600/pihole-kubernetes/issues/347))
+- `persistentVolumeClaim.keep` keeps your data on `helm uninstall`
+- `ftl.dns_upstreams`, `ftl.dns_port` and `ftl.dns_listeningMode` override the chart's settings without duplicate env vars
+- Docs: local DNS records with `ftl.dns_hosts` / `ftl.dns_cnameRecords`, dual-stack, and troubleshooting for hostNetwork, DHCP, `existingSecret` passwords and client IPs
+- dnscrypt-proxy 2.1.20 and pihole-exporter v1.3.1 (now runs as non-root)
 
 ### Enhanced Health Probes
 - **Added startup probes** for both Pi-hole and DoH containers

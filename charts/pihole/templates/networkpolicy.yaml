@@ -12,36 +12,42 @@ spec:
   policyTypes:
     - Ingress
     - Egress
+  # NetworkPolicy ports are the pod's (container) ports, not the Service ports.
   ingress:
-    - from:
-        {{- toYaml .Values.networkPolicy.ingress.from | nindent 8 }}
-      ports:
-        # Web interface HTTP
+    # DNS (and DHCP): clients are usually outside the cluster, so every source is allowed unless dnsFrom is set
+    - ports:
+        - protocol: UDP
+          port: {{ .Values.dnsPort }}
+        - protocol: TCP
+          port: {{ .Values.dnsPort }}
+        {{- if .Values.serviceDhcp.enabled }}
+        - protocol: UDP
+          port: {{ .Values.dhcpPort }}
+        {{- end }}
+      {{- with .Values.networkPolicy.ingress.dnsFrom }}
+      from:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    # Web interface and metrics
+    - ports:
         - protocol: TCP
           port: {{ .Values.webHttp }}
         {{- if .Values.webHttps }}
-        # Web interface HTTPS
         - protocol: TCP
           port: {{ .Values.webHttps }}
         {{- end }}
-        # DNS UDP
-        - protocol: UDP
-          port: {{ .Values.serviceDns.port }}
-        # DNS TCP
+        {{- if .Values.monitoring.sidecar.enabled }}
         - protocol: TCP
-          port: {{ .Values.serviceDns.port }}
-        {{- if .Values.serviceDhcp.enabled }}
-        # DHCP
-        - protocol: UDP
-          port: {{ .Values.serviceDhcp.port }}
+          port: {{ .Values.monitoring.sidecar.port }}
         {{- end }}
-        {{- if .Values.doh.enabled }}
-        # DoH/DNSCrypt proxy
-        - protocol: UDP
-          port: 5053
+        {{- if and .Values.doh.enabled .Values.doh.metrics.enabled }}
         - protocol: TCP
-          port: 5053
+          port: {{ .Values.doh.metrics.port }}
         {{- end }}
+      {{- with .Values.networkPolicy.ingress.from }}
+      from:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
   egress:
     {{- toYaml .Values.networkPolicy.egress | nindent 4 }}
 {{- end }}

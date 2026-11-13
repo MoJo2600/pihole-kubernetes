@@ -21,12 +21,6 @@ serviceDns:
     metallb.universe.tf/loadBalancerIPs: 192.168.178.201
     metallb.universe.tf/allow-shared-ip: pihole-svc
 
-serviceDhcp:
-  type: LoadBalancer
-  annotations:
-    metallb.universe.tf/loadBalancerIPs: 192.168.178.201
-    metallb.universe.tf/allow-shared-ip: pihole-svc
-
 podDnsConfig:
   enabled: true
   policy: "None"
@@ -46,6 +40,3 @@ resources:
     cpu: 100m
     memory: 128Mi
 
-extraEnvVars: {
-  DNSMASQ_USER: "root"
-}

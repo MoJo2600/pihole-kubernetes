@@ -8,8 +8,10 @@ release:
   name: pihole
 set:
   dualStack.enabled: true
+  serviceDns.mixedService: false
   serviceDns.type: LoadBalancer
   serviceWeb.type: LoadBalancer
+  serviceDhcp.enabled: true
   serviceDhcp.type: LoadBalancer
 tests:
   - it: creates no ipFamilies without dualStack
@@ -21,7 +23,40 @@ tests:
       - hasDocuments:
           count: 1
 
+  - it: creates one dual-stack LoadBalancer service by default (#334)
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: spec.ipFamilies
+          value: [IPv4, IPv6]
+      - equal:
+          path: spec.ipFamilyPolicy
+          value: PreferDualStack
+
+  - it: treats a missing splitLoadBalancer as the single-service default
+    set:
+      dualStack.splitLoadBalancer: null
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: uses one dual-stack service for non-LoadBalancer types, also when split
+    set:
+      dualStack.splitLoadBalancer: true
+      serviceDns.type: NodePort
+      serviceWeb.type: NodePort
+      serviceDhcp.type: NodePort
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: spec.ipFamilyPolicy
+          value: PreferDualStack
+
   - it: pins the main LoadBalancer service to IPv4 when split (#228)
+    set:
+      dualStack.splitLoadBalancer: true
     asserts:
       - hasDocuments:
           count: 2
@@ -39,6 +74,8 @@ tests:
         documentIndex: 1
 
   - it: names the IPv6 services consistently
+    set:
+      dualStack.splitLoadBalancer: true
     asserts:
       - matchRegex:
           path: metadata.name
@@ -48,6 +85,7 @@ tests:
   - it: merges annotationsIPv6 over annotations on the IPv6 service only (#336)
     template: templates/service-dns-udp.yaml
     set:
+      dualStack.splitLoadBalancer: true
       serviceDns.annotations:
         io.cilium/lb-ipam-ips: 192.168.1.53
         shared: "yes"
@@ -70,6 +108,7 @@ tests:
   - it: puts extraLabels on the IPv6 service too
     template: templates/service-web.yaml
     set:
+      dualStack.splitLoadBalancer: true
       serviceWeb.extraLabels:
         team: dns
     asserts:
@@ -82,34 +121,10 @@ tests:
           value: pihole
         documentIndex: 1
 
-  - it: creates a single dual-stack service with splitLoadBalancer false (#334)
+  - it: fails when loadBalancerIPv6 is set for a single dual-stack service
+    template: templates/service-web.yaml
     set:
-      dualStack.splitLoadBalancer: false
+      serviceWeb.loadBalancerIPv6: fd00::80
     asserts:
-      - hasDocuments:
-          count: 1
-      - equal:
-          path: spec.ipFamilies
-          value: [IPv4, IPv6]
-      - equal:
-          path: spec.ipFamilyPolicy
-          value: PreferDualStack
-
-  - it: keeps split mode when splitLoadBalancer is missing from old values
-    set:
-      dualStack.splitLoadBalancer: null
-    asserts:
-      - hasDocuments:
-          count: 2
-
-  - it: uses one dual-stack service for non-LoadBalancer types
-    set:
-      serviceDns.type: NodePort
-      serviceWeb.type: NodePort
-      serviceDhcp.type: NodePort
-    asserts:
-      - hasDocuments:
-          count: 1
-      - equal:
-          path: spec.ipFamilyPolicy
-          value: PreferDualStack
+      - failedTemplate:
+          errorPattern: loadBalancerIPv6 needs dualStack.splitLoadBalancer

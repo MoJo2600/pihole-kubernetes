@@ -92,13 +92,16 @@ curl -sf --max-time 2 http://localhost:{{ .Values.webHttp }}/api/info/login
 
 {{/*
 Dual stack. Call with (dict "root" $ "svc" .Values.serviceXyz).
-"pihole.splitIPv6" is non-empty when the service is split into an IPv4 and a separate
-"-ipv6" LoadBalancer service (dualStack.splitLoadBalancer, the default). Some load balancers
-(k3s ServiceLB/Klipper) can only serve one dual-stack service, see splitLoadBalancer: false.
+"pihole.splitIPv6" is non-empty when a LoadBalancer service is split into an IPv4 and a separate
+"-ipv6" service (dualStack.splitLoadBalancer: true). By default it is one dual-stack service.
 */}}
 {{- define "pihole.splitIPv6" -}}
-{{- if and .root.Values.dualStack.enabled (eq .svc.type "LoadBalancer") (ne .root.Values.dualStack.splitLoadBalancer false) -}}
+{{- if and .root.Values.dualStack.enabled (eq .svc.type "LoadBalancer") -}}
+{{- if .root.Values.dualStack.splitLoadBalancer -}}
 true
+{{- else if .svc.loadBalancerIPv6 -}}
+{{- fail "loadBalancerIPv6 needs dualStack.splitLoadBalancer: true. For a single dual-stack LoadBalancer service, put both addresses into your load balancer's annotation (e.g. metallb.universe.tf/loadBalancerIPs: \"192.168.1.53,fd00::53\")" -}}
+{{- end -}}
 {{- end -}}
 {{- end }}
 
@@ -135,4 +138,18 @@ labels:
 annotations:
   {{- toYaml . | nindent 2 }}
 {{- end }}
+{{- end }}
+
+{{/*
+Deployment strategy. With persistent storage two Pi-holes would share one gravity.db, and with
+hostNetwork/dnsHostPort the new pod cannot start while the old one holds the ports, so these use Recreate.
+*/}}
+{{- define "pihole.strategyType" -}}
+{{- if .Values.strategyType -}}
+{{ .Values.strategyType }}
+{{- else if or .Values.persistentVolumeClaim.enabled .Values.customVolumes.enabled .Values.dnsHostPort.enabled (and .Values.hostNetwork (ne (toString .Values.hostNetwork) "false")) -}}
+Recreate
+{{- else -}}
+RollingUpdate
+{{- end -}}
 {{- end }}

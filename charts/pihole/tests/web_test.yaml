@@ -78,7 +78,7 @@ tests:
       networkPolicy.enabled: true
     asserts:
       - contains:
-          path: spec.ingress[0].ports
+          path: spec.ingress[1].ports
           content:
             protocol: TCP
             port: 443
@@ -90,11 +90,65 @@ tests:
       webHttps: ""
     asserts:
       - notContains:
-          path: spec.ingress[0].ports
+          path: spec.ingress[1].ports
           content:
             port: null
           any: true
       - notContains:
-          path: spec.ingress[0].ports
+          path: spec.ingress[1].ports
           content:
             port: 443
+
+  - it: opens the pod's DNS port, not the Service port, to every source in the network policy
+    template: templates/networkpolicy.yaml
+    set:
+      networkPolicy.enabled: true
+      dnsPort: "5353"
+    asserts:
+      - contains:
+          path: spec.ingress[0].ports
+          content:
+            protocol: UDP
+            port: 5353
+      - notContains:
+          path: spec.ingress[0].ports
+          content:
+            protocol: UDP
+            port: 53
+      - notExists:
+          path: spec.ingress[0].from
+
+  - it: restricts DNS sources with networkPolicy.ingress.dnsFrom and keeps the web rule on ingress.from
+    template: templates/networkpolicy.yaml
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.ingress.dnsFrom:
+        - ipBlock:
+            cidr: 192.168.1.0/24
+    asserts:
+      - equal:
+          path: spec.ingress[0].from[0].ipBlock.cidr
+          value: 192.168.1.0/24
+      - equal:
+          path: spec.ingress[1].from
+          value:
+            - namespaceSelector: {}
+
+  - it: lets the metrics ports through the network policy
+    template: templates/networkpolicy.yaml
+    set:
+      networkPolicy.enabled: true
+      monitoring.sidecar.enabled: true
+      doh.enabled: true
+      doh.metrics.enabled: true
+    asserts:
+      - contains:
+          path: spec.ingress[1].ports
+          content:
+            protocol: TCP
+            port: 9617
+      - contains:
+          path: spec.ingress[1].ports
+          content:
+            protocol: TCP
+            port: 8080
