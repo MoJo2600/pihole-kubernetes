@@ -22,3 +22,17 @@ tests:
       - equal:
           path: metadata.labels.team
           value: dns
+
+  - it: applies ingress.extraLabels next to the standard labels
+    template: templates/ingress.yaml
+    set:
+      ingress.enabled: true
+      ingress.extraLabels:
+        external-dns: pihole
+    asserts:
+      - equal:
+          path: metadata.labels.external-dns
+          value: pihole
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: pihole

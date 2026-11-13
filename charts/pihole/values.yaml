@@ -166,6 +166,9 @@ ingress:
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
+
+  # -- Labels for the ingress, e.g. for the external-dns `--label-filter`
+  extraLabels: {}
   path: /
   pathType: ImplementationSpecific
   hosts:
