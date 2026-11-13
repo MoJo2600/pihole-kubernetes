@@ -1,0 +1,4 @@
+# HTTP redirects to HTTPS: the probes must switch to HTTPS. Also renders the ingress.
+redirectToHttps: true
+ingress:
+  enabled: true

@@ -36,5 +36,6 @@
 <!-- [Place an '[X]' (no spaces) in all applicable fields. Please remove unrelated fields.] -->
 
 - [ ] Variables are documented in the values.yaml they will be automatically added to README.md during deployment
+- [ ] New or changed values are covered by a test in `charts/pihole/tests/` and, if they change what runs in the pod, a scenario in `charts/pihole/ci/` (see [Tests](https://github.com/MoJo2600/pihole-kubernetes/blob/main/CONTRIBUTING.md#tests))
 - [ ] Title of the pull request follows [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
 - [ ] All commits signed off and in agreement of [Developer Certificate of Origin (DCO)](https://github.com/MoJo2600/pihole-kubernetes/blob/main/CONTRIBUTING.md#sign-your-work)

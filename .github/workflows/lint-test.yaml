@@ -98,14 +98,27 @@ jobs:
               -schema-location default \
               -schema-location "$crd"
           }
-          echo "== default values =="
-          helm template pihole charts/pihole | validate
-          for f in dhcp-values k3s-values metallb-values; do
-            echo "== examples/$f.yaml =="
-            helm template pihole charts/pihole -f "charts/pihole/examples/$f.yaml" | validate
+          # Every chart-testing scenario and every example is validated automatically,
+          # so a new file in ci/ or examples/ is covered without touching this workflow.
+          for f in charts/pihole/ci/*-values.yaml charts/pihole/examples/*-values.yaml; do
+            echo "== $f =="
+            helm template pihole charts/pihole -f "$f" | validate
           done
-          echo "== ci/monitoring-values.yaml =="
-          helm template pihole charts/pihole -f charts/pihole/ci/monitoring-values.yaml | validate
+          # Resources the kind cluster in lint-test cannot install (no Prometheus Operator CRDs)
           echo "== podMonitor enabled =="
-          helm template pihole charts/pihole --set monitoring.podMonitor.enabled=true | validate
+          helm template pihole charts/pihole --set monitoring.podMonitor.enabled=true \
+            --set doh.enabled=true --set doh.metrics.enabled=true | validate
+
+  unittest:
+    name: Template unit tests (helm-unittest)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # Same pinned image as `make unittest` in charts/pihole, so local and CI runs match.
+      - name: Run helm-unittest
+        run: |
+          docker run --rm -u "$(id -u):$(id -g)" -v "$PWD/charts/pihole:/apps" \
+            helmunittest/helm-unittest:4.3.0-1.2.1 .
 

@@ -1,0 +1,3 @@
+# Chart defaults. chart-testing only installs the files in this directory,
+# so the default configuration needs its own (empty) scenario.
+{}

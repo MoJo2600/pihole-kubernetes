@@ -1,0 +1,3 @@
+# Encrypted upstream DNS through the dnscrypt-proxy sidecar.
+doh:
+  enabled: true

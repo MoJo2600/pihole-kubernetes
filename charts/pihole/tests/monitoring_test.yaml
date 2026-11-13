@@ -1,0 +1,44 @@
+suite: monitoring
+templates:
+  - templates/podmonitor.yaml
+release:
+  name: pihole
+tests:
+  - it: creates no PodMonitor by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: creates no PodMonitor for doh metrics alone (needs the Prometheus Operator CRDs)
+    set:
+      doh.enabled: true
+      doh.metrics.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: scrapes the exporter when the PodMonitor is enabled
+    set:
+      monitoring.podMonitor.enabled: true
+    asserts:
+      - isKind:
+          of: PodMonitor
+      - lengthEqual:
+          path: spec.podMetricsEndpoints
+          count: 1
+      - equal:
+          path: spec.podMetricsEndpoints[0].port
+          value: prometheus
+
+  - it: also scrapes dnscrypt-proxy when doh metrics are enabled
+    set:
+      monitoring.podMonitor.enabled: true
+      doh.enabled: true
+      doh.metrics.enabled: true
+    asserts:
+      - lengthEqual:
+          path: spec.podMetricsEndpoints
+          count: 2
+      - equal:
+          path: spec.podMetricsEndpoints[1].port
+          value: dnscrypt-met

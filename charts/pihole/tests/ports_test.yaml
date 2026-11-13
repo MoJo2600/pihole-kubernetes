@@ -1,0 +1,62 @@
+suite: container ports
+templates:
+  - templates/deployment.yaml
+  - templates/configmap.yaml
+  - templates/configmap-adlists.yaml
+  - templates/configmap-allowed.yaml
+  - templates/configmap-denied.yaml
+  - templates/configmap-regex.yaml
+  - templates/configmap-static-dhcp.yaml
+release:
+  name: pihole
+tests:
+  - it: keeps every port name within the Kubernetes limit of 15 characters
+    template: templates/deployment.yaml
+    set:
+      doh.enabled: true
+      doh.metrics.enabled: true
+      monitoring.sidecar.enabled: true
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[*].ports[*].name
+          pattern: ^[a-z0-9-]{1,15}$
+
+  - it: exposes the https port by default
+    template: templates/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].ports
+          content:
+            containerPort: 443
+            name: https
+            protocol: TCP
+
+  - it: drops the https port when webHttps is empty
+    template: templates/deployment.yaml
+    set:
+      webHttps: ""
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].ports
+          content:
+            name: https
+          any: true
+
+  - it: uses the configurable DNS and DHCP ports
+    template: templates/deployment.yaml
+    set:
+      dnsPort: "5353"
+      dhcpPort: "1067"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].ports
+          content:
+            containerPort: 5353
+            name: dns-udp
+            protocol: UDP
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].ports
+          content:
+            containerPort: 1067
+            name: client-udp
+            protocol: UDP
