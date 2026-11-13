@@ -49,5 +49,17 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
   egress:
-    {{- toYaml .Values.networkPolicy.egress | nindent 4 }}
+    {{- with .Values.networkPolicy.egress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.serviceDhcp.enabled }}
+    # DHCP replies go to the relay agent (giaddr, usually a node IP) on 67, or to the client on 68.
+    # After the Service's SNAT they don't match the request's conntrack entry, so they are new egress.
+    # Fixed ports: dnsmasq and the relay use 67 whatever dhcpPort is.
+    - ports:
+        - protocol: UDP
+          port: 67
+        - protocol: UDP
+          port: 68
+    {{- end }}
 {{- end }}

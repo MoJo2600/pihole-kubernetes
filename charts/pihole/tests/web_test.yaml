@@ -134,6 +134,40 @@ tests:
           value:
             - namespaceSelector: {}
 
+  - it: lets DHCP replies out of the network policy with serviceDhcp.enabled (#453)
+    template: templates/networkpolicy.yaml
+    set:
+      networkPolicy.enabled: true
+      serviceDhcp.enabled: true
+      dhcpPort: "1067"
+      networkPolicy.egress: []
+    asserts:
+      - contains:
+          path: spec.egress
+          content:
+            ports:
+              - protocol: UDP
+                port: 67
+              - protocol: UDP
+                port: 68
+      - lengthEqual:
+          path: spec.egress
+          count: 1
+      - contains:
+          path: spec.ingress[0].ports
+          content:
+            protocol: UDP
+            port: 1067
+
+  - it: adds no DHCP egress rule without serviceDhcp.enabled
+    template: templates/networkpolicy.yaml
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.egress: []
+    asserts:
+      - isNullOrEmpty:
+          path: spec.egress
+
   - it: lets the metrics ports through the network policy
     template: templates/networkpolicy.yaml
     set:
