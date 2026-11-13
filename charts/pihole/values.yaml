@@ -2,14 +2,19 @@
 # This is a YAML-formatted file
 # Declare variables to be passed into your templates.
 
-# -- Labels to add to all deployed objects
+# -- Labels to add to all deployed objects, including the pods
 commonLabels: {}
+
+# -- Additional labels for the pods only
+podLabels: {}
 
 # -- The number of replicas
 replicaCount: 1
 
-# -- The `spec.strategyTpye` for updates
-strategyType: RollingUpdate
+# -- The `spec.strategy.type` for updates. Empty (default) picks it automatically: `Recreate` with a persistent volume,
+# `hostNetwork` or `dnsHostPort` (the new pod could not start next to the old one, or two Pi-holes would share one
+# gravity.db), otherwise `RollingUpdate`. Set `RollingUpdate` or `Recreate` to force one.
+strategyType: ""
 
 # -- The maximum number of Pods that can be created over the desired number of `ReplicaSet` during updating.
 maxSurge: 1
@@ -21,7 +26,7 @@ maxUnavailable: 1
 revisionHistoryLimit: 10
 
 image:
-  # -- the repostory to pull the image from
+  # -- the repository to pull the image from
   repository: "pihole/pihole"
   # -- the docker tag, if left empty it will get it from the chart's appVersion
   tag: ""
@@ -31,6 +36,10 @@ image:
 dualStack:
   # -- set this to true to enable creation of DualStack services or creation of separate IPv6 services if `serviceDns.type` is set to `"LoadBalancer"`
   enabled: false
+  # -- For LoadBalancer services: `false` (default) creates one dual-stack (PreferDualStack) service with both addresses;
+  # list both IPs in your load balancer's annotation. `true` creates an IPv4 service plus a separate `-ipv6` service
+  # (set its address with `annotationsIPv6` or `loadBalancerIPv6`), for load balancers that cannot serve dual-stack services.
+  splitLoadBalancer: false
 
 dnsHostPort:
   # -- set this to true to enable dnsHostPort
@@ -40,11 +49,12 @@ dnsHostPort:
 
 # -- Configuration for the DNS service on port 53
 serviceDns:
-  # -- deploys a mixed (TCP + UDP) Service instead of separate ones
-  mixedService: false
+  # -- one Service for DNS over TCP and UDP (`<release>-dns`). Set to false for separate `-dns-tcp` and `-dns-udp` Services
+  mixedService: true
 
-  # -- `spec.type` for the DNS Service
-  type: NodePort
+  # -- `spec.type` for the DNS Service. `ClusterIP` is only reachable inside the cluster; to serve your network use
+  # `LoadBalancer` (or `hostNetwork`), see "Making DNS reachable on port 53" in the README
+  type: ClusterIP
 
   # -- The port of the DNS service
   port: 53
@@ -52,12 +62,12 @@ serviceDns:
   # -- Optional node port for the DNS service
   nodePort: ""
 
-  # -- `spec.externalTrafficPolicy` for the DHCP Service
+  # -- `spec.externalTrafficPolicy` for the DNS Service
   externalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the DNS Service. DEPRECATED in Kubernetes 1.24+. Use `annotations` with your cloud provider's annotation instead (e.g., `metallb.universe.tf/loadBalancerIPs` for MetalLB).
   loadBalancerIP: ""
-  # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service. DEPRECATED in Kubernetes 1.24+.
+  # -- A fixed `spec.loadBalancerIP` for the IPv6 DNS Service (`dualStack.splitLoadBalancer: true` only). DEPRECATED in Kubernetes 1.24+.
   loadBalancerIPv6: ""
   # -- `spec.loadBalancerClass` for the DNS Service. Only used if type is LoadBalancer.
   loadBalancerClass: ""
@@ -66,6 +76,9 @@ serviceDns:
   annotations: {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
+  # -- Annotations for the separate IPv6 DNS Service (`dualStack.enabled` with `splitLoadBalancer: true`), merged over `annotations`.
+  # Use it for per-family settings such as `io.cilium/lb-ipam-ips` or `metallb.io/loadBalancerIPs`.
+  annotationsIPv6: {}
 
   # -- Labels for the DNS service
   extraLabels:
@@ -73,8 +86,9 @@ serviceDns:
 
 # -- Configuration for the DHCP service on port 67
 serviceDhcp:
-  # -- Generate a Service resource for DHCP traffic
-  enabled: true
+  # -- Generate a Service resource for DHCP traffic. Only useful with a DHCP relay: DHCP broadcasts do not pass a Service
+  # (see Troubleshooting → DHCP in the README). With `hostNetwork` no Service is needed
+  enabled: false
 
   # -- `spec.type` for the DHCP Service
   type: NodePort
@@ -90,7 +104,7 @@ serviceDhcp:
 
   # -- A fixed `spec.loadBalancerIP` for the DHCP Service. DEPRECATED in Kubernetes 1.24+. Use `annotations` with your cloud provider's annotation instead (e.g., `metallb.universe.tf/loadBalancerIPs` for MetalLB).
   loadBalancerIP: ""
-  # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service. DEPRECATED in Kubernetes 1.24+.
+  # -- A fixed `spec.loadBalancerIP` for the IPv6 DHCP Service (`dualStack.splitLoadBalancer: true` only). DEPRECATED in Kubernetes 1.24+.
   loadBalancerIPv6: ""
   # -- `spec.loadBalancerClass` for the DHCP Service. Only used if type is LoadBalancer.
   loadBalancerClass: ""
@@ -99,6 +113,9 @@ serviceDhcp:
   annotations: {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
+  # -- Annotations for the separate IPv6 DHCP Service (`dualStack.enabled` with `splitLoadBalancer: true`), merged over `annotations`.
+  # Use it for per-family settings such as `io.cilium/lb-ipam-ips` or `metallb.io/loadBalancerIPs`.
+  annotationsIPv6: {}
   # -- Labels for the DHCP service
   extraLabels:
     {}
@@ -135,15 +152,18 @@ serviceWeb:
 
   # -- A fixed `spec.loadBalancerIP` for the web interface Service. DEPRECATED in Kubernetes 1.24+. Use `annotations` with your cloud provider's annotation instead (e.g., `metallb.universe.tf/loadBalancerIPs` for MetalLB).
   loadBalancerIP: ""
-  # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service. DEPRECATED in Kubernetes 1.24+.
+  # -- A fixed `spec.loadBalancerIP` for the IPv6 web interface Service (`dualStack.splitLoadBalancer: true` only). DEPRECATED in Kubernetes 1.24+.
   loadBalancerIPv6: ""
   # -- `spec.loadBalancerClass` for the web interface Service. Only used if type is LoadBalancer.
   loadBalancerClass: ""
 
-  # -- Annotations for the DHCP service
+  # -- Annotations for the web interface service
   annotations: {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
+  # -- Annotations for the separate IPv6 web interface Service (`dualStack.enabled` with `splitLoadBalancer: true`), merged over `annotations`.
+  # Use it for per-family settings such as `io.cilium/lb-ipam-ips` or `metallb.io/loadBalancerIPs`.
+  annotationsIPv6: {}
 
   # -- Labels for the web interface service
   extraLabels:
@@ -170,7 +190,8 @@ ingress:
   # -- Labels for the ingress, e.g. for the external-dns `--label-filter`
   extraLabels: {}
   path: /
-  pathType: ImplementationSpecific
+  # -- `Prefix` works with every ingress controller; `ImplementationSpecific` is regex or exact match on some (e.g. Cilium)
+  pathType: Prefix
   hosts:
     # virtualHost (default pi.hole) is added to these hosts automatically
     - chart-example.local
@@ -211,7 +232,7 @@ route:
 
 # -- Probes configuration
 probes:
-  # -- probes.liveness -- Configure the healthcheck for the ingress controller
+  # -- Liveness probe of the Pi-hole container
   liveness:
     # -- Generate a liveness probe
     # 'type' defaults to command, can be set to 'httpGet' to use a HTTP GET type liveness probe.
@@ -288,7 +309,7 @@ resources: {}
   #  cpu: 100m
   #  memory: 128Mi
 
-# -- `spec.PersitentVolumeClaim` configuration
+# -- `PersistentVolumeClaim` for /etc/pihole
 persistentVolumeClaim:
   # -- set to true to use pvc
   enabled: false
@@ -296,7 +317,7 @@ persistentVolumeClaim:
   # -- specify an existing `PersistentVolumeClaim` to use
   # existingClaim: ""
 
-  # -- Annotations for the `PersitentVolumeClaim`
+  # -- Annotations for the `PersistentVolumeClaim`
   annotations: {}
 
   accessModes:
@@ -304,6 +325,9 @@ persistentVolumeClaim:
 
   # -- volume claim size
   size: "500Mi"
+  # -- keep the PersistentVolumeClaim (and your Pi-hole data) on `helm uninstall` (`helm.sh/resource-policy: keep`).
+  # A reinstall with the same release name reuses it; delete it by hand when you no longer need it
+  keep: false
 
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -340,8 +364,10 @@ affinity: {}
 admin:
   # -- If set to false admin password will be disabled, password specified below and the pre-existing secret (if specified) will be ignored.
   enabled: true
-  # -- Administrator password when not using an existing secret (see below)
-  password: "admin"
+  # -- Administrator password when not using an existing secret. Empty (default): a random password is generated once
+  # and kept across upgrades (read it from the `<release>-password` secret). GitOps tools that render without cluster
+  # access (e.g. Argo CD) would generate a new one on every sync; use `existingSecret` or set a password there
+  password: ""
   # -- Specify an existing secret to use as admin password
   existingSecret: ""
   # -- Specify the key inside the secret to use
@@ -351,10 +377,10 @@ admin:
     # reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
     # reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "external-dns"
 
-# -- extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use. You can use either scalars or project cm, secrets or pod fields via valueFrom
-extraEnvVars:
-  # issue 360
-  FTLCONF_dns_listeningMode: 'all'
+# -- extraEnvironmentVars is a list of extra environment variables to set for pihole to use. You can use either scalars or project cm, secrets or pod fields via valueFrom.
+# The chart sets `FTLCONF_dns_listeningMode: all` itself (Pi-hole's default `LOCAL` drops queries that reach the pod
+# through a Service or load balancer); override it here or with `ftl.dns_listeningMode`
+extraEnvVars: {}
   # TZ: UTC
   # Project a variable
   # SOME_VAR:
@@ -371,7 +397,7 @@ extraEnvVarsSecret: {}
 
 # -- default upstream DNS 1 server to use
 DNS1: "8.8.8.8"
-# -- default upstream DNS 2 server to use
+# -- default upstream DNS 2 server to use. Set to "" to use only DNS1
 DNS2: "8.8.4.4"
 
 antiaff:
@@ -382,7 +408,7 @@ antiaff:
   avoidRelease: pihole1
   # -- Here you can choose between preferred or required
   strict: true
-  # -- Here you can pass namespaces to be part of those inclueded in anti-affinity
+  # -- Here you can pass namespaces to be part of those included in anti-affinity
   namespaces: []
 
 doh:
@@ -393,7 +419,7 @@ doh:
   # -- repository (using GHCR)
   repository: "ghcr.io/klutchell/dnscrypt-proxy"
   # -- image tag
-  tag: 2.1.15
+  tag: 2.1.20
   # -- Pull policy
   pullPolicy: IfNotPresent
   # -- port dnscrypt-proxy listens on (must match listen_addresses in config)
@@ -536,19 +562,11 @@ dnsmasq:
   # otherSettings: |
   #   rebind-domain-ok=/plex.direct/
 
-  # -- Here we specify custom cname entries that should point to `A` records or
-  # elements in customDnsEntries array.
+  # -- custom dnsmasq CNAME entries. The target must be a host record (`additionalHostsEntries`, `ftl.dns_hosts` or DHCP),
+  # an `address=` entry does not work. Prefer `ftl.dns_cnameRecords` (see "Local DNS records" in the README).
   # The format should be:
   #  - cname=cname.foo.bar,foo.bar
-  #  - cname=cname.bar.foo,bar.foo
-  #  - cname=cname record,dns record
   customCnameEntries: []
-  # Here we specify custom cname entries that should point to `A` records or
-  # elements in customDnsEntries array.
-  # The format should be:
-  #   - cname=cname.foo.bar,foo.bar
-  #   - cname=cname.bar.foo,bar.foo
-  #   - cname=cname record,dns record
 
 # -- list of adlists to import when the gravity database is first created.
 # Only used on a fresh /etc/pihole (no gravity.db yet). With a persistent volume, later changes have no effect;
@@ -579,7 +597,7 @@ regex: {}
 # Note: since FTL v6.7.1, `misc.dnsmasq_lines` can no longer be changed through the web interface or API, only here.
 ftl: {}
   # database_maxDBdays: 14
-  # dns_listeningMode: ALL
+  # dns_listeningMode: LOCAL
   # misc_dnsmasq_lines: "rebind-domain-ok=/plex.direct/"
   # Project a variable
   # dns_reply_host_IPv4:
@@ -597,10 +615,11 @@ webHttps: "443"
 # The default probes then use HTTPS. Not compatible with monitoring.sidecar (pihole-exporter rejects Pi-hole's self-signed certificate).
 redirectToHttps: false
 
-# -- port the container should use to expose DNS traffic
+# -- port Pi-hole listens on for DNS inside the pod (sets FTLCONF_dns_port). Change it when port 53 is taken, e.g. with hostNetwork on Talos;
+# the services keep `serviceDns.port` (53) and forward to it
 dnsPort: "53"
 
-# -- port the container should use to expose DHCP traffic
+# -- container port for DHCP traffic. Pi-hole's DHCP server always listens on 67; this only changes the declared port
 dhcpPort: "67"
 
 # -- hostname of pod
@@ -709,7 +728,7 @@ deploymentAnnotations: {}
 
 # -- Additional annotations for pods
 podAnnotations: {}
-  # Example below allows Prometheus to scape on metric port (requires pihole-exporter sidecar enabled)
+  # Example below allows Prometheus to scrape the metrics port (requires pihole-exporter sidecar enabled)
   # prometheus.io/port: '9617'
   # prometheus.io/scrape: 'true'
 
@@ -720,7 +739,7 @@ extraInitContainers: []
   #   command: ["sh", "-c", "until nslookup kubernetes.default.svc.cluster.local; do sleep 2; done"]
 
 monitoring:
-  # -- Preferably adding prometheus scrape annotations rather than enabling podMonitor.
+  # -- PodMonitor for the Prometheus Operator. Without the operator, use prometheus.io scrape annotations in `podAnnotations` instead
   podMonitor:
     # -- set this to true to create a PodMonitor (requires the Prometheus Operator CRDs). Scrapes the exporter sidecar and, with `doh.metrics.enabled`, dnscrypt-proxy
     enabled: false
@@ -732,7 +751,7 @@ monitoring:
     image:
       # -- the repository to use
       repository: ekofr/pihole-exporter
-      tag: v1.0.0
+      tag: v1.3.1
       pullPolicy: IfNotPresent
     resources:
       limits:
@@ -763,7 +782,12 @@ networkPolicy:
   enabled: false
   # -- Ingress rules configuration
   ingress:
-    # -- Allowed sources for ingress traffic
+    # -- Allowed sources for DNS (and DHCP with `serviceDhcp.enabled`). Empty (default) allows every source, because DNS
+    # clients are usually outside the cluster (through a LoadBalancer, the client IP is kept). Restrict it with
+    # ipBlocks for your networks if needed
+    dnsFrom: []
+    # -- Allowed sources for the web interface and the metrics ports. The default allows pods in all namespaces
+    # (ingress controllers, Prometheus); add an ipBlock for your network if `serviceWeb` is a LoadBalancer
     from:
       - namespaceSelector: {}
       # - podSelector:
@@ -779,12 +803,18 @@ networkPolicy:
           port: 53
         - protocol: TCP
           port: 53
-    # Allow HTTP/HTTPS for downloading ad lists and updates
+    # Allow HTTP/HTTPS for downloading ad lists and updates (and DoH/DNSCrypt with `doh.enabled`)
     - ports:
         - protocol: TCP
           port: 80
         - protocol: TCP
           port: 443
+    # DNS over TLS (doh.config with DoT servers) and NTP (Pi-hole syncs its clock by default)
+    - ports:
+        - protocol: TCP
+          port: 853
+        - protocol: UDP
+          port: 123
     # Allow communication within the cluster
     - to:
         - namespaceSelector: {}

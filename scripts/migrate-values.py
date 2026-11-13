@@ -8,7 +8,9 @@ Handles the mechanical breaking changes:
 
 For the DoH rewrite (cloudflared -> dnscrypt-proxy) it cannot safely translate
 configuration automatically, so it strips the now-obsolete keys and prints a
-warning telling you what to review by hand.
+warning telling you what to review by hand. It also warns about defaults that
+changed in 3.0.0 when your values relied on them (service types, admin password,
+DHCP service, dual-stack services).
 
 Usage:
     python3 migrate-values.py old-values.yaml            # writes to stdout
@@ -28,6 +30,11 @@ except ImportError:
 def migrate(data):
     warnings = []
     changes = []
+
+    # header line of 'helm get values' without '-o yaml'
+    if "USER-SUPPLIED VALUES" in data:
+        data.pop("USER-SUPPLIED VALUES")
+        changes.append("removed the 'USER-SUPPLIED VALUES' header line")
 
     # --- simple top-level renames ---
     if "adminPassword" in data:
@@ -91,6 +98,65 @@ def migrate(data):
                 "configure serviceWeb / serviceDns / serviceDhcp instead."
             )
 
+    pvc = data.get("persistentVolumeClaim")
+    if isinstance(pvc, dict) and isinstance(pvc.get("annotations"), dict) \
+            and pvc["annotations"].get("helm.sh/resource-policy") == "keep":
+        pvc["annotations"].pop("helm.sh/resource-policy")
+        if not pvc["annotations"]:
+            pvc.pop("annotations")
+        pvc["keep"] = True
+        changes.append("persistentVolumeClaim.annotations helm.sh/resource-policy=keep -> persistentVolumeClaim.keep")
+
+    # --- defaults that changed in 3.0.0 (only relevant when the old values relied on them) ---
+    env = data.get("extraEnvVars")
+    if isinstance(env, dict) and str(env.get("FTLCONF_dns_listeningMode", "")).lower() == "all":
+        env.pop("FTLCONF_dns_listeningMode")
+        changes.append("removed extraEnvVars.FTLCONF_dns_listeningMode=all (the chart sets it now)")
+
+    admin = data.get("admin") if isinstance(data.get("admin"), dict) else {}
+    if admin.get("enabled", True) and not admin.get("password") and not admin.get("existingSecret"):
+        warnings.append(
+            "No admin password set: the old default was 'admin', 3.0 generates a random one\n"
+            "      (kubectl get secret <release>-password -o jsonpath='{.data.password}' | base64 -d)."
+        )
+
+    dns = data.get("serviceDns") if isinstance(data.get("serviceDns"), dict) else {}
+    if "type" not in dns:
+        warnings.append(
+            "serviceDns.type is not set: the default changed from NodePort to ClusterIP.\n"
+            "      Set 'serviceDns.type: LoadBalancer' (or NodePort) to serve DNS outside the cluster."
+        )
+    if "mixedService" not in dns:
+        warnings.append(
+            "serviceDns.mixedService defaults to true now: one '<release>-dns' Service instead of\n"
+            "      '-dns-tcp' and '-dns-udp'. Set it to false to keep the separate Services."
+        )
+
+    dhcp = data.get("serviceDhcp") if isinstance(data.get("serviceDhcp"), dict) else {}
+    if "enabled" not in dhcp:
+        warnings.append(
+            "serviceDhcp.enabled defaults to false now. Set it to true only if you use a DHCP relay."
+        )
+
+    stack = data.get("dualStack") if isinstance(data.get("dualStack"), dict) else {}
+    if stack.get("enabled") and "splitLoadBalancer" not in stack:
+        uses_v6_ip = [
+            name for name in ("serviceDns", "serviceWeb", "serviceDhcp")
+            if isinstance(data.get(name), dict) and data[name].get("loadBalancerIPv6")
+        ]
+        if uses_v6_ip:
+            stack["splitLoadBalancer"] = True
+            changes.append(
+                "dualStack.splitLoadBalancer=true (keeps the separate -ipv6 services for loadBalancerIPv6 in "
+                + ", ".join(uses_v6_ip) + ")"
+            )
+        else:
+            warnings.append(
+                "dualStack: LoadBalancer services are now one dual-stack Service each instead of an extra\n"
+                "      '-ipv6' Service. List both addresses in the load balancer annotation, or set\n"
+                "      'dualStack.splitLoadBalancer: true' to keep the separate Services."
+            )
+
     return changes, warnings
 
 
@@ -131,6 +197,10 @@ def main():
             note(f"  ! {w}")
     note("IMPORTANT: The 3.0.0 selector labels changed and are immutable.")
     note("  You must 'helm uninstall' and reinstall (in-place upgrade will fail).")
+    note("  With persistentVolumeClaim.enabled, keep your data on uninstall first (Helm reads the")
+    note("  policy from the release, so 'kubectl annotate' is not enough):")
+    note("    helm upgrade <release> mojo2600/pihole -n <namespace> --version <your 2.x version> --reuse-values \\")
+    note("      --set-string 'persistentVolumeClaim.annotations.helm\\.sh/resource-policy=keep'")
     note("")
 
 

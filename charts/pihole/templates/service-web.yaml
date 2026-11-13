@@ -14,11 +14,8 @@ metadata:
 {{- end }}
 spec:
   type: {{ .Values.serviceWeb.type }}
-  {{- if and (.Values.dualStack.enabled) (not (eq .Values.serviceWeb.type "LoadBalancer")) }}
-  ipFamilies:
-  - IPv4
-  - IPv6
-  ipFamilyPolicy: PreferDualStack
+  {{- with include "pihole.ipFamilies" (dict "root" $ "svc" .Values.serviceWeb) }}
+  {{- . | nindent 2 }}
   {{- end }}
   {{- if .Values.serviceWeb.loadBalancerIP }}
   loadBalancerIP: {{ .Values.serviceWeb.loadBalancerIP }}
@@ -57,17 +54,12 @@ spec:
   selector:
     {{- include "pihole.selectorLabels" . | nindent 4 }}
 ---
-{{- if and (.Values.dualStack.enabled) (eq .Values.serviceWeb.type "LoadBalancer") -}}
+{{- if include "pihole.splitIPv6" (dict "root" $ "svc" .Values.serviceWeb) -}}
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ template "pihole.fullname" . }}-web-ipv6
-  labels:
-    {{- include "pihole.labels" . | nindent 4 }}
-{{- if .Values.serviceWeb.annotations }}
-  annotations:
-{{ toYaml .Values.serviceWeb.annotations | indent 4 }}
-{{- end }}
+  {{- include "pihole.ipv6Metadata" (dict "root" $ "svc" .Values.serviceWeb) | nindent 2 }}
 spec:
   type: {{ .Values.serviceWeb.type }}
   ipFamilies:

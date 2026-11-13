@@ -51,3 +51,33 @@ tests:
           content:
             name: pihole
           any: true
+
+  - it: puts commonLabels and podLabels on the pods but not in the selector (#347)
+    template: templates/deployment.yaml
+    set:
+      commonLabels:
+        team: dns
+      podLabels:
+        tier: edge
+    asserts:
+      - equal:
+          path: spec.template.metadata.labels.team
+          value: dns
+      - equal:
+          path: spec.template.metadata.labels.tier
+          value: edge
+      - notExists:
+          path: spec.selector.matchLabels.team
+      - notExists:
+          path: spec.selector.matchLabels.tier
+      - notExists:
+          path: metadata.labels.tier
+
+  - it: uses pathType Prefix by default (#314)
+    template: templates/ingress.yaml
+    set:
+      ingress.enabled: true
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].pathType
+          value: Prefix

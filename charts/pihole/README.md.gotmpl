@@ -27,6 +27,7 @@
   - [Example values.yaml](#example-valuesyaml)
   - [Admin password](#admin-password)
   - [Upstream DNS resolvers](#upstream-dns-resolvers)
+  - [Local DNS records](#local-dns-records)
   - [Encrypted upstream DNS (DoH / DoT / DNSCrypt)](#encrypted-upstream-dns-doh--dot--dnscrypt)
   - [Persistence](#persistence)
   - [NetworkPolicy](#networkpolicy)
@@ -37,13 +38,15 @@
 - [Troubleshooting](#troubleshooting)
   - [Pi-hole does not start with hostNetwork](#pi-hole-does-not-start-with-hostnetwork)
   - [DHCP](#dhcp)
+  - [Admin password from existingSecret is rejected](#admin-password-from-existingsecret-is-rejected)
+  - [Query log shows the same client for every query](#query-log-shows-the-same-client-for-every-query)
 - [Upgrading](#upgrading)
 - [Uninstallation](#uninstallation)
 - [Values](#values)
 
 ## Prerequisites
 
-- Kubernetes 1.19+ (the Ingress template uses `networking.k8s.io/v1`)
+- Kubernetes 1.26+
 - Helm 3+
 - A default `StorageClass` if you enable persistence (`persistentVolumeClaim.enabled`)
 - A `LoadBalancer` provider such as [MetalLB](https://metallb.universe.tf/) if you want to expose DNS/web on a routable IP
@@ -114,7 +117,7 @@ Every option can be set with `--set key=value` at install time or, preferably, i
 
 Choose how the DNS and web services are exposed:
 
-- **ClusterIP** — reachable only inside the cluster (default for the web service). Use with an Ingress or a port-forward.
+- **ClusterIP** — reachable only inside the cluster (the default for all services). Use with an Ingress or a port-forward.
 - **LoadBalancer** — exposes the service on an external IP via your cloud provider or MetalLB.
 - **Ingress** — set `ingress.enabled: true` to route the web interface through an ingress controller (which must already be installed).
 - **Gateway API** — set `route.enabled: true` and `route.parentRefs` to create an `HTTPRoute` instead of an Ingress (needs the Gateway API CRDs and a Gateway).
@@ -126,7 +129,7 @@ This is the most common stumbling block for new users. This chart installs Pi-ho
 Why it needs special attention:
 
 - Clients send DNS queries to **UDP/TCP port 53**, a privileged, fixed port. Your router, phones and laptops cannot be told to use "port 31514" — they expect DNS on `53`.
-- The default `serviceDns.type` is **`NodePort`**, which publishes DNS on a *random high port* (30000–32767), **not** on `53`. That is fine for testing from inside the cluster, but clients on your LAN can't use it as their DNS server.
+- The default `serviceDns.type` is **`ClusterIP`**: DNS is only reachable inside the cluster. A `NodePort` doesn't help either, it publishes DNS on a *random high port* (30000–32767), **not** on `53`, which clients on your LAN can't use as their DNS server.
 - Port 53 on the nodes is often **already taken** by the host OS resolver (e.g. `systemd-resolved` listening on `127.0.0.53:53`, or `dnsmasq`). Binding Pi-hole directly to the host's port 53 will clash with it.
 
 Common strategies, from most to least recommended:
@@ -144,7 +147,7 @@ Common strategies, from most to least recommended:
 
 - **NodePort with a fixed port.** Works, but NodePorts must fall in the `30000–32767` range by default, so you cannot serve `53` directly unless you widen `--service-node-port-range` on the API server. Usually not worth it.
 
-If DNS "isn't working" after install, it's almost always because the DNS service is a `NodePort` (the default) rather than exposed on a routable IP on port 53.
+If DNS "isn't working" after install, it's almost always because the DNS service is still a `ClusterIP` (the default) rather than exposed on a routable IP on port 53.
 
 #### `loadBalancerIP` is deprecated
 
@@ -166,16 +169,42 @@ serviceWeb:
 
 **Cloud providers:** consult your provider's documentation for the appropriate annotation (e.g. `service.beta.kubernetes.io/aws-load-balancer-eip-allocations` for AWS).
 
+#### Dual-stack (IPv4 + IPv6)
+
+Set `dualStack.enabled: true` on a dual-stack cluster. Every service then becomes one dual-stack service (`PreferDualStack`) with an IPv4 and an IPv6 address. For a `LoadBalancer`, list both addresses in your load balancer's annotation. This works with MetalLB, Cilium LB IPAM, k3s ServiceLB and the major cloud providers:
+
+```yaml
+dualStack:
+  enabled: true
+serviceDns:
+  type: LoadBalancer
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 192.168.1.53,fd00::53
+    # Cilium: io.cilium/lb-ipam-ips: 192.168.1.53,fd00::53
+```
+
+If your load balancer can't serve dual-stack services, set `dualStack.splitLoadBalancer: true`. Each `LoadBalancer` service is then split into an IPv4 service and a separate `-ipv6` service. Set the IPv6 address with `annotationsIPv6` (merged over `annotations` for the `-ipv6` service only) or the deprecated `loadBalancerIPv6`:
+
+```yaml
+dualStack:
+  enabled: true
+  splitLoadBalancer: true
+serviceDns:
+  type: LoadBalancer
+  annotations:
+    io.cilium/lb-ipam-ips: 192.168.1.53
+  annotationsIPv6:
+    io.cilium/lb-ipam-ips: fd00::53
+```
+
 ### Example values.yaml
 
 A typical home setup exposing web and DNS on a shared MetalLB IP with persistence enabled:
 
 ```yaml
-dnsmasq:
-  customDnsEntries:
-    - address=/nas/192.168.178.10
-  customCnameEntries:
-    - cname=foo.nas,nas
+ftl:
+  dns_hosts: "192.168.178.10 nas.lan"
+  dns_cnameRecords: "files.lan,nas.lan"
 
 persistentVolumeClaim:
   enabled: true
@@ -207,11 +236,15 @@ admin:
   passwordKey: password
 ```
 
-If `admin.password` is empty and no `existingSecret` is set, a random password is generated into the `<release>-password` secret (retrieve it as shown in [Access the web interface](#access-the-web-interface)). Set `admin.enabled: false` to disable password authentication entirely.
+By default (`admin.password` empty, no `existingSecret`) a random password is generated into the `<release>-password` secret and kept across upgrades. Retrieve it as shown in [Access the web interface](#access-the-web-interface). Set `admin.enabled: false` to disable password authentication entirely.
+
+> **GitOps (Argo CD, Flux with server-side rendering off):** tools that render the chart without access to the cluster can't see the existing secret and would generate a new password on every sync. Use `existingSecret` (e.g. from External Secrets or Sealed Secrets) instead.
 
 ### Upstream DNS resolvers
 
-By default the chart configures pod DNS to use Google's `8.8.8.8` for upstream resolution. Change it via `podDnsConfig`, for example to use Cloudflare:
+Pi-hole forwards queries it cannot answer to `DNS1` and `DNS2` (default Google, `8.8.8.8` and `8.8.4.4`). To use a single upstream, set `DNS2: ""`; for more than two, set `ftl.dns_upstreams` (semicolon-separated). With `doh.enabled` the upstream is the dnscrypt-proxy sidecar instead.
+
+The pod's own DNS (used by Pi-hole itself, e.g. to download ad lists) is set separately by `podDnsConfig`; by default it is Pi-hole plus Google's `8.8.8.8`. Change it, for example to use Cloudflare:
 
 ```yaml
 podDnsConfig:
@@ -228,6 +261,22 @@ To opt out of pod DNS configuration entirely (e.g. when running a service mesh):
 podDnsConfig:
   enabled: false
 ```
+
+### Local DNS records
+
+Use Pi-hole v6's own settings for local A/AAAA and CNAME records. They show up under *Settings → Local DNS Records* in the web interface, live in your values (Git), and are applied on every start:
+
+```yaml
+ftl:
+  # "IP hostname", separated by semicolons
+  dns_hosts: "192.168.1.10 nas.lan;192.168.1.11 printer.lan"
+  # "alias,target", separated by semicolons
+  dns_cnameRecords: "files.lan,nas.lan"
+```
+
+Settings set this way are read-only in the web interface. If you prefer to manage records in the web interface instead, leave these unset and enable `persistentVolumeClaim`: Pi-hole stores them in `/etc/pihole/pihole.toml`.
+
+The older `dnsmasq.customDnsEntries` (`address=`), `dnsmasq.customCnameEntries` and `dnsmasq.additionalHostsEntries` still work, but these records do not show in the web interface. A dnsmasq `cname=` only resolves when its target is a host record (`ftl.dns_hosts`, `additionalHostsEntries` or DHCP); a target defined with `address=` returns the CNAME without an address. Other dnsmasq options (e.g. an SRV record: `srv-host=_vlmcs._tcp.lan,kms.lan,1688`) go into `ftl.misc_dnsmasq_lines`.
 
 ### Encrypted upstream DNS (DoH / DoT / DNSCrypt)
 
@@ -262,9 +311,17 @@ persistentVolumeClaim:
 
 Without persistence, block lists and settings are re-created from your Helm values on every restart.
 
+With persistence, the chart updates Pi-hole with the `Recreate` strategy (the old pod stops before the new one starts), so two Pi-holes never write to the same database. Set `persistentVolumeClaim.keep: true` to keep the volume when you `helm uninstall`; a reinstall with the same release name reuses it.
+
 ### NetworkPolicy
 
-Set `networkPolicy.enabled: true` to restrict pod traffic. The default ingress allows web, DNS and DHCP (plus DoH when enabled); the default egress permits DNS resolution and HTTP/HTTPS for ad-list updates. Customize via `networkPolicy.ingress` and `networkPolicy.egress`.
+Set `networkPolicy.enabled: true` to restrict pod traffic:
+
+- **DNS (and DHCP with `serviceDhcp.enabled`)** is allowed from every source, because DNS clients are usually outside the cluster. Restrict it with `networkPolicy.ingress.dnsFrom`, e.g. an `ipBlock` for your LAN.
+- **The web interface and the metrics ports** are allowed from pods in all namespaces (`networkPolicy.ingress.from`), which covers ingress controllers and Prometheus. If `serviceWeb` is a `LoadBalancer`, add an `ipBlock` for your network.
+- **Egress** allows DNS, HTTP/HTTPS (ad lists, DoH), DNS over TLS, NTP and traffic inside the cluster (`networkPolicy.egress`).
+
+The rules use the pod's ports (`dnsPort`, `webHttp`, ...), not the Service ports.
 
 ### ServiceAccount
 
@@ -308,6 +365,21 @@ DHCP clients find the server with layer-2 broadcasts. Kubernetes Services and lo
 1. **Host network:** run Pi-hole with `hostNetwork: true` and the `NET_ADMIN` capability on a node in the LAN, and enable the DHCP server with `FTLCONF_dhcp_*` settings. [`examples/dhcp-values.yaml`](examples/dhcp-values.yaml) is a complete starting point.
 2. **DHCP relay:** keep Pi-hole off the host network and run a small DHCP relay with host networking (for example [dhcphelper](https://github.com/homeall/dhcphelper), not part of this chart). It receives the broadcasts and forwards them as unicast to Pi-hole's DHCP service (`serviceDhcp.enabled: true`).
 
+### Admin password from existingSecret is rejected
+
+Pi-hole compares the password byte for byte, so a trailing newline in the secret makes the login fail. This happens when the value was encoded with `echo password | base64` (without `-n`) or written into a file with a final newline. Create the secret without one:
+
+```console
+kubectl create secret generic pihole-password --from-literal=password='change-me'
+```
+
+### Query log shows the same client for every query
+
+Pi-hole sees the source address of each query. If that is a node, a load balancer pod or an ingress, the client IP was replaced (SNAT) on the way:
+
+- Keep `serviceDns.externalTrafficPolicy: Local` (the default), so Kubernetes does not forward queries through another node.
+- k3s ServiceLB (Klipper) always replaces the client IP. Use MetalLB or Cilium as the load balancer, or `hostNetwork`, to see the real clients.
+
 ## Upgrading
 
 ### To 3.0.0
@@ -322,6 +394,17 @@ Breaking changes:
 - **`virtualHost` now sets Pi-hole's web domain** (`FTLCONF_webserver_domain`) and is added to the ingress hosts. The old `VIRTUAL_HOST` variable was a Pi-hole v5 setting that v6 ignores. Since Pi-hole FTL v6.8, `/` on any other host name returns 404 (only `/admin/` still works), so set `virtualHost` to the host name you use for the web interface. Set it to `""` to opt out.
 - **Health probes no longer depend on upstream DNS.** The default probes check Pi-hole itself (API plus a local `pi.hole` lookup) instead of resolving `cloudflare.com`, so an internet outage no longer restarts Pi-hole. Each step has its own timeout, so a hung Pi-hole is now reliably restarted. The dnscrypt-proxy sidecar's liveness probe is a TCP check.
 - **Pi-hole now also serves the web interface via HTTPS** on `webHttps` (default 443, with Pi-hole's self-signed certificate) and listens on IPv6 as well. Previously the chart limited Pi-hole to plain HTTP. Set `webHttps: ""` to turn HTTPS off, or `redirectToHttps: true` to redirect HTTP to HTTPS (not compatible with `monitoring.sidecar`).
+- **New defaults, so check whether you relied on the old ones** (`scripts/migrate-values.py` warns about each):
+  - `serviceDns.type` is `ClusterIP` (was `NodePort`). Set `LoadBalancer` to serve your network.
+  - `serviceDns.mixedService` is `true`: one `<release>-dns` Service for TCP and UDP instead of `-dns-tcp` and `-dns-udp` (needs Kubernetes 1.26+).
+  - `serviceDhcp.enabled` is `false`. The DHCP Service only helps with a DHCP relay.
+  - `admin.password` is empty: a random password is generated and kept across upgrades (was `admin`).
+  - `strategyType` is chosen automatically: `Recreate` with a persistent volume, `hostNetwork` or `dnsHostPort`, otherwise `RollingUpdate`.
+  - `FTLCONF_dns_listeningMode: all` is set by the chart instead of `extraEnvVars`; override it with `ftl.dns_listeningMode`.
+- **NetworkPolicy:** DNS is allowed from every source by default (`networkPolicy.ingress.dnsFrom`); before, only pods could reach Pi-hole, so clients behind a LoadBalancer were blocked. The rules now use the pod ports.
+- **`ingress.pathType` defaults to `Prefix`** instead of `ImplementationSpecific`, which some ingress controllers (e.g. Cilium) treat as a regex or exact match.
+- **Dual-stack LoadBalancer services** are one dual-stack Service each instead of an IPv4 plus an `-ipv6` Service; put both addresses into the load balancer annotation. `dualStack.splitLoadBalancer: true` keeps separate services (needed for `loadBalancerIPv6`). See [Dual-stack](#dual-stack-ipv4--ipv6).
+- **`dnsPort` now changes the port Pi-hole listens on** (`FTLCONF_dns_port`). Before, it only changed the container port, and any value other than 53 broke the probes.
 - **`doh.metrics.enabled` no longer creates a PodMonitor by itself.** It only exposes the dnscrypt-proxy metrics port. A PodMonitor (which needs the Prometheus Operator CRDs) is created only with `monitoring.podMonitor.enabled: true`, and then also scrapes dnscrypt-proxy. Previously, enabling DoH metrics on a cluster without the Prometheus Operator made the install fail.
 
 Pi-hole image changes since the 2.x charts (container 2026.11.0, FTL v6.9) that may affect you:
@@ -330,7 +413,7 @@ Pi-hole image changes since the 2.x charts (container 2026.11.0, FTL v6.9) that 
 - FTL v6.9 changed regex filters: `{,n}` now means `{0,n}`.
 - `adlists`, `allowed`, `denied` and `regex` are only imported when the gravity database is first created. With a persistent volume, later changes to these values have no effect.
 
-A helper script, [`scripts/migrate-values.py`](../../scripts/migrate-values.py), automates the key renames above and warns about the DoH changes. It requires Python 3 and PyYAML (`pip install pyyaml`). Comments are not preserved, so review its output before use.
+A helper script, [`scripts/migrate-values.py`](../../scripts/migrate-values.py), automates the key renames above and warns about the DoH changes and the new defaults. It requires Python 3 and PyYAML (`pip install pyyaml`). Comments are not preserved, so review its output before use.
 
 Migration:
 
@@ -338,11 +421,17 @@ Migration:
 # 1. Backup your Pi-hole config (if using persistent storage)
 kubectl cp <namespace>/<pihole-pod>:/etc/pihole ./pihole-backup
 
+#    and keep the volume on uninstall, so the reinstall (same release name) reuses it.
+#    Helm reads this policy from the release, so it has to be set with helm, not kubectl.
+#    This only updates the PVC; Pi-hole keeps running.
+helm upgrade <release-name> mojo2600/pihole -n <namespace> --version <your 2.x version> --reuse-values \
+  --set-string 'persistentVolumeClaim.annotations.helm\.sh/resource-policy=keep'
+
 # 2. Backup your Helm values
-helm get values <release-name> -n <namespace> > pihole-values-backup.yaml
+helm get values <release-name> -n <namespace> -o yaml > pihole-values-backup.yaml
 
 # 3. Convert the backed-up values to the new format (renames adminPassword,
-#    whitelist and blacklist; warns about the DoH/dnscrypt-proxy changes)
+#    whitelist and blacklist; warns about the DoH changes and the new defaults)
 python3 scripts/migrate-values.py pihole-values-backup.yaml -o pihole-values-new.yaml
 
 # 4. Uninstall the existing release

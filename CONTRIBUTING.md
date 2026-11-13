@@ -53,7 +53,7 @@ The chart is tested on three levels. All of them run in CI for every pull reques
 | Level | Where | What it catches | Run locally |
 | --- | --- | --- | --- |
 | Template unit tests | `charts/pihole/tests/*_test.yaml` ([helm-unittest](https://github.com/helm-unittest/helm-unittest)) | Wrong rendering for a value combination: missing or duplicate env vars, ports, probes, conditional resources | `make unittest` (seconds) |
-| Schema validation | every file in `ci/` and `examples/` | Manifests Kubernetes would reject (1.23, 1.27, 1.31) | see `kubeconform` above |
+| Schema validation | every file in `ci/` and `examples/` | Manifests Kubernetes would reject (1.26, 1.30, 1.34) | see `kubeconform` above |
 | Install scenarios | `charts/pihole/ci/*-values.yaml` | The chart does not come up with the real Pi-hole image: pods not ready, `helm test` (DNS + web) fails | `ct install --charts charts/pihole` on kind (minutes) |
 
 **When you add or change a value:**

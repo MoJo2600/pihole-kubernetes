@@ -1,0 +1,173 @@
+suite: defaults
+templates:
+  - templates/deployment.yaml
+  - templates/secret.yaml
+  - templates/volume-claim.yaml
+  - templates/service-dns.yaml
+  - templates/service-dhcp.yaml
+  - templates/configmap.yaml
+  - templates/configmap-adlists.yaml
+  - templates/configmap-allowed.yaml
+  - templates/configmap-denied.yaml
+  - templates/configmap-regex.yaml
+  - templates/configmap-static-dhcp.yaml
+release:
+  name: pihole
+  namespace: dns
+tests:
+  - it: uses RollingUpdate without persistent storage
+    template: templates/deployment.yaml
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: RollingUpdate
+      - equal:
+          path: spec.strategy.rollingUpdate.maxSurge
+          value: 1
+
+  - it: uses Recreate with a persistent volume, so two Pi-holes never share gravity.db
+    template: templates/deployment.yaml
+    set:
+      persistentVolumeClaim.enabled: true
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: Recreate
+      - notExists:
+          path: spec.strategy.rollingUpdate
+
+  - it: uses Recreate with hostNetwork and dnsHostPort
+    template: templates/deployment.yaml
+    set:
+      hostNetwork: "true"
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: Recreate
+
+  - it: uses Recreate with dnsHostPort
+    template: templates/deployment.yaml
+    set:
+      dnsHostPort.enabled: true
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: Recreate
+
+  - it: keeps RollingUpdate for hostNetwork "false" (string)
+    template: templates/deployment.yaml
+    set:
+      hostNetwork: "false"
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: RollingUpdate
+
+  - it: lets strategyType override the automatic choice
+    template: templates/deployment.yaml
+    set:
+      persistentVolumeClaim.enabled: true
+      strategyType: RollingUpdate
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: RollingUpdate
+
+  - it: sets dns.listeningMode to all once
+    template: templates/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_dns_listeningMode
+            value: all
+
+  - it: lets ftl.dns_listeningMode override listeningMode without a duplicate env var
+    template: templates/deployment.yaml
+    set:
+      ftl.dns_listeningMode: LOCAL
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_dns_listeningMode
+          any: true
+          count: 1
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_dns_listeningMode
+            value: LOCAL
+
+  - it: generates a random admin password by default
+    template: templates/secret.yaml
+    asserts:
+      - matchRegex:
+          path: data.password
+          decodeBase64: true
+          pattern: ^[A-Za-z0-9]{40}$
+
+  - it: keeps the generated admin password of an existing secret on upgrade
+    template: templates/secret.yaml
+    kubernetesProvider:
+      scheme:
+        "v1/Secret":
+          gvr:
+            version: "v1"
+            resource: "secrets"
+          namespaced: true
+      objects:
+        - kind: Secret
+          apiVersion: v1
+          metadata:
+            name: pihole-password
+            namespace: dns
+          data:
+            password: a2VlcC1tZQ==
+    asserts:
+      - equal:
+          path: data.password
+          value: a2VlcC1tZQ==
+
+  - it: uses admin.password when set
+    template: templates/secret.yaml
+    set:
+      admin.password: change-me
+    asserts:
+      - equal:
+          path: data.password
+          value: Y2hhbmdlLW1l
+
+  - it: keeps the PVC on uninstall with persistentVolumeClaim.keep
+    template: templates/volume-claim.yaml
+    set:
+      persistentVolumeClaim.enabled: true
+      persistentVolumeClaim.keep: true
+    asserts:
+      - equal:
+          path: metadata.annotations["helm.sh/resource-policy"]
+          value: keep
+      - notExists:
+          path: metadata.labels.component
+
+  - it: does not keep the PVC by default
+    template: templates/volume-claim.yaml
+    set:
+      persistentVolumeClaim.enabled: true
+    asserts:
+      - notExists:
+          path: metadata.annotations
+
+  - it: creates one ClusterIP DNS service and no DHCP service by default
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+        template: templates/service-dns.yaml
+      - equal:
+          path: metadata.name
+          value: pihole-dns
+        template: templates/service-dns.yaml
+      - hasDocuments:
+          count: 0
+        template: templates/service-dhcp.yaml

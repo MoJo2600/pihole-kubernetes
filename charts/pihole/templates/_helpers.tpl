@@ -89,3 +89,67 @@ curl -skf --max-time 2 https://localhost:{{ .Values.webHttps }}/api/info/login
 curl -sf --max-time 2 http://localhost:{{ .Values.webHttp }}/api/info/login
 {{- end }} | jq -e '.dns == true' >/dev/null && [ -n "$(dig +short +norecurse +retry=0 +time=2 -p {{ .Values.dnsPort }} @127.0.0.1 pi.hole)" ]
 {{- end }}
+
+{{/*
+Dual stack. Call with (dict "root" $ "svc" .Values.serviceXyz).
+"pihole.splitIPv6" is non-empty when a LoadBalancer service is split into an IPv4 and a separate
+"-ipv6" service (dualStack.splitLoadBalancer: true). By default it is one dual-stack service.
+*/}}
+{{- define "pihole.splitIPv6" -}}
+{{- if and .root.Values.dualStack.enabled (eq .svc.type "LoadBalancer") -}}
+{{- if .root.Values.dualStack.splitLoadBalancer -}}
+true
+{{- else if .svc.loadBalancerIPv6 -}}
+{{- fail "loadBalancerIPv6 needs dualStack.splitLoadBalancer: true. For a single dual-stack LoadBalancer service, put both addresses into your load balancer's annotation (e.g. metallb.universe.tf/loadBalancerIPs: \"192.168.1.53,fd00::53\")" -}}
+{{- end -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+ipFamilies of the main service. When split, it is pinned to IPv4 so it gets an IPv4 address
+even on IPv6-primary clusters; otherwise it is a single dual-stack service.
+*/}}
+{{- define "pihole.ipFamilies" -}}
+{{- if .root.Values.dualStack.enabled -}}
+{{- if include "pihole.splitIPv6" . -}}
+ipFamilies:
+  - IPv4
+ipFamilyPolicy: SingleStack
+{{- else -}}
+ipFamilies:
+  - IPv4
+  - IPv6
+ipFamilyPolicy: PreferDualStack
+{{- end -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Metadata labels and annotations of the "-ipv6" service: the service's extraLabels and its
+annotations, overridden key by key by annotationsIPv6 (e.g. a different IP for Cilium LB IPAM or MetalLB).
+*/}}
+{{- define "pihole.ipv6Metadata" -}}
+labels:
+  {{- include "pihole.labels" .root | nindent 2 }}
+  {{- with .svc.extraLabels }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{- with merge (deepCopy (.svc.annotationsIPv6 | default dict)) (.svc.annotations | default dict) }}
+annotations:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}
+
+{{/*
+Deployment strategy. With persistent storage two Pi-holes would share one gravity.db, and with
+hostNetwork/dnsHostPort the new pod cannot start while the old one holds the ports, so these use Recreate.
+*/}}
+{{- define "pihole.strategyType" -}}
+{{- if .Values.strategyType -}}
+{{ .Values.strategyType }}
+{{- else if or .Values.persistentVolumeClaim.enabled .Values.customVolumes.enabled .Values.dnsHostPort.enabled (and .Values.hostNetwork (ne (toString .Values.hostNetwork) "false")) -}}
+Recreate
+{{- else -}}
+RollingUpdate
+{{- end -}}
+{{- end }}

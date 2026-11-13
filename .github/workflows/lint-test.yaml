@@ -73,7 +73,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        k8s-version: ["1.23.0", "1.27.0", "1.31.0"]
+        k8s-version: ["1.26.0", "1.30.0", "1.34.0"]
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -111,6 +111,14 @@ jobs:
           echo "== Gateway API HTTPRoute =="
           helm template pihole charts/pihole --set route.enabled=true \
             --set 'route.parentRefs[0].name=gw' | validate
+          # Dual-stack LoadBalancer services need a dual-stack cluster, which the kind install does not have
+          for split in true false; do
+            echo "== dual-stack LoadBalancer, splitLoadBalancer=$split =="
+            helm template pihole charts/pihole --set dualStack.enabled=true \
+              --set dualStack.splitLoadBalancer=$split --set serviceDns.type=LoadBalancer \
+              --set serviceWeb.type=LoadBalancer --set serviceDhcp.enabled=true --set serviceDhcp.type=LoadBalancer \
+              --set serviceDns.annotationsIPv6.foo=bar | validate
+          done
 
   unittest:
     name: Template unit tests (helm-unittest)

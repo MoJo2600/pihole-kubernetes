@@ -4,6 +4,8 @@ description: Installs pihole in kubernetes
 home: https://github.com/MoJo2600/pihole-kubernetes/tree/main/charts/pihole
 name: pihole
 appVersion: "2026.11.0"
+# mixed TCP/UDP LoadBalancer services (serviceDns.mixedService) are stable since 1.26
+kubeVersion: ">=1.26.0-0"
 # Do not touch will be updated during release
 version: 3.0.0-rc.2
 sources:

@@ -114,3 +114,66 @@ tests:
           content:
             name: FTLCONF_dns_upstreams
             value: "127.0.0.1#5053"
+
+  - it: makes Pi-hole listen on dnsPort, the port the probes and services use (#426)
+    template: templates/deployment.yaml
+    set:
+      dnsPort: "5353"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_dns_port
+            value: "5353"
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].ports
+          content:
+            containerPort: 5353
+            name: dns-udp
+            protocol: UDP
+
+  - it: lets ftl.dns_port override dnsPort without a duplicate env var
+    template: templates/deployment.yaml
+    set:
+      ftl.dns_port: "5300"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_dns_port
+          any: true
+          count: 1
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_dns_port
+            value: "5300"
+
+  - it: uses DNS1 and DNS2 as upstreams, or only DNS1 when DNS2 is empty (#200)
+    template: templates/deployment.yaml
+    set:
+      DNS1: 1.1.1.1
+      DNS2: ""
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_dns_upstreams
+            value: 1.1.1.1
+
+  - it: lets ftl.dns_upstreams replace DNS1/DNS2 without a duplicate env var
+    template: templates/deployment.yaml
+    set:
+      ftl.dns_upstreams: 1.1.1.1;9.9.9.9;8.8.8.8
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_dns_upstreams
+          any: true
+          count: 1
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "pihole")].env
+          content:
+            name: FTLCONF_dns_upstreams
+            value: 1.1.1.1;9.9.9.9;8.8.8.8
