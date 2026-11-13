@@ -15,4 +15,4 @@ lint-manifests: ## Lint the rendered manifests with kube-linter
 
 .PHONY: unittest
 unittest: ## Run the helm-unittest template tests in tests/ (same pinned image as CI)
-	docker run --rm -u $$(id -u):$$(id -g) --volume "$$(pwd):/apps" helmunittest/helm-unittest:4.3.0-1.2.1 .
+	docker run --rm -u $$(id -u):$$(id -g) -e HOME=/tmp --volume "$$(pwd):/apps" helmunittest/helm-unittest:4.3.0-1.2.1 .

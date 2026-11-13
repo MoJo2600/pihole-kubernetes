@@ -117,8 +117,10 @@ jobs:
         uses: actions/checkout@v7
 
       # Same pinned image as `make unittest` in charts/pihole, so local and CI runs match.
+      # HOME=/tmp: the runner uid has no home in the image; without a writable cache dir
+      # helm silently skips the unittest plugin ("unknown command unittest").
       - name: Run helm-unittest
         run: |
-          docker run --rm -u "$(id -u):$(id -g)" -v "$PWD/charts/pihole:/apps" \
+          docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -v "$PWD/charts/pihole:/apps" \
             helmunittest/helm-unittest:4.3.0-1.2.1 .
 
