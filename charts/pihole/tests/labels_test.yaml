@@ -1,0 +1,24 @@
+suite: extra labels and annotations
+templates:
+  - templates/service-dhcp.yaml
+  - templates/ingress.yaml
+  - templates/deployment.yaml
+  - templates/configmap.yaml
+  - templates/configmap-adlists.yaml
+  - templates/configmap-allowed.yaml
+  - templates/configmap-denied.yaml
+  - templates/configmap-regex.yaml
+  - templates/configmap-static-dhcp.yaml
+release:
+  name: pihole
+tests:
+  - it: applies serviceDhcp.extraLabels to the DHCP service
+    template: templates/service-dhcp.yaml
+    set:
+      serviceDhcp.enabled: true
+      serviceDhcp.extraLabels:
+        team: dns
+    asserts:
+      - equal:
+          path: metadata.labels.team
+          value: dns

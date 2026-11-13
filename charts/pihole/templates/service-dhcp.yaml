@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "pihole.labels" . | nindent 4 }}
 {{- if .Values.serviceDhcp.extraLabels }}
-{{ toYaml .Values.servicesDhcp.extraLabels | indent 4  }}
+{{ toYaml .Values.serviceDhcp.extraLabels | indent 4 }}
 {{- end }}
 {{- if .Values.serviceDhcp.annotations }}
   annotations:
