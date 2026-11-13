@@ -31,6 +31,7 @@ Installs pihole in kubernetes
   - [Example values.yaml](#example-valuesyaml)
   - [Admin password](#admin-password)
   - [Upstream DNS resolvers](#upstream-dns-resolvers)
+  - [Local DNS records](#local-dns-records)
   - [Encrypted upstream DNS (DoH / DoT / DNSCrypt)](#encrypted-upstream-dns-doh--dot--dnscrypt)
   - [Persistence](#persistence)
   - [NetworkPolicy](#networkpolicy)
@@ -41,6 +42,8 @@ Installs pihole in kubernetes
 - [Troubleshooting](#troubleshooting)
   - [Pi-hole does not start with hostNetwork](#pi-hole-does-not-start-with-hostnetwork)
   - [DHCP](#dhcp)
+  - [Admin password from existingSecret is rejected](#admin-password-from-existingsecret-is-rejected)
+  - [Query log shows the same client for every query](#query-log-shows-the-same-client-for-every-query)
 - [Upgrading](#upgrading)
 - [Uninstallation](#uninstallation)
 - [Values](#values)
@@ -170,6 +173,25 @@ serviceWeb:
 
 **Cloud providers:** consult your provider's documentation for the appropriate annotation (e.g. `service.beta.kubernetes.io/aws-load-balancer-eip-allocations` for AWS).
 
+#### Dual-stack (IPv4 + IPv6)
+
+Set `dualStack.enabled: true` on a dual-stack cluster. `ClusterIP` and `NodePort` services become dual-stack (`PreferDualStack`). For `LoadBalancer` services there are two modes:
+
+- **Split (default, `dualStack.splitLoadBalancer: true`):** an IPv4 service plus a separate `-ipv6` service per port group. Set the IPv6 address with `annotationsIPv6`, which is merged over `annotations` for the `-ipv6` service only:
+
+  ```yaml
+  dualStack:
+    enabled: true
+  serviceDns:
+    type: LoadBalancer
+    annotations:
+      io.cilium/lb-ipam-ips: 192.168.1.53
+    annotationsIPv6:
+      io.cilium/lb-ipam-ips: fd00::53
+  ```
+
+- **Single (`dualStack.splitLoadBalancer: false`):** one dual-stack `LoadBalancer` service with both addresses. Needed for k3s ServiceLB (Klipper), and also works with MetalLB and Cilium; list both addresses in one annotation, e.g. `metallb.universe.tf/loadBalancerIPs: 192.168.1.53,fd00::53`.
+
 ### Example values.yaml
 
 A typical home setup exposing web and DNS on a shared MetalLB IP with persistence enabled:
@@ -215,7 +237,9 @@ If `admin.password` is empty and no `existingSecret` is set, a random password i
 
 ### Upstream DNS resolvers
 
-By default the chart configures pod DNS to use Google's `8.8.8.8` for upstream resolution. Change it via `podDnsConfig`, for example to use Cloudflare:
+Pi-hole forwards queries it cannot answer to `DNS1` and `DNS2` (default Google, `8.8.8.8` and `8.8.4.4`). To use a single upstream, set `DNS2: ""`; for more than two, set `ftl.dns_upstreams` (semicolon-separated). With `doh.enabled` the upstream is the dnscrypt-proxy sidecar instead.
+
+The pod's own DNS (used by Pi-hole itself, e.g. to download ad lists) is set separately by `podDnsConfig`; by default it is Pi-hole plus Google's `8.8.8.8`. Change it, for example to use Cloudflare:
 
 ```yaml
 podDnsConfig:
@@ -232,6 +256,22 @@ To opt out of pod DNS configuration entirely (e.g. when running a service mesh):
 podDnsConfig:
   enabled: false
 ```
+
+### Local DNS records
+
+Use Pi-hole v6's own settings for local A/AAAA and CNAME records. They show up under *Settings → Local DNS Records* in the web interface, live in your values (Git), and are applied on every start:
+
+```yaml
+ftl:
+  # "IP hostname", separated by semicolons
+  dns_hosts: "192.168.1.10 nas.lan;192.168.1.11 printer.lan"
+  # "alias,target", separated by semicolons
+  dns_cnameRecords: "files.lan,nas.lan"
+```
+
+Settings set this way are read-only in the web interface. If you prefer to manage records in the web interface instead, leave these unset and enable `persistentVolumeClaim`: Pi-hole stores them in `/etc/pihole/pihole.toml`.
+
+The older `dnsmasq.customDnsEntries` (`address=`), `dnsmasq.customCnameEntries` and `dnsmasq.additionalHostsEntries` still work, but these records do not show in the web interface. A dnsmasq `cname=` only resolves when its target is a host record (`ftl.dns_hosts`, `additionalHostsEntries` or DHCP); a target defined with `address=` returns the CNAME without an address. Other dnsmasq options (e.g. an SRV record: `srv-host=_vlmcs._tcp.lan,kms.lan,1688`) go into `ftl.misc_dnsmasq_lines`.
 
 ### Encrypted upstream DNS (DoH / DoT / DNSCrypt)
 
@@ -312,6 +352,21 @@ DHCP clients find the server with layer-2 broadcasts. Kubernetes Services and lo
 1. **Host network:** run Pi-hole with `hostNetwork: true` and the `NET_ADMIN` capability on a node in the LAN, and enable the DHCP server with `FTLCONF_dhcp_*` settings. [`examples/dhcp-values.yaml`](examples/dhcp-values.yaml) is a complete starting point.
 2. **DHCP relay:** keep Pi-hole off the host network and run a small DHCP relay with host networking (for example [dhcphelper](https://github.com/homeall/dhcphelper), not part of this chart). It receives the broadcasts and forwards them as unicast to Pi-hole's DHCP service (`serviceDhcp.enabled: true`).
 
+### Admin password from existingSecret is rejected
+
+Pi-hole compares the password byte for byte, so a trailing newline in the secret makes the login fail. This happens when the value was encoded with `echo password | base64` (without `-n`) or written into a file with a final newline. Create the secret without one:
+
+```console
+kubectl create secret generic pihole-password --from-literal=password='change-me'
+```
+
+### Query log shows the same client for every query
+
+Pi-hole sees the source address of each query. If that is a node, a load balancer pod or an ingress, the client IP was replaced (SNAT) on the way:
+
+- Keep `serviceDns.externalTrafficPolicy: Local` (the default), so Kubernetes does not forward queries through another node.
+- k3s ServiceLB (Klipper) always replaces the client IP. Use MetalLB or Cilium as the load balancer, or `hostNetwork`, to see the real clients.
+
 ## Upgrading
 
 ### To 3.0.0
@@ -326,6 +381,9 @@ Breaking changes:
 - **`virtualHost` now sets Pi-hole's web domain** (`FTLCONF_webserver_domain`) and is added to the ingress hosts. The old `VIRTUAL_HOST` variable was a Pi-hole v5 setting that v6 ignores. Since Pi-hole FTL v6.8, `/` on any other host name returns 404 (only `/admin/` still works), so set `virtualHost` to the host name you use for the web interface. Set it to `""` to opt out.
 - **Health probes no longer depend on upstream DNS.** The default probes check Pi-hole itself (API plus a local `pi.hole` lookup) instead of resolving `cloudflare.com`, so an internet outage no longer restarts Pi-hole. Each step has its own timeout, so a hung Pi-hole is now reliably restarted. The dnscrypt-proxy sidecar's liveness probe is a TCP check.
 - **Pi-hole now also serves the web interface via HTTPS** on `webHttps` (default 443, with Pi-hole's self-signed certificate) and listens on IPv6 as well. Previously the chart limited Pi-hole to plain HTTP. Set `webHttps: ""` to turn HTTPS off, or `redirectToHttps: true` to redirect HTTP to HTTPS (not compatible with `monitoring.sidecar`).
+- **`ingress.pathType` defaults to `Prefix`** instead of `ImplementationSpecific`, which some ingress controllers (e.g. Cilium) treat as a regex or exact match.
+- **Dual-stack LoadBalancer services:** the IPv4 service is now explicitly `SingleStack` IPv4, and the IPv6 DHCP service is renamed from `-dhcp-ivp6` to `-dhcp-ipv6`. See [Dual-stack](#dual-stack-ipv4--ipv6) for the new `annotationsIPv6` and `dualStack.splitLoadBalancer`.
+- **`dnsPort` now changes the port Pi-hole listens on** (`FTLCONF_dns_port`). Before, it only changed the container port, and any value other than 53 broke the probes.
 - **`doh.metrics.enabled` no longer creates a PodMonitor by itself.** It only exposes the dnscrypt-proxy metrics port. A PodMonitor (which needs the Prometheus Operator CRDs) is created only with `monitoring.podMonitor.enabled: true`, and then also scrapes dnscrypt-proxy. Previously, enabling DoH metrics on a cluster without the Prometheus Operator made the install fail.
 
 Pi-hole image changes since the 2.x charts (container 2026.11.0, FTL v6.9) that may affect you:
@@ -373,7 +431,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | DNS1 | string | `"8.8.8.8"` | default upstream DNS 1 server to use |
-| DNS2 | string | `"8.8.4.4"` | default upstream DNS 2 server to use |
+| DNS2 | string | `"8.8.4.4"` | default upstream DNS 2 server to use. Set to "" to use only DNS1 |
 | adlists | object | `{}` | list of adlists to import when the gravity database is first created. Only used on a fresh /etc/pihole (no gravity.db yet). With a persistent volume, later changes have no effect; manage lists in the web interface or API instead. The same applies to `allowed`, `denied` and `regex`. |
 | admin | object | `{"annotations":null,"enabled":true,"existingSecret":"","password":"admin","passwordKey":"password"}` | Use an existing secret for the admin password. |
 | admin.annotations | string | `nil` | Specify [annotations](docs/Values.md#adminannotations) to be added to the secret |
@@ -388,16 +446,16 @@ The following table lists the configurable parameters of the pihole chart and th
 | antiaff.namespaces | list | `[]` | Here you can pass namespaces to be part of those inclueded in anti-affinity |
 | antiaff.strict | bool | `true` | Here you can choose between preferred or required |
 | capabilities | object | `{}` | linux capabilities container should run with @deprecated Use containerSecurityContext.capabilities instead |
-| commonLabels | object | `{}` | Labels to add to all deployed objects |
+| commonLabels | object | `{}` | Labels to add to all deployed objects, including the pods |
 | containerSecurityContext | object | `{}` | Container-level security context EXPERIMENTAL: These settings are not fully tested with all Pi-hole features! See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/  Why detailed capability management provides limited security benefit for Pi-hole: Pi-hole requires 10+ capabilities including privileged ones like NET_ADMIN, NET_RAW, DAC_OVERRIDE, SETUID, SETGID. This exceeds Docker's default capability set (NET_ADMIN and SYS_NICE are not in defaults). Dropping ALL and re-adding these capabilities provides minimal security improvement over defaults.  Recommended: Only set privileged: false (prevents full host access) The seccompProfile in podSecurityContext provides additional syscall filtering.  NOT SUPPORTED (Pi-hole needs root at startup): - runAsNonRoot: true - runAsUser/runAsGroup: any value - allowPrivilegeEscalation: false (pihole-FTL runs as the pihole user and gets its capabilities from file capabilities set with setcap) - readOnlyRootFilesystem: true (Pi-hole writes to /etc/pihole, /var/log, etc.) |
 | customVolumes.config | object | `{}` | any volume type can be used here |
 | customVolumes.enabled | bool | `false` | set this to true to enable custom volumes |
 | denied | object | `{}` | list of denied domains to import when the gravity database is first created (see `adlists`) |
 | deploymentAnnotations | object | `{}` | Additional annotations for the deployment |
-| dhcpPort | string | `"67"` | port the container should use to expose DHCP traffic |
+| dhcpPort | string | `"67"` | container port for DHCP traffic. Pi-hole's DHCP server always listens on 67; this only changes the declared port |
 | dnsHostPort.enabled | bool | `false` | set this to true to enable dnsHostPort |
 | dnsHostPort.port | int | `53` | default port for this pod |
-| dnsPort | string | `"53"` | port the container should use to expose DNS traffic |
+| dnsPort | string | `"53"` | port Pi-hole listens on for DNS inside the pod (sets FTLCONF_dns_port). Change it when port 53 is taken, e.g. with hostNetwork on Talos; the services keep `serviceDns.port` (53) and forward to it |
 | dnsmasq | object | `{"additionalHostsEntries":[],"customCnameEntries":[],"customDnsEntries":[],"customSettings":null,"enableCustomDnsMasq":true,"staticDhcpEntries":[],"upstreamServers":[]}` | DNS MASQ settings |
 | dnsmasq.additionalHostsEntries | list | `[]` | Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like |
 | dnsmasq.customCnameEntries | list | `[]` | Here we specify custom cname entries that should point to `A` records or elements in customDnsEntries array. The format should be:  - cname=cname.foo.bar,foo.bar  - cname=cname.bar.foo,bar.foo  - cname=cname record,dns record |
@@ -441,6 +499,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | doh.repository | string | `"ghcr.io/klutchell/dnscrypt-proxy"` | repository (using GHCR) |
 | doh.tag | string | `"2.1.15"` | image tag |
 | dualStack.enabled | bool | `false` | set this to true to enable creation of DualStack services or creation of separate IPv6 services if `serviceDns.type` is set to `"LoadBalancer"` |
+| dualStack.splitLoadBalancer | bool | `true` | For LoadBalancer services: `true` creates an IPv4 service and a separate `-ipv6` service (use `annotationsIPv6`/`loadBalancerIPv6` for the IPv6 one). `false` creates one dual-stack (PreferDualStack) service instead, needed for k3s ServiceLB (Klipper); list both IPs in your load balancer's annotation. |
 | extraContainers | list | `[]` |  |
 | extraEnvVars | object | `{"FTLCONF_dns_listeningMode":"all"}` | extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use. You can use either scalars or project cm, secrets or pod fields via valueFrom |
 | extraEnvVarsSecret | object | `{}` | extraEnvVarsSecret is a list of secrets to load in as environment variables. |
@@ -454,10 +513,11 @@ The following table lists the configurable parameters of the pihole chart and th
 | image.pullPolicy | string | `"IfNotPresent"` | the pull policy |
 | image.repository | string | `"pihole/pihole"` | the repostory to pull the image from |
 | image.tag | string | `""` | the docker tag, if left empty it will get it from the chart's appVersion |
-| ingress | object | `{"annotations":{},"enabled":false,"extraLabels":{},"hosts":["chart-example.local"],"path":"/","pathType":"ImplementationSpecific","tls":[]}` | Configuration for the Ingress |
+| ingress | object | `{"annotations":{},"enabled":false,"extraLabels":{},"hosts":["chart-example.local"],"path":"/","pathType":"Prefix","tls":[]}` | Configuration for the Ingress |
 | ingress.annotations | object | `{}` | Annotations for the ingress |
 | ingress.enabled | bool | `false` | Generate a Ingress resource |
 | ingress.extraLabels | object | `{}` | Labels for the ingress, e.g. for the external-dns `--label-filter` |
+| ingress.pathType | string | `"Prefix"` | `Prefix` works with every ingress controller; `ImplementationSpecific` is regex or exact match on some (e.g. Cilium) |
 | maxSurge | int | `1` | The maximum number of Pods that can be created over the desired number of `ReplicaSet` during updating. |
 | maxUnavailable | int | `1` | The maximum number of Pods that can be unavailable during updating |
 | monitoring.podMonitor | object | `{"enabled":false}` | Preferably adding prometheus scrape annotations rather than enabling podMonitor. |
@@ -483,6 +543,7 @@ The following table lists the configurable parameters of the pihole chart and th
 | podDnsConfig.nameservers[0] | string | `"127.0.0.1"` |  |
 | podDnsConfig.nameservers[1] | string | `"8.8.8.8"` |  |
 | podDnsConfig.policy | string | `"None"` |  |
+| podLabels | object | `{}` | Additional labels for the pods only |
 | podSecurityContext | object | `{}` | Pod-level security context EXPERIMENTAL: These settings are not fully tested with all Pi-hole features! See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/  Pi-hole Docker image limitations: - Requires root at startup for: gravity database, crontab, permissions, setcap - runAsNonRoot, runAsUser, runAsGroup are NOT SUPPORTED - Pi-hole internally drops privileges after initialization |
 | privileged | string | `"false"` | should container run in privileged mode @deprecated Use containerSecurityContext.privileged instead |
 | probes | object | `{"liveness":{"command":[],"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":5,"type":"command"},"readiness":{"command":[],"enabled":true,"failureThreshold":3,"initialDelaySeconds":0,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":5,"type":"command"},"startup":{"command":[],"enabled":true,"failureThreshold":30,"initialDelaySeconds":5,"periodSeconds":5,"timeoutSeconds":5,"type":"command"}}` | Probes configuration |
@@ -526,8 +587,9 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceAccount.automountServiceAccountToken | bool | `false` | Automatically mount a ServiceAccount's API credentials |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
-| serviceDhcp | object | `{"annotations":{},"enabled":true,"externalTrafficPolicy":"Local","extraLabels":{},"loadBalancerClass":"","loadBalancerIP":"","loadBalancerIPv6":"","nodePort":"","port":67,"type":"NodePort"}` | Configuration for the DHCP service on port 67 |
+| serviceDhcp | object | `{"annotations":{},"annotationsIPv6":{},"enabled":true,"externalTrafficPolicy":"Local","extraLabels":{},"loadBalancerClass":"","loadBalancerIP":"","loadBalancerIPv6":"","nodePort":"","port":67,"type":"NodePort"}` | Configuration for the DHCP service on port 67 |
 | serviceDhcp.annotations | object | `{}` | Annotations for the DHCP service |
+| serviceDhcp.annotationsIPv6 | object | `{}` | Annotations for the separate IPv6 DHCP Service (`dualStack.enabled` with `splitLoadBalancer`), merged over `annotations`. Use it for per-family settings such as `io.cilium/lb-ipam-ips` or `metallb.io/loadBalancerIPs`. |
 | serviceDhcp.enabled | bool | `true` | Generate a Service resource for DHCP traffic |
 | serviceDhcp.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
 | serviceDhcp.extraLabels | object | `{}` | Labels for the DHCP service |
@@ -537,9 +599,10 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceDhcp.nodePort | string | `""` | Optional node port for the DHCP service |
 | serviceDhcp.port | int | `67` | The port of the DHCP service |
 | serviceDhcp.type | string | `"NodePort"` | `spec.type` for the DHCP Service |
-| serviceDns | object | `{"annotations":{},"externalTrafficPolicy":"Local","extraLabels":{},"loadBalancerClass":"","loadBalancerIP":"","loadBalancerIPv6":"","mixedService":false,"nodePort":"","port":53,"type":"NodePort"}` | Configuration for the DNS service on port 53 |
+| serviceDns | object | `{"annotations":{},"annotationsIPv6":{},"externalTrafficPolicy":"Local","extraLabels":{},"loadBalancerClass":"","loadBalancerIP":"","loadBalancerIPv6":"","mixedService":false,"nodePort":"","port":53,"type":"NodePort"}` | Configuration for the DNS service on port 53 |
 | serviceDns.annotations | object | `{}` | Annotations for the DNS service |
-| serviceDns.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DHCP Service |
+| serviceDns.annotationsIPv6 | object | `{}` | Annotations for the separate IPv6 DNS Service (`dualStack.enabled` with `splitLoadBalancer`), merged over `annotations`. Use it for per-family settings such as `io.cilium/lb-ipam-ips` or `metallb.io/loadBalancerIPs`. |
+| serviceDns.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the DNS Service |
 | serviceDns.extraLabels | object | `{}` | Labels for the DNS service |
 | serviceDns.loadBalancerClass | string | `""` | `spec.loadBalancerClass` for the DNS Service. Only used if type is LoadBalancer. |
 | serviceDns.loadBalancerIP | string | `""` | A fixed `spec.loadBalancerIP` for the DNS Service. DEPRECATED in Kubernetes 1.24+. Use `annotations` with your cloud provider's annotation instead (e.g., `metallb.universe.tf/loadBalancerIPs` for MetalLB). |
@@ -548,8 +611,9 @@ The following table lists the configurable parameters of the pihole chart and th
 | serviceDns.nodePort | string | `""` | Optional node port for the DNS service |
 | serviceDns.port | int | `53` | The port of the DNS service |
 | serviceDns.type | string | `"NodePort"` | `spec.type` for the DNS Service |
-| serviceWeb | object | `{"annotations":{},"externalTrafficPolicy":"Local","extraLabels":{},"http":{"enabled":true,"nodePort":"","port":80},"https":{"enabled":true,"nodePort":"","port":443},"loadBalancerClass":"","loadBalancerIP":"","loadBalancerIPv6":"","type":"ClusterIP"}` | Configuration for the web interface service |
-| serviceWeb.annotations | object | `{}` | Annotations for the DHCP service |
+| serviceWeb | object | `{"annotations":{},"annotationsIPv6":{},"externalTrafficPolicy":"Local","extraLabels":{},"http":{"enabled":true,"nodePort":"","port":80},"https":{"enabled":true,"nodePort":"","port":443},"loadBalancerClass":"","loadBalancerIP":"","loadBalancerIPv6":"","type":"ClusterIP"}` | Configuration for the web interface service |
+| serviceWeb.annotations | object | `{}` | Annotations for the web interface service |
+| serviceWeb.annotationsIPv6 | object | `{}` | Annotations for the separate IPv6 web interface Service (`dualStack.enabled` with `splitLoadBalancer`), merged over `annotations`. Use it for per-family settings such as `io.cilium/lb-ipam-ips` or `metallb.io/loadBalancerIPs`. |
 | serviceWeb.externalTrafficPolicy | string | `"Local"` | `spec.externalTrafficPolicy` for the web interface Service |
 | serviceWeb.extraLabels | object | `{}` | Labels for the web interface service |
 | serviceWeb.http | object | `{"enabled":true,"nodePort":"","port":80}` | Configuration for the HTTP web interface listener |
@@ -729,4 +793,4 @@ Thanks goes to these wonderful people:
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)
+Autogenerated from chart metadata using [helm-docs v1.13.0](https://github.com/norwoodj/helm-docs/releases/v1.13.0)

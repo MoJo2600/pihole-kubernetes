@@ -14,6 +14,9 @@ metadata:
 {{- end }}
 spec:
   type: {{ .Values.serviceDns.type }}
+  {{- with include "pihole.ipFamilies" (dict "root" $ "svc" .Values.serviceDns) }}
+  {{- . | nindent 2 }}
+  {{- end }}
   {{- if .Values.serviceDns.loadBalancerIP }}
   loadBalancerIP: {{ .Values.serviceDns.loadBalancerIP }}
   {{- end }}
@@ -47,17 +50,12 @@ spec:
   selector:
     {{- include "pihole.selectorLabels" . | nindent 4 }}
 ---
-{{- if and (.Values.dualStack.enabled) (eq .Values.serviceDns.type "LoadBalancer") -}}
+{{- if include "pihole.splitIPv6" (dict "root" $ "svc" .Values.serviceDns) -}}
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ template "pihole.fullname" . }}-dns-ipv6
-  labels:
-    {{- include "pihole.labels" . | nindent 4 }}
-{{- if .Values.serviceDns.annotations }}
-  annotations:
-{{ toYaml .Values.serviceDns.annotations | indent 4 }}
-{{- end }}
+  {{- include "pihole.ipv6Metadata" (dict "root" $ "svc" .Values.serviceDns) | nindent 2 }}
 spec:
   type: {{ .Values.serviceDns.type }}
   ipFamilies:

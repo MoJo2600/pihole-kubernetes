@@ -2,8 +2,11 @@
 # This is a YAML-formatted file
 # Declare variables to be passed into your templates.
 
-# -- Labels to add to all deployed objects
+# -- Labels to add to all deployed objects, including the pods
 commonLabels: {}
+
+# -- Additional labels for the pods only
+podLabels: {}
 
 # -- The number of replicas
 replicaCount: 1
@@ -31,6 +34,9 @@ image:
 dualStack:
   # -- set this to true to enable creation of DualStack services or creation of separate IPv6 services if `serviceDns.type` is set to `"LoadBalancer"`
   enabled: false
+  # -- For LoadBalancer services: `true` creates an IPv4 service and a separate `-ipv6` service (use `annotationsIPv6`/`loadBalancerIPv6` for the IPv6 one).
+  # `false` creates one dual-stack (PreferDualStack) service instead, needed for k3s ServiceLB (Klipper); list both IPs in your load balancer's annotation.
+  splitLoadBalancer: true
 
 dnsHostPort:
   # -- set this to true to enable dnsHostPort
@@ -52,7 +58,7 @@ serviceDns:
   # -- Optional node port for the DNS service
   nodePort: ""
 
-  # -- `spec.externalTrafficPolicy` for the DHCP Service
+  # -- `spec.externalTrafficPolicy` for the DNS Service
   externalTrafficPolicy: Local
 
   # -- A fixed `spec.loadBalancerIP` for the DNS Service. DEPRECATED in Kubernetes 1.24+. Use `annotations` with your cloud provider's annotation instead (e.g., `metallb.universe.tf/loadBalancerIPs` for MetalLB).
@@ -66,6 +72,9 @@ serviceDns:
   annotations: {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
+  # -- Annotations for the separate IPv6 DNS Service (`dualStack.enabled` with `splitLoadBalancer`), merged over `annotations`.
+  # Use it for per-family settings such as `io.cilium/lb-ipam-ips` or `metallb.io/loadBalancerIPs`.
+  annotationsIPv6: {}
 
   # -- Labels for the DNS service
   extraLabels:
@@ -99,6 +108,9 @@ serviceDhcp:
   annotations: {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
+  # -- Annotations for the separate IPv6 DHCP Service (`dualStack.enabled` with `splitLoadBalancer`), merged over `annotations`.
+  # Use it for per-family settings such as `io.cilium/lb-ipam-ips` or `metallb.io/loadBalancerIPs`.
+  annotationsIPv6: {}
   # -- Labels for the DHCP service
   extraLabels:
     {}
@@ -140,10 +152,13 @@ serviceWeb:
   # -- `spec.loadBalancerClass` for the web interface Service. Only used if type is LoadBalancer.
   loadBalancerClass: ""
 
-  # -- Annotations for the DHCP service
+  # -- Annotations for the web interface service
   annotations: {}
     # metallb.universe.tf/address-pool: network-services
     # metallb.universe.tf/allow-shared-ip: pihole-svc
+  # -- Annotations for the separate IPv6 web interface Service (`dualStack.enabled` with `splitLoadBalancer`), merged over `annotations`.
+  # Use it for per-family settings such as `io.cilium/lb-ipam-ips` or `metallb.io/loadBalancerIPs`.
+  annotationsIPv6: {}
 
   # -- Labels for the web interface service
   extraLabels:
@@ -170,7 +185,8 @@ ingress:
   # -- Labels for the ingress, e.g. for the external-dns `--label-filter`
   extraLabels: {}
   path: /
-  pathType: ImplementationSpecific
+  # -- `Prefix` works with every ingress controller; `ImplementationSpecific` is regex or exact match on some (e.g. Cilium)
+  pathType: Prefix
   hosts:
     # virtualHost (default pi.hole) is added to these hosts automatically
     - chart-example.local
@@ -371,7 +387,7 @@ extraEnvVarsSecret: {}
 
 # -- default upstream DNS 1 server to use
 DNS1: "8.8.8.8"
-# -- default upstream DNS 2 server to use
+# -- default upstream DNS 2 server to use. Set to "" to use only DNS1
 DNS2: "8.8.4.4"
 
 antiaff:
@@ -597,10 +613,11 @@ webHttps: "443"
 # The default probes then use HTTPS. Not compatible with monitoring.sidecar (pihole-exporter rejects Pi-hole's self-signed certificate).
 redirectToHttps: false
 
-# -- port the container should use to expose DNS traffic
+# -- port Pi-hole listens on for DNS inside the pod (sets FTLCONF_dns_port). Change it when port 53 is taken, e.g. with hostNetwork on Talos;
+# the services keep `serviceDns.port` (53) and forward to it
 dnsPort: "53"
 
-# -- port the container should use to expose DHCP traffic
+# -- container port for DHCP traffic. Pi-hole's DHCP server always listens on 67; this only changes the declared port
 dhcpPort: "67"
 
 # -- hostname of pod

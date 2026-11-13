@@ -1,0 +1,115 @@
+suite: dual-stack services
+templates:
+  - templates/service-dns-tcp.yaml
+  - templates/service-dns-udp.yaml
+  - templates/service-web.yaml
+  - templates/service-dhcp.yaml
+release:
+  name: pihole
+set:
+  dualStack.enabled: true
+  serviceDns.type: LoadBalancer
+  serviceWeb.type: LoadBalancer
+  serviceDhcp.type: LoadBalancer
+tests:
+  - it: creates no ipFamilies without dualStack
+    set:
+      dualStack.enabled: false
+    asserts:
+      - notExists:
+          path: spec.ipFamilies
+      - hasDocuments:
+          count: 1
+
+  - it: pins the main LoadBalancer service to IPv4 when split (#228)
+    asserts:
+      - hasDocuments:
+          count: 2
+      - equal:
+          path: spec.ipFamilies
+          value: [IPv4]
+        documentIndex: 0
+      - equal:
+          path: spec.ipFamilyPolicy
+          value: SingleStack
+        documentIndex: 0
+      - equal:
+          path: spec.ipFamilies
+          value: [IPv6]
+        documentIndex: 1
+
+  - it: names the IPv6 services consistently
+    asserts:
+      - matchRegex:
+          path: metadata.name
+          pattern: ^pihole-(dns-tcp|dns-udp|web|dhcp)-ipv6$
+        documentIndex: 1
+
+  - it: merges annotationsIPv6 over annotations on the IPv6 service only (#336)
+    template: templates/service-dns-udp.yaml
+    set:
+      serviceDns.annotations:
+        io.cilium/lb-ipam-ips: 192.168.1.53
+        shared: "yes"
+      serviceDns.annotationsIPv6:
+        io.cilium/lb-ipam-ips: fd00::53
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            io.cilium/lb-ipam-ips: 192.168.1.53
+            shared: "yes"
+        documentIndex: 0
+      - equal:
+          path: metadata.annotations
+          value:
+            io.cilium/lb-ipam-ips: fd00::53
+            shared: "yes"
+        documentIndex: 1
+
+  - it: puts extraLabels on the IPv6 service too
+    template: templates/service-web.yaml
+    set:
+      serviceWeb.extraLabels:
+        team: dns
+    asserts:
+      - equal:
+          path: metadata.labels.team
+          value: dns
+        documentIndex: 1
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: pihole
+        documentIndex: 1
+
+  - it: creates a single dual-stack service with splitLoadBalancer false (#334)
+    set:
+      dualStack.splitLoadBalancer: false
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: spec.ipFamilies
+          value: [IPv4, IPv6]
+      - equal:
+          path: spec.ipFamilyPolicy
+          value: PreferDualStack
+
+  - it: keeps split mode when splitLoadBalancer is missing from old values
+    set:
+      dualStack.splitLoadBalancer: null
+    asserts:
+      - hasDocuments:
+          count: 2
+
+  - it: uses one dual-stack service for non-LoadBalancer types
+    set:
+      serviceDns.type: NodePort
+      serviceWeb.type: NodePort
+      serviceDhcp.type: NodePort
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: spec.ipFamilyPolicy
+          value: PreferDualStack

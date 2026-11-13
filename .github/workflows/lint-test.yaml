@@ -111,6 +111,14 @@ jobs:
           echo "== Gateway API HTTPRoute =="
           helm template pihole charts/pihole --set route.enabled=true \
             --set 'route.parentRefs[0].name=gw' | validate
+          # Dual-stack LoadBalancer services need a dual-stack cluster, which the kind install does not have
+          for split in true false; do
+            echo "== dual-stack LoadBalancer, splitLoadBalancer=$split =="
+            helm template pihole charts/pihole --set dualStack.enabled=true \
+              --set dualStack.splitLoadBalancer=$split --set serviceDns.type=LoadBalancer \
+              --set serviceWeb.type=LoadBalancer --set serviceDhcp.type=LoadBalancer \
+              --set serviceDns.annotationsIPv6.foo=bar | validate
+          done
 
   unittest:
     name: Template unit tests (helm-unittest)

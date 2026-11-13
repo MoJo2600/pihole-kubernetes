@@ -39,6 +39,12 @@ spec:
 {{- end }}
       labels:
         {{- include "pihole.selectorLabels" . | nindent 8 }}
+        {{- with .Values.commonLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       {{- if .Values.antiaff.enabled }}
       affinity:
@@ -219,6 +225,11 @@ spec:
             value: "{{ .Values.webHttp }}o,[::]:{{ .Values.webHttp }}o"
             {{- end }}
           {{- end }}
+          {{- if not (or (hasKey .Values.extraEnvVars "FTLCONF_dns_port") (hasKey .Values.ftl "dns_port")) }}
+          # Pi-hole listens on dnsPort, matching the container port and the probes
+          - name: 'FTLCONF_dns_port'
+            value: {{ .Values.dnsPort | quote }}
+          {{- end }}
           {{- if and .Values.virtualHost (not (hasKey .Values.extraEnvVars "FTLCONF_webserver_domain")) (not (hasKey .Values.ftl "webserver_domain")) }}
           - name: 'FTLCONF_webserver_domain'
             value: {{ .Values.virtualHost | quote }}
@@ -249,15 +260,15 @@ spec:
                 key: {{ $value.key | quote }}
                 name: {{ $value.name | quote }}
           {{- end }}
+          {{- if not (or (hasKey .Values.extraEnvVars "FTLCONF_dns_upstreams") (hasKey .Values.ftl "dns_upstreams")) }}
           {{- if .Values.doh.enabled }}
           - name: 'FTLCONF_dns_upstreams'
             value: "127.0.0.1#5053"
-          {{- else }}
-          {{- if .Values.DNS1 }}
+          {{- else if .Values.DNS1 }}
           - name: 'FTLCONF_dns_upstreams'
             value: {{ if .Values.DNS2 }}{{ ( printf "%v;%v" .Values.DNS1 .Values.DNS2 ) }}{{ else }}{{ .Values.DNS1 }}{{ end }}
-         {{- end }}
-         {{- end }}
+          {{- end }}
+          {{- end }}
          {{- range $key, $value := .Values.ftl }}
           - name: 'FTLCONF_{{ $key }}'
             {{- if kindIs "map" $value }}
