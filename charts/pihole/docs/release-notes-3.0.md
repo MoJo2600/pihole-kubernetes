@@ -1,6 +1,6 @@
-# Release Notes
+# Pi-hole chart 3.0 release notes
 
-This release brings significant improvements to the Pi-hole Helm chart, including modernized Kubernetes standards and enhanced secure DNS capabilities.
+Chart 3.0 brings significant improvements to the Pi-hole Helm chart, including modernized Kubernetes standards and enhanced secure DNS capabilities. For the step-by-step upgrade, see [Upgrading → To 3.0.0](../README.md#to-300) in the chart README. The full commit history is in [CHANGELOG.md](../CHANGELOG.md).
 
 ## Breaking Changes
 
@@ -44,6 +44,11 @@ This release brings significant improvements to the Pi-hole Helm chart, includin
 ## Features
 
 - add commonLabels option to apply labels to all deployed objects ([#347](https://github.com/MoJo2600/pihole-kubernetes/issues/347))
+- Optional Gateway API `HTTPRoute` for the web interface (`route.*`) as an alternative to the Ingress ([#418](https://github.com/MoJo2600/pihole-kubernetes/pull/418), [#448](https://github.com/MoJo2600/pihole-kubernetes/pull/448))
+- `ingress.extraLabels`, e.g. for the external-dns `--label-filter` ([#392](https://github.com/MoJo2600/pihole-kubernetes/pull/392))
+- `kubectl exec`/`logs` without `-c` now reach the Pi-hole container instead of a sidecar ([#399](https://github.com/MoJo2600/pihole-kubernetes/pull/399))
+- HTTPS for the web interface can be turned off (`webHttps: ""`) or enforced (`redirectToHttps: true`) ([#415](https://github.com/MoJo2600/pihole-kubernetes/pull/415))
+- Fixed: `serviceDhcp.extraLabels` were never applied ([#286](https://github.com/MoJo2600/pihole-kubernetes/pull/286))
 
 ### Enhanced Health Probes
 - **Added startup probes** for both Pi-hole and DoH containers
@@ -81,7 +86,7 @@ This release brings significant improvements to the Pi-hole Helm chart, includin
 **Important limitations:**
 - Pi-hole Docker image requires root at startup for gravity database, crontab, and setcap operations
 - `runAsNonRoot`, `runAsUser`, `runAsGroup` are **not supported**
-- `allowPrivilegeEscalation: false` is **not supported** (required for setcap)
+- `allowPrivilegeEscalation: false` is **not supported** (pihole-FTL gets its capabilities from file capabilities set with setcap)
 - `readOnlyRootFilesystem: true` is **not supported** (Pi-hole writes to /etc/pihole, /var/log)
 
 ### Dynamic NOTES.txt
@@ -105,21 +110,4 @@ This release brings significant improvements to the Pi-hole Helm chart, includin
 
 ## Migration Guide
 
-Due to the breaking change in selector labels, you must perform a full reinstall:
-
-```bash
-# 1. Backup your Pi-hole configuration (if using persistent storage)
-kubectl cp <namespace>/<pihole-pod>:/etc/pihole ./pihole-backup
-
-# 2. Backup your helm custom values
-helm get values pihole -n <namespace> > pihole-values-backup.yaml
-
-# 3. Uninstall existing release
-helm uninstall pihole -n <namespace>
-
-# 4. Delete the PersistentVolumeClaim if you want a fresh start (optional)
-kubectl delete pvc <release-name>-pihole -n <namespace>
-
-# 5. Install new version
-helm install <release-name> mojo2600/pihole -n <namespace> -f pihole-values-backup.yaml
-```
+Selector labels changed, so a full uninstall and reinstall is required. Follow [Upgrading → To 3.0.0](../README.md#to-300) in the chart README: it includes backing up, converting your values with `scripts/migrate-values.py`, and reinstalling.

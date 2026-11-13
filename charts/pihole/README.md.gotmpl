@@ -34,6 +34,9 @@
   - [Security context (experimental)](#security-context-experimental)
   - [Health probes](#health-probes)
   - [Upgrades without downtime](#upgrades-without-downtime)
+- [Troubleshooting](#troubleshooting)
+  - [Pi-hole does not start with hostNetwork](#pi-hole-does-not-start-with-hostnetwork)
+  - [DHCP](#dhcp)
 - [Upgrading](#upgrading)
 - [Uninstallation](#uninstallation)
 - [Values](#values)
@@ -286,11 +289,30 @@ maxSurge: 1
 
 Keep the default when a second pod cannot start while the first one runs: with `persistentVolumeClaim.enabled` (a `ReadWriteOnce` volume cannot be mounted on another node, and two Pi-holes must not share one `gravity.db`), with `dnsHostPort.enabled`, or with `hostNetwork`. The rollout would then wait forever. For real high availability run two independent releases and give clients both DNS servers.
 
+## Troubleshooting
+
+### Pi-hole does not start with hostNetwork
+
+With `hostNetwork: true` (or `dnsHostPort.enabled: true`) Pi-hole binds directly to the node's ports. If one of them is already taken on the node, FTL cannot start and the pod restarts. The logs (`kubectl logs <pod> -c pihole`) then show an `Address already in use` error for that port.
+
+- **Port 53 (DNS):** usually `systemd-resolved`'s stub listener. Set `DNSStubListener=no` in `/etc/systemd/resolved.conf` and restart `systemd-resolved` (the steps are at the top of [`examples/dhcp-values.yaml`](examples/dhcp-values.yaml)).
+- **Port 80/443 (web interface):** another web server or ingress controller on the node. Move Pi-hole's web server with `webHttp` / `webHttps`.
+- **Port 67 (DHCP):** another DHCP server on the node.
+
+If you don't need DHCP, you usually don't need `hostNetwork` at all: expose DNS with a `LoadBalancer` service instead (see [Making DNS reachable on port 53](#making-dns-reachable-on-port-53-start-here)).
+
+### DHCP
+
+DHCP clients find the server with layer-2 broadcasts. Kubernetes Services and load balancers (including MetalLB) only forward unicast IP traffic, so broadcasts from your LAN never reach a normal pod. Two setups work:
+
+1. **Host network:** run Pi-hole with `hostNetwork: true` and the `NET_ADMIN` capability on a node in the LAN, and enable the DHCP server with `FTLCONF_dhcp_*` settings. [`examples/dhcp-values.yaml`](examples/dhcp-values.yaml) is a complete starting point.
+2. **DHCP relay:** keep Pi-hole off the host network and run a small DHCP relay with host networking (for example [dhcphelper](https://github.com/homeall/dhcphelper), not part of this chart). It receives the broadcasts and forwards them as unicast to Pi-hole's DHCP service (`serviceDhcp.enabled: true`).
+
 ## Upgrading
 
 ### To 3.0.0
 
-This is a major release with several breaking changes. **You must fully uninstall and reinstall**, because the Kubernetes selector labels changed and pod selectors are immutable.
+This is a major release with several breaking changes. **You must fully uninstall and reinstall**, because the Kubernetes selector labels changed and pod selectors are immutable. All changes, including the new features, are in the [3.0 release notes](docs/release-notes-3.0.md).
 
 Breaking changes:
 - **Selector labels** changed from `app`/`release` to `app.kubernetes.io/name` / `app.kubernetes.io/instance`. An in-place `helm upgrade` will fail with an immutable-field error.
