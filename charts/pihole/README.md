@@ -37,6 +37,7 @@ Installs pihole in kubernetes
   - [ServiceAccount](#serviceaccount)
   - [Security context (experimental)](#security-context-experimental)
   - [Health probes](#health-probes)
+  - [Upgrades without downtime](#upgrades-without-downtime)
 - [Upgrading](#upgrading)
 - [Uninstallation](#uninstallation)
 - [Values](#values)
@@ -117,6 +118,7 @@ Choose how the DNS and web services are exposed:
 - **ClusterIP** — reachable only inside the cluster (default for the web service). Use with an Ingress or a port-forward.
 - **LoadBalancer** — exposes the service on an external IP via your cloud provider or MetalLB.
 - **Ingress** — set `ingress.enabled: true` to route the web interface through an ingress controller (which must already be installed).
+- **Gateway API** — set `route.enabled: true` and `route.parentRefs` to create an `HTTPRoute` instead of an Ingress (needs the Gateway API CRDs and a Gateway).
 
 #### Making DNS reachable on port 53 (start here)
 
@@ -277,6 +279,17 @@ A dedicated ServiceAccount is created by default (`serviceAccount.create: true`)
 
 The chart configures `startupProbe`, `livenessProbe` and `readinessProbe`. The default probe command checks Pi-hole itself, not the upstream DNS servers: the API must report DNS as running, and FTL must answer a local `pi.hole` lookup. It uses `curl`, `jq` and `dig`, so custom images must include these binaries.
 
+### Upgrades without downtime
+
+By default a rolling update stops the old pod before the new one is ready (`maxUnavailable: 1`), so DNS is unavailable for a short time. If the new pod can run next to the old one, start it first:
+
+```yaml
+maxUnavailable: 0
+maxSurge: 1
+```
+
+Keep the default when a second pod cannot start while the first one runs: with `persistentVolumeClaim.enabled` (a `ReadWriteOnce` volume cannot be mounted on another node, and two Pi-holes must not share one `gravity.db`), with `dnsHostPort.enabled`, or with `hostNetwork`. The rollout would then wait forever. For real high availability run two independent releases and give clients both DNS servers.
+
 ## Upgrading
 
 ### To 3.0.0
@@ -419,9 +432,10 @@ The following table lists the configurable parameters of the pihole chart and th
 | image.pullPolicy | string | `"IfNotPresent"` | the pull policy |
 | image.repository | string | `"pihole/pihole"` | the repostory to pull the image from |
 | image.tag | string | `""` | the docker tag, if left empty it will get it from the chart's appVersion |
-| ingress | object | `{"annotations":{},"enabled":false,"hosts":["chart-example.local"],"path":"/","pathType":"ImplementationSpecific","tls":[]}` | Configuration for the Ingress |
+| ingress | object | `{"annotations":{},"enabled":false,"extraLabels":{},"hosts":["chart-example.local"],"path":"/","pathType":"ImplementationSpecific","tls":[]}` | Configuration for the Ingress |
 | ingress.annotations | object | `{}` | Annotations for the ingress |
 | ingress.enabled | bool | `false` | Generate a Ingress resource |
+| ingress.extraLabels | object | `{}` | Labels for the ingress, e.g. for the external-dns `--label-filter` |
 | maxSurge | int | `1` | The maximum number of Pods that can be created over the desired number of `ReplicaSet` during updating. |
 | maxUnavailable | int | `1` | The maximum number of Pods that can be unavailable during updating |
 | monitoring.podMonitor | object | `{"enabled":false}` | Preferably adding prometheus scrape annotations rather than enabling podMonitor. |
@@ -475,6 +489,16 @@ The following table lists the configurable parameters of the pihole chart and th
 | replicaCount | int | `1` | The number of replicas |
 | resources | object | `{}` | lines, adjust them as necessary, and remove the curly braces after 'resources:'. |
 | revisionHistoryLimit | int | `10` | The number of old ReplicaSets to retain to allow rollback |
+| route | object | `{"annotations":{},"apiVersion":"gateway.networking.k8s.io/v1","enabled":false,"extraLabels":{},"filters":[],"hostnames":[],"matches":[{"path":{"type":"PathPrefix","value":"/"}}],"parentRefs":[],"timeouts":{}}` | Gateway API HTTPRoute for the web interface, an alternative to `ingress`. Needs the Gateway API CRDs and a Gateway to attach to (`parentRefs`). |
+| route.annotations | object | `{}` | Annotations for the HTTPRoute |
+| route.apiVersion | string | `"gateway.networking.k8s.io/v1"` | API version of the HTTPRoute (use `gateway.networking.k8s.io/v1beta1` on Gateway API < 1.0) |
+| route.enabled | bool | `false` | Generate an HTTPRoute resource |
+| route.extraLabels | object | `{}` | Labels for the HTTPRoute |
+| route.filters | list | `[]` | Filters applied to matching requests (e.g. RequestRedirect, RequestHeaderModifier) |
+| route.hostnames | list | `[]` | Host names of the route. `virtualHost` is added automatically. |
+| route.matches | list | `[{"path":{"type":"PathPrefix","value":"/"}}]` | Request matches of the route rule |
+| route.parentRefs | list | `[]` | Gateways (listeners) the route attaches to |
+| route.timeouts | object | `{}` | Request timeouts of the route rule |
 | serviceAccount | object | `{"annotations":{},"automountServiceAccountToken":false,"create":true,"name":""}` | ServiceAccount configuration |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | serviceAccount.automountServiceAccountToken | bool | `false` | Automatically mount a ServiceAccount's API credentials |
@@ -665,4 +689,4 @@ Thanks goes to these wonderful people:
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)
+Autogenerated from chart metadata using [helm-docs v1.13.0](https://github.com/norwoodj/helm-docs/releases/v1.13.0)
