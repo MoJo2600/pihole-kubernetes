@@ -805,8 +805,9 @@ networkPolicy:
     # clients are usually outside the cluster (through a LoadBalancer, the client IP is kept). Restrict it with
     # ipBlocks for your networks if needed
     dnsFrom: []
-    # -- Allowed sources for the web interface and the metrics ports. The default allows pods in all namespaces
-    # (ingress controllers, Prometheus); add an ipBlock for your network if `serviceWeb` is a LoadBalancer
+    # -- Allowed sources for the web interface (and the metrics ports, unless `metricsFrom` is set). The default allows
+    # pods in all namespaces (ingress controllers, Prometheus); add an ipBlock for your network if `serviceWeb` is a
+    # LoadBalancer
     from:
       - namespaceSelector: {}
       # - podSelector:
@@ -814,6 +815,9 @@ networkPolicy:
       #       app: my-app
       # - ipBlock:
       #     cidr: 10.0.0.0/8
+    # -- Allowed sources for the metrics ports (pihole-exporter sidecar, dnscrypt-proxy metrics). Empty (default): the
+    # same sources as `from`. Set it to Prometheus to keep `from` short when the API has no password
+    metricsFrom: []
   # -- Egress rules (allow DNS and HTTP/HTTPS for upstream resolution and ad list updates)
   egress:
     # Allow DNS resolution to external servers

@@ -28,7 +28,7 @@ spec:
       from:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-    # Web interface and metrics
+    # Web interface
     - ports:
         - protocol: TCP
           port: {{ .Values.webHttp }}
@@ -36,6 +36,13 @@ spec:
         - protocol: TCP
           port: {{ .Values.webHttps }}
         {{- end }}
+      {{- with .Values.networkPolicy.ingress.from }}
+      from:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- if or .Values.monitoring.sidecar.enabled (and .Values.doh.enabled .Values.doh.metrics.enabled) }}
+    # Metrics: own sources, so Prometheus doesn't need access to the web interface and the API
+    - ports:
         {{- if .Values.monitoring.sidecar.enabled }}
         - protocol: TCP
           port: {{ .Values.monitoring.sidecar.port }}
@@ -44,10 +51,11 @@ spec:
         - protocol: TCP
           port: {{ .Values.doh.metrics.port }}
         {{- end }}
-      {{- with .Values.networkPolicy.ingress.from }}
+      {{- with (.Values.networkPolicy.ingress.metricsFrom | default .Values.networkPolicy.ingress.from) }}
       from:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+    {{- end }}
   egress:
     {{- with .Values.networkPolicy.egress }}
     {{- toYaml . | nindent 4 }}

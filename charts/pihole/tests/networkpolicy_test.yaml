@@ -1,0 +1,95 @@
+suite: network policy metrics sources (#473)
+templates:
+  - templates/networkpolicy.yaml
+release:
+  name: pihole
+tests:
+  - it: renders no metrics rule when neither the sidecar nor the doh metrics are enabled
+    set:
+      networkPolicy.enabled: true
+    asserts:
+      - lengthEqual:
+          path: spec.ingress
+          count: 2
+
+  - it: keeps the metrics ports out of the web rule
+    set:
+      networkPolicy.enabled: true
+      monitoring.sidecar.enabled: true
+    asserts:
+      - notContains:
+          path: spec.ingress[1].ports
+          content:
+            protocol: TCP
+            port: 9617
+
+  - it: allows the metrics ports from the same sources as the web interface by default
+    set:
+      networkPolicy.enabled: true
+      monitoring.sidecar.enabled: true
+      doh.enabled: true
+      doh.metrics.enabled: true
+      networkPolicy.ingress.from:
+        - podSelector:
+            matchLabels:
+              app: traefik
+    asserts:
+      - lengthEqual:
+          path: spec.ingress
+          count: 3
+      - equal:
+          path: spec.ingress[2].ports
+          value:
+            - protocol: TCP
+              port: 9617
+            - protocol: TCP
+              port: 8080
+      - equal:
+          path: spec.ingress[2].from
+          value:
+            - podSelector:
+                matchLabels:
+                  app: traefik
+
+  - it: allows the metrics ports from metricsFrom when set, and leaves the web rule alone
+    set:
+      networkPolicy.enabled: true
+      monitoring.sidecar.enabled: true
+      networkPolicy.ingress.from:
+        - podSelector:
+            matchLabels:
+              app: traefik
+      networkPolicy.ingress.metricsFrom:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+    asserts:
+      - equal:
+          path: spec.ingress[2].ports
+          value:
+            - protocol: TCP
+              port: 9617
+      - equal:
+          path: spec.ingress[2].from
+          value:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: monitoring
+      - equal:
+          path: spec.ingress[1].from
+          value:
+            - podSelector:
+                matchLabels:
+                  app: traefik
+
+  - it: renders a metrics rule for the doh metrics alone
+    set:
+      networkPolicy.enabled: true
+      doh.enabled: true
+      doh.metrics.enabled: true
+    asserts:
+      - equal:
+          path: spec.ingress[2].ports
+          value:
+            - protocol: TCP
+              port: 8080
