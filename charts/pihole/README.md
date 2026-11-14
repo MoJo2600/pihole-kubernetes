@@ -421,8 +421,7 @@ Keep the default when a second pod cannot start while the first one runs: with `
 
    Alternatively, give the pods of both releases a common label of your own with `podLabels` (e.g. `podLabels: {pihole-group: dns}`) and select that; it doesn't depend on `nameOverride`.
 
-   Keep `serviceDhcp`
- / Pi-hole's DHCP server on one release only.
+   Keep `serviceDhcp` / Pi-hole's DHCP server on one release only.
 
 2. **Sync with [nebula-sync](https://github.com/lovelaze/nebula-sync).** It copies lists, groups, clients and settings from a primary to the replicas through the Pi-hole v6 API, using the in-cluster web Services (`http://pihole-web.<namespace>.svc|<password>` as `PRIMARY`, `http://pihole-2-web.<namespace>.svc|<password>` as `REPLICAS`). Run it as a small Deployment and pass the passwords from a Secret. Make changes only on the primary; the sync is one-way. With `FULL_SYNC: "false"` you can exclude settings that must differ, e.g. `SYNC_CONFIG_DHCP_EXCLUDE: active` so the replica never starts a second DHCP server.
 
