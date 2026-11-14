@@ -1,4 +1,24 @@
-{{- if .Values.podDisruptionBudget.enabled -}}
+{{- $pdb := .Values.podDisruptionBudget -}}
+{{- if $pdb.enabled -}}
+{{- $useMax := not (kindIs "invalid" $pdb.maxUnavailable) -}}
+{{- /* A PDB over this release's pods alone must allow one eviction, or draining the node never finishes */ -}}
+{{- if not $pdb.selector -}}
+{{- $blocked := false -}}
+{{- if $useMax -}}
+{{- $blocked = has (toString $pdb.maxUnavailable) (list "0" "0%") -}}
+{{- else if hasSuffix "%" (toString $pdb.minAvailable) -}}
+{{- /* Kubernetes rounds a minAvailable percentage up: ceil(p*r/100) >= r, i.e. p*r > 100*(r-1) */ -}}
+{{- $p := trimSuffix "%" (toString $pdb.minAvailable) | int -}}
+{{- $r := int .Values.replicaCount -}}
+{{- $blocked = gt (mul $p $r) (mul 100 (sub $r 1)) -}}
+{{- else -}}
+{{- $blocked = ge (int $pdb.minAvailable) (int .Values.replicaCount) -}}
+{{- end -}}
+{{- if $blocked -}}
+{{- $setting := ternary (printf "maxUnavailable %v" $pdb.maxUnavailable) (printf "minAvailable %v" $pdb.minAvailable) $useMax -}}
+{{- fail (printf "podDisruptionBudget with %s and replicaCount %v allows no disruptions, so draining the node running Pi-hole never finishes. For the two releases of a high availability setup (see \"High availability\" in the README), set podDisruptionBudget.selector to a label both releases share" $setting .Values.replicaCount) -}}
+{{- end -}}
+{{- end }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
@@ -6,13 +26,12 @@ metadata:
   labels:
     {{- include "pihole.labels" . | nindent 4 }}
 spec:
-{{- if .Values.podDisruptionBudget.minAvailable }}
-  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
-{{- end }}
-{{- if .Values.podDisruptionBudget.maxUnavailable }}
-  maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+{{- if $useMax }}
+  maxUnavailable: {{ $pdb.maxUnavailable }}
+{{- else }}
+  minAvailable: {{ $pdb.minAvailable }}
 {{- end }}
   selector:
     matchLabels:
-      {{- include "pihole.selectorLabels" . | nindent 6 }}
+      {{- toYaml ($pdb.selector | default (include "pihole.selectorLabels" . | fromYaml)) | nindent 6 }}
 {{- end }}

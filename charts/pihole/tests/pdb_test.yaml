@@ -1,0 +1,100 @@
+suite: pod disruption budget (#464)
+templates:
+  - templates/pdb.yaml
+release:
+  name: pihole
+tests:
+  - it: renders no PDB by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: fails with the defaults, which allow no eviction of the single pod
+    set:
+      podDisruptionBudget.enabled: true
+    asserts:
+      - failedTemplate:
+          errorPattern: "podDisruptionBudget with minAvailable 1 and replicaCount 1 allows no disruptions"
+
+  - it: fails with maxUnavailable 0
+    set:
+      podDisruptionBudget.enabled: true
+      podDisruptionBudget.maxUnavailable: 0
+      replicaCount: 2
+    asserts:
+      - failedTemplate:
+          errorPattern: "podDisruptionBudget with maxUnavailable 0 and replicaCount 2"
+
+  - it: fails with minAvailable 100%
+    set:
+      podDisruptionBudget.enabled: true
+      podDisruptionBudget.minAvailable: 100%
+    asserts:
+      - failedTemplate:
+          errorPattern: "minAvailable 100%"
+
+  - it: fails with minAvailable 50% and one replica, which Kubernetes rounds up to 1
+    set:
+      podDisruptionBudget.enabled: true
+      podDisruptionBudget.minAvailable: 50%
+    asserts:
+      - failedTemplate:
+          errorPattern: "minAvailable 50% and replicaCount 1"
+
+  - it: fails with minAvailable 60% and two replicas, which Kubernetes rounds up to 2
+    set:
+      podDisruptionBudget.enabled: true
+      podDisruptionBudget.minAvailable: 60%
+      replicaCount: 2
+    asserts:
+      - failedTemplate:
+          errorPattern: "minAvailable 60% and replicaCount 2"
+
+  - it: allows minAvailable 50% with two replicas
+    set:
+      podDisruptionBudget.enabled: true
+      podDisruptionBudget.minAvailable: 50%
+      replicaCount: 2
+    asserts:
+      - equal:
+          path: spec.minAvailable
+          value: 50%
+
+  - it: renders only maxUnavailable when it is set
+    set:
+      podDisruptionBudget.enabled: true
+      podDisruptionBudget.maxUnavailable: 1
+    asserts:
+      - equal:
+          path: spec.maxUnavailable
+          value: 1
+      - notExists:
+          path: spec.minAvailable
+
+  - it: allows minAvailable 1 with two replicas
+    set:
+      podDisruptionBudget.enabled: true
+      replicaCount: 2
+    asserts:
+      - equal:
+          path: spec.minAvailable
+          value: 1
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/name: pihole
+            app.kubernetes.io/instance: pihole
+
+  - it: covers both releases of an HA setup with a selector
+    set:
+      podDisruptionBudget.enabled: true
+      podDisruptionBudget.selector:
+        app.kubernetes.io/name: pihole
+    asserts:
+      - equal:
+          path: spec.minAvailable
+          value: 1
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/name: pihole

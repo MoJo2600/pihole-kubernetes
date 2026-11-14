@@ -778,12 +778,17 @@ podDnsConfig:
 
 # -- configure a Pod Disruption Budget
 podDisruptionBudget:
-  # -- set to true to enable creating the PDB
+  # -- set to true to enable creating the PDB. Over this release's pods alone it must allow one eviction, so with
+  # `replicaCount: 1` the chart fails on the defaults; it is meant for the two releases of a high availability setup
+  # together (`selector`, see "High availability" in the README)
   enabled: false
   # -- minimum number of pods Kubernetes should try to have running at all times
   minAvailable: 1
-  # -- maximum number of pods Kubernetes will allow to be unavailable. Cannot set both `minAvailable` and `maxUnavailable`
+  # -- maximum number of pods Kubernetes will allow to be unavailable. Takes precedence over `minAvailable` when set
   # maxUnavailable: 1
+  # -- matchLabels of the pods the PDB covers. Empty (default): this release's pods. Set a label both releases of a
+  # high availability setup share (e.g. `app.kubernetes.io/name: pihole`) and enable the PDB in one release only
+  selector: {}
 
 # -- NetworkPolicy configuration
 networkPolicy:

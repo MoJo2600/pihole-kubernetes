@@ -444,6 +444,18 @@ Keep the default when a second pod cannot start while the first one runs: with `
 
    Keep `serviceDhcp` / Pi-hole's DHCP server on one release only.
 
+   To keep one Pi-hole up while a node is drained, add a PodDisruptionBudget over the pods of *both* releases. Enable it in one release only:
+
+   ```yaml
+   podDisruptionBudget:
+     enabled: true
+     minAvailable: 1
+     selector:
+       app.kubernetes.io/name: pihole   # the label both releases share
+   ```
+
+   A PDB over a single release's one pod (the default selector) would allow no eviction at all, so `kubectl drain` and automated node upgrades would never finish; the chart refuses to render that.
+
 2. **Sync with [nebula-sync](https://github.com/lovelaze/nebula-sync).** It copies lists, groups, clients and settings from a primary to the replicas through the Pi-hole v6 API, using the in-cluster web Services (`http://pihole-web.<namespace>.svc|<password>` as `PRIMARY`, `http://pihole-2-web.<namespace>.svc|<password>` as `REPLICAS`). Run it as a small Deployment and pass the passwords from a Secret. Without a password (`admin.enabled: false`), run nebula-sync in the same namespace and use the short names with an empty password (`http://pihole-web|`, `http://pihole-2-web|`), see [API clients without a password](#admin-password). Make changes only on the primary; the sync is one-way. With `FULL_SYNC: "false"` you can exclude settings that must differ, e.g. `SYNC_CONFIG_DHCP_EXCLUDE: active` so the replica never starts a second DHCP server.
 
 3. **Give clients both DNS IPs** (router or DHCP settings, e.g. `dhcp-option=6,<ip1>,<ip2>`). DNS clients fail over on their own, no shared virtual IP needed.
@@ -518,6 +530,7 @@ Breaking changes:
   - `FTLCONF_dns_listeningMode: all` is set by the chart instead of `extraEnvVars`; override it with `ftl.dns_listeningMode`.
   - Pi-hole's NTP client is off (`ntp.sync: false`). Without `SYS_TIME` it never ran anyway; `ntp.sync: true` turns it on and adds the capability. See [NTP clock sync](#ntp-clock-sync).
 - **NetworkPolicy:** DNS is allowed from every source by default (`networkPolicy.ingress.dnsFrom`); before, only pods could reach Pi-hole, so clients behind a LoadBalancer were blocked. The rules now use the pod ports.
+- **`podDisruptionBudget` fails when it would allow no eviction**, e.g. the defaults `minAvailable: 1` with `replicaCount: 1`, which blocked every node drain. Use `podDisruptionBudget.selector` for a PDB across two releases (see [High availability](#high-availability)).
 - **`ingress.pathType` defaults to `Prefix`** instead of `ImplementationSpecific`, which some ingress controllers (e.g. Cilium) treat as a regex or exact match.
 - **Dual-stack LoadBalancer services** are one dual-stack Service each instead of an IPv4 plus an `-ipv6` Service; put both addresses into the load balancer annotation. `dualStack.splitLoadBalancer: true` keeps separate services (needed for `loadBalancerIPv6`). See [Dual-stack](#dual-stack-ipv4--ipv6).
 - **`dnsPort` now changes the port Pi-hole listens on** (`FTLCONF_dns_port`). Before, it only changed the container port, and any value other than 53 broke the probes.
@@ -682,9 +695,10 @@ The following table lists the configurable parameters of the pihole chart and th
 | persistentVolumeClaim.keep | bool | `false` | keep the PersistentVolumeClaim (and your Pi-hole data) on `helm uninstall` (`helm.sh/resource-policy: keep`). A reinstall with the same release name reuses it; delete it by hand when you no longer need it |
 | persistentVolumeClaim.size | string | `"500Mi"` | volume claim size |
 | podAnnotations | object | `{}` | Additional annotations for pods |
-| podDisruptionBudget | object | `{"enabled":false,"minAvailable":1}` | configure a Pod Disruption Budget |
-| podDisruptionBudget.enabled | bool | `false` | set to true to enable creating the PDB |
+| podDisruptionBudget | object | `{"enabled":false,"minAvailable":1,"selector":{}}` | configure a Pod Disruption Budget |
+| podDisruptionBudget.enabled | bool | `false` | set to true to enable creating the PDB. Over this release's pods alone it must allow one eviction, so with `replicaCount: 1` the chart fails on the defaults; it is meant for the two releases of a high availability setup together (`selector`, see "High availability" in the README) |
 | podDisruptionBudget.minAvailable | int | `1` | minimum number of pods Kubernetes should try to have running at all times |
+| podDisruptionBudget.selector | object | `{}` | matchLabels of the pods the PDB covers. Empty (default): this release's pods. Set a label both releases of a high availability setup share (e.g. `app.kubernetes.io/name: pihole`) and enable the PDB in one release only |
 | podDnsConfig.enabled | bool | `true` |  |
 | podDnsConfig.nameservers[0] | string | `"127.0.0.1"` |  |
 | podDnsConfig.nameservers[1] | string | `"8.8.8.8"` |  |
