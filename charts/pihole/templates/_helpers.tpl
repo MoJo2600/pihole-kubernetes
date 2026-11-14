@@ -155,6 +155,19 @@ RollingUpdate
 {{- end }}
 
 {{/*
+Pod hostname: .Values.hostname, otherwise "<fullname>-web" when the API has no password (admin.enabled: false).
+Without a password FTL only accepts API requests whose Host header is one of its own names, and the hostname is
+one of them, so in-cluster clients can use the web Service's short name. Not set with hostNetwork.
+*/}}
+{{- define "pihole.hostname" -}}
+{{- if .Values.hostname -}}
+{{ .Values.hostname }}
+{{- else if and (not .Values.admin.enabled) (not (and .Values.hostNetwork (ne (toString .Values.hostNetwork) "false"))) -}}
+{{ printf "%s-web" (include "pihole.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end -}}
+{{- end }}
+
+{{/*
 Non-empty when Pi-hole's NTP client (ntp.sync.active) is on: ftl.ntp_sync_active or
 extraEnvVars.FTLCONF_ntp_sync_active when set, otherwise ntp.sync.
 A valueFrom can't be evaluated here and counts as off.

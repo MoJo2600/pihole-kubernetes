@@ -629,7 +629,9 @@ dnsPort: "53"
 # -- container port for DHCP traffic. Pi-hole's DHCP server always listens on 67; this only changes the declared port
 dhcpPort: "67"
 
-# -- hostname of pod
+# -- hostname of pod. Empty (default): none, or `<release>-web` (the web Service's name) with `admin.enabled: false`, so
+# in-cluster API clients in the same namespace can use `http://<release>-web` without a password (see "Admin password"
+# in the README)
 hostname: ""
 
 # -- should the container use host network
