@@ -77,8 +77,8 @@ spec:
         {{- toYaml .Values.podDnsConfig.nameservers | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "pihole.serviceAccountName" . }}
-      {{- if .Values.hostname }}
-      hostname: {{ .Values.hostname }}
+      {{- with include "pihole.hostname" . }}
+      hostname: {{ . }}
       {{- end }}
       {{- if and .Values.hostNetwork (ne (toString .Values.hostNetwork) "false") }}
       hostNetwork: {{ .Values.hostNetwork }}

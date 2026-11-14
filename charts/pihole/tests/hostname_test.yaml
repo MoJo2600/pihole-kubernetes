@@ -1,0 +1,45 @@
+suite: pod hostname (#462)
+templates:
+  - templates/deployment.yaml
+  - templates/configmap.yaml
+  - templates/configmap-adlists.yaml
+  - templates/configmap-allowed.yaml
+  - templates/configmap-denied.yaml
+  - templates/configmap-regex.yaml
+  - templates/configmap-static-dhcp.yaml
+release:
+  name: pihole
+tests:
+  - it: sets no hostname with an admin password
+    template: templates/deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.hostname
+
+  - it: uses the web Service name as hostname without an admin password
+    template: templates/deployment.yaml
+    set:
+      admin.enabled: false
+    asserts:
+      - equal:
+          path: spec.template.spec.hostname
+          value: pihole-web
+
+  - it: keeps an explicit hostname
+    template: templates/deployment.yaml
+    set:
+      admin.enabled: false
+      hostname: my-pihole
+    asserts:
+      - equal:
+          path: spec.template.spec.hostname
+          value: my-pihole
+
+  - it: sets no default hostname with hostNetwork
+    template: templates/deployment.yaml
+    set:
+      admin.enabled: false
+      hostNetwork: "true"
+    asserts:
+      - notExists:
+          path: spec.template.spec.hostname
