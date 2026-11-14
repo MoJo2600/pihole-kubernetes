@@ -70,6 +70,7 @@ Chart 3.0 brings significant improvements to the Pi-hole Helm chart, including m
 - `ftl.dns_upstreams`, `ftl.dns_port` and `ftl.dns_listeningMode` override the chart's settings without duplicate env vars
 - Docs: local DNS records with `ftl.dns_hosts` / `ftl.dns_cnameRecords`, dual-stack, and troubleshooting for hostNetwork, DHCP, `existingSecret` passwords and client IPs
 - dnscrypt-proxy 2.1.20 and pihole-exporter v1.3.1 (now runs as non-root)
+- `monitoring.podMonitor.relabelings` and `metricRelabelings`, e.g. to replace the exporter's `hostname` label (the pod IP) with a stable name ([#474](https://github.com/MoJo2600/pihole-kubernetes/issues/474))
 
 ### Enhanced Health Probes
 - **Added startup probes** for both Pi-hole and DoH containers

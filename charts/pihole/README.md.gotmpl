@@ -29,6 +29,7 @@
   - [Upstream DNS resolvers](#upstream-dns-resolvers)
   - [Local DNS records](#local-dns-records)
   - [Encrypted upstream DNS (DoH / DoT / DNSCrypt)](#encrypted-upstream-dns-doh--dot--dnscrypt)
+  - [Monitoring](#monitoring)
   - [Persistence](#persistence)
   - [NetworkPolicy](#networkpolicy)
   - [ServiceAccount](#serviceaccount)
@@ -300,6 +301,23 @@ doh:
   metrics:
     enabled: true
     port: 8080
+```
+
+### Monitoring
+
+Set `monitoring.sidecar.enabled: true` to run the [pihole-exporter](https://github.com/eko/pihole-exporter) sidecar on port `monitoring.sidecar.port` (9617). With the Prometheus Operator, `monitoring.podMonitor.enabled: true` creates a PodMonitor that scrapes it (and dnscrypt-proxy with `doh.metrics.enabled`); without the operator, use `prometheus.io` scrape annotations in `podAnnotations`.
+
+The exporter reaches Pi-hole through the pod IP, so the `hostname` label of every `pihole_*` series is the pod IP. It changes on every restart, which starts new series and fills the instance dropdown of the pihole-exporter Grafana dashboard with old IPs. Replace it with a stable name with `monitoring.podMonitor.metricRelabelings` (`monitoring.podMonitor.relabelings` works the same way, before the scrape). Both apply to every endpoint of the PodMonitor, so match on `__name__` to touch only the exporter's series:
+
+```yaml
+monitoring:
+  podMonitor:
+    enabled: true
+    metricRelabelings:
+      - sourceLabels: [__name__]
+        regex: pihole_.+
+        targetLabel: hostname
+        replacement: pihole-01
 ```
 
 ### Persistence

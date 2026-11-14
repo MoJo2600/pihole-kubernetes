@@ -37,6 +37,7 @@ Kubernetes: `>=1.26.0-0`
   - [Upstream DNS resolvers](#upstream-dns-resolvers)
   - [Local DNS records](#local-dns-records)
   - [Encrypted upstream DNS (DoH / DoT / DNSCrypt)](#encrypted-upstream-dns-doh--dot--dnscrypt)
+  - [Monitoring](#monitoring)
   - [Persistence](#persistence)
   - [NetworkPolicy](#networkpolicy)
   - [ServiceAccount](#serviceaccount)
@@ -308,6 +309,23 @@ doh:
   metrics:
     enabled: true
     port: 8080
+```
+
+### Monitoring
+
+Set `monitoring.sidecar.enabled: true` to run the [pihole-exporter](https://github.com/eko/pihole-exporter) sidecar on port `monitoring.sidecar.port` (9617). With the Prometheus Operator, `monitoring.podMonitor.enabled: true` creates a PodMonitor that scrapes it (and dnscrypt-proxy with `doh.metrics.enabled`); without the operator, use `prometheus.io` scrape annotations in `podAnnotations`.
+
+The exporter reaches Pi-hole through the pod IP, so the `hostname` label of every `pihole_*` series is the pod IP. It changes on every restart, which starts new series and fills the instance dropdown of the pihole-exporter Grafana dashboard with old IPs. Replace it with a stable name with `monitoring.podMonitor.metricRelabelings` (`monitoring.podMonitor.relabelings` works the same way, before the scrape). Both apply to every endpoint of the PodMonitor, so match on `__name__` to touch only the exporter's series:
+
+```yaml
+monitoring:
+  podMonitor:
+    enabled: true
+    metricRelabelings:
+      - sourceLabels: [__name__]
+        regex: pihole_.+
+        targetLabel: hostname
+        replacement: pihole-01
 ```
 
 ### Persistence
@@ -676,8 +694,10 @@ The following table lists the configurable parameters of the pihole chart and th
 | ingress.pathType | string | `"Prefix"` | `Prefix` works with every ingress controller; `ImplementationSpecific` is regex or exact match on some (e.g. Cilium) |
 | maxSurge | int | `1` | The maximum number of Pods that can be created over the desired number of `ReplicaSet` during updating. |
 | maxUnavailable | int | `1` | The maximum number of Pods that can be unavailable during updating |
-| monitoring.podMonitor | object | `{"enabled":false}` | PodMonitor for the Prometheus Operator. Without the operator, use prometheus.io scrape annotations in `podAnnotations` instead |
+| monitoring.podMonitor | object | `{"enabled":false,"metricRelabelings":[],"relabelings":[]}` | PodMonitor for the Prometheus Operator. Without the operator, use prometheus.io scrape annotations in `podAnnotations` instead |
 | monitoring.podMonitor.enabled | bool | `false` | set this to true to create a PodMonitor (requires the Prometheus Operator CRDs). Scrapes the exporter sidecar and, with `doh.metrics.enabled`, dnscrypt-proxy |
+| monitoring.podMonitor.metricRelabelings | list | `[]` | MetricRelabelConfigs applied to the scraped samples, on every endpoint of the PodMonitor. E.g. replace the exporter's `hostname` label (the pod IP) with a stable name, see [Monitoring](#monitoring) |
+| monitoring.podMonitor.relabelings | list | `[]` | RelabelConfigs applied to the targets before scraping, on every endpoint of the PodMonitor |
 | monitoring.sidecar | object | `{"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"ekofr/pihole-exporter","tag":"v1.3.1"},"port":9617,"resources":{"limits":{"memory":"128Mi"}}}` | Sidecar configuration |
 | monitoring.sidecar.enabled | bool | `false` | set this to true to enable podMonitor as sidecar |
 | monitoring.sidecar.image.repository | string | `"ekofr/pihole-exporter"` | the repository to use |

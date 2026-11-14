@@ -42,3 +42,57 @@ tests:
       - equal:
           path: spec.podMetricsEndpoints[1].port
           value: dnscrypt-met
+
+  - it: sets no relabelings by default (#474)
+    set:
+      monitoring.podMonitor.enabled: true
+      doh.enabled: true
+      doh.metrics.enabled: true
+    asserts:
+      - notExists:
+          path: spec.podMetricsEndpoints[0].relabelings
+      - notExists:
+          path: spec.podMetricsEndpoints[0].metricRelabelings
+      - notExists:
+          path: spec.podMetricsEndpoints[1].relabelings
+      - notExists:
+          path: spec.podMetricsEndpoints[1].metricRelabelings
+
+  - it: passes relabelings and metricRelabelings to both endpoints (#474)
+    set:
+      monitoring.podMonitor.enabled: true
+      doh.enabled: true
+      doh.metrics.enabled: true
+      monitoring.podMonitor.relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_node_name]
+          targetLabel: node
+      monitoring.podMonitor.metricRelabelings:
+        - sourceLabels: [__name__]
+          regex: pihole_.+
+          targetLabel: hostname
+          replacement: pihole-01
+    asserts:
+      - equal:
+          path: spec.podMetricsEndpoints[0].relabelings
+          value:
+            - sourceLabels: [__meta_kubernetes_pod_node_name]
+              targetLabel: node
+      - equal:
+          path: spec.podMetricsEndpoints[0].metricRelabelings
+          value:
+            - sourceLabels: [__name__]
+              regex: pihole_.+
+              targetLabel: hostname
+              replacement: pihole-01
+      - equal:
+          path: spec.podMetricsEndpoints[1].relabelings
+          value:
+            - sourceLabels: [__meta_kubernetes_pod_node_name]
+              targetLabel: node
+      - equal:
+          path: spec.podMetricsEndpoints[1].metricRelabelings
+          value:
+            - sourceLabels: [__name__]
+              regex: pihole_.+
+              targetLabel: hostname
+              replacement: pihole-01
