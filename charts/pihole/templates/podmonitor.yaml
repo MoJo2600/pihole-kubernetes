@@ -29,9 +29,25 @@ spec:
       optional: {{ .Values.monitoring.podMonitor.bearerTokenSecret.optional }}
       {{- end }}
 {{- end }}
+{{- with .Values.monitoring.podMonitor.relabelings }}
+    relabelings:
+      {{- toYaml . | nindent 6 }}
+{{- end }}
+{{- with .Values.monitoring.podMonitor.metricRelabelings }}
+    metricRelabelings:
+      {{- toYaml . | nindent 6 }}
+{{- end }}
 {{- if and .Values.doh.enabled .Values.doh.metrics.enabled }}
   - port: dnscrypt-met
     path: /metrics
+{{- with .Values.monitoring.podMonitor.relabelings }}
+    relabelings:
+      {{- toYaml . | nindent 6 }}
+{{- end }}
+{{- with .Values.monitoring.podMonitor.metricRelabelings }}
+    metricRelabelings:
+      {{- toYaml . | nindent 6 }}
+{{- end }}
 {{- end }}
   jobLabel: {{ template "pihole.fullname" . }}-prometheus-exporter
   namespaceSelector:

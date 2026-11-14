@@ -752,6 +752,11 @@ monitoring:
   podMonitor:
     # -- set this to true to create a PodMonitor (requires the Prometheus Operator CRDs). Scrapes the exporter sidecar and, with `doh.metrics.enabled`, dnscrypt-proxy
     enabled: false
+    # -- RelabelConfigs applied to the targets before scraping, on every endpoint of the PodMonitor
+    relabelings: []
+    # -- MetricRelabelConfigs applied to the scraped samples, on every endpoint of the PodMonitor. E.g. replace the
+    # exporter's `hostname` label (the pod IP) with a stable name, see [Monitoring](#monitoring)
+    metricRelabelings: []
   # -- Sidecar configuration
   sidecar:
     # -- set this to true to enable podMonitor as sidecar
