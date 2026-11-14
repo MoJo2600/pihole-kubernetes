@@ -405,7 +405,24 @@ Keep the default when a second pod cannot start while the first one runs: with `
            topologyKey: kubernetes.io/hostname
    ```
 
-   Keep `serviceDhcp` / Pi-hole's DHCP server on one release only.
+   `app.kubernetes.io/name` is the chart name, `pihole`, unless a release sets `nameOverride`; then that release's pods carry `app.kubernetes.io/name: <nameOverride>`. The rule above then silently matches nothing, and both Pi-holes can land on the same node. The same goes for anything else that selects all Pi-holes by this label, such as a PodDisruptionBudget or NetworkPolicies of other workloads. Don't set `nameOverride` in only one release, or select all names explicitly:
+
+   ```yaml
+   affinity:
+     podAntiAffinity:
+       requiredDuringSchedulingIgnoredDuringExecution:
+         - labelSelector:
+             matchExpressions:
+               - key: app.kubernetes.io/name
+                 operator: In
+                 values: [pihole, pihole-2]   # the app.kubernetes.io/name of each release
+           topologyKey: kubernetes.io/hostname
+   ```
+
+   Alternatively, give the pods of both releases a common label of your own with `podLabels` (e.g. `podLabels: {pihole-group: dns}`) and select that; it doesn't depend on `nameOverride`.
+
+   Keep `serviceDhcp`
+ / Pi-hole's DHCP server on one release only.
 
 2. **Sync with [nebula-sync](https://github.com/lovelaze/nebula-sync).** It copies lists, groups, clients and settings from a primary to the replicas through the Pi-hole v6 API, using the in-cluster web Services (`http://pihole-web.<namespace>.svc|<password>` as `PRIMARY`, `http://pihole-2-web.<namespace>.svc|<password>` as `REPLICAS`). Run it as a small Deployment and pass the passwords from a Secret. Make changes only on the primary; the sync is one-way. With `FULL_SYNC: "false"` you can exclude settings that must differ, e.g. `SYNC_CONFIG_DHCP_EXCLUDE: active` so the replica never starts a second DHCP server.
 
