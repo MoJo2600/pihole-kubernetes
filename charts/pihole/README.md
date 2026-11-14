@@ -432,6 +432,17 @@ DHCP clients find the server with layer-2 broadcasts. Kubernetes Services and lo
 1. **Host network:** run Pi-hole with `hostNetwork: true` and the `NET_ADMIN` capability on a node in the LAN, and enable the DHCP server with `FTLCONF_dhcp_*` settings. [`examples/dhcp-values.yaml`](examples/dhcp-values.yaml) is a complete starting point.
 2. **DHCP relay:** keep Pi-hole off the host network and run a small DHCP relay with host networking (for example [dhcphelper](https://github.com/homeall/dhcphelper), not part of this chart). It receives the broadcasts and forwards them as unicast to Pi-hole's DHCP service (`serviceDhcp.enabled: true`).
 
+   Also set dnsmasq's `dhcp-proxy` option. Without it, dnsmasq announces the pod IP as the DHCP server (option 54), and clients send their lease renewals (at 50 % of the lease time) by unicast to that IP. It isn't reachable from the LAN and changes with every restart, so renewals time out until the clients fall back to broadcast at 87.5 %. With `dhcp-proxy`, the server identifier is the relay's address, and renewals go through the relay like every other request:
+
+   ```yaml
+   dnsmasq:
+     customSettings:
+       # server id = relay address instead of the pod IP, so renewals reach the relay
+       - dhcp-proxy
+   ```
+
+   The server identifier is then the IP of the node the relay runs on. If the relay pod moves to another node, renewals go to the old node until the clients fall back to broadcast. Keep the relay on one node, e.g. with a `nodeSelector`, a pod affinity to the Pi-hole pod, or as a DaemonSet.
+
 ### Admin password from existingSecret is rejected
 
 Pi-hole compares the password byte for byte, so a trailing newline in the secret makes the login fail. This happens when the value was encoded with `echo password | base64` (without `-n`) or written into a file with a final newline. Create the secret without one:
