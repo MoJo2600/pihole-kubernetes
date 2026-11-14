@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.1.0-rc.3](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-3.0.0-rc.3...pihole-3.1.0-rc.3) (2026-11-14)
+
+
+### Features
+
+* add monitoring.podMonitor.relabelings and metricRelabelings ([#475](https://github.com/MoJo2600/pihole-kubernetes/issues/475)) ([807eb9e](https://github.com/MoJo2600/pihole-kubernetes/commit/807eb9eb7c1137f5390b221abe3059cea1727c7f)), closes [#474](https://github.com/MoJo2600/pihole-kubernetes/issues/474)
+* add networkPolicy.ingress.metricsFrom for the metrics ports ([#476](https://github.com/MoJo2600/pihole-kubernetes/issues/476)) ([7597470](https://github.com/MoJo2600/pihole-kubernetes/commit/75974702c623a179f6721de951b755fe63d800c8)), closes [#473](https://github.com/MoJo2600/pihole-kubernetes/issues/473)
+
+
+### Bug Fixes
+
+* refuse a PodDisruptionBudget that allows no eviction, add podDisruptionBudget.selector ([#469](https://github.com/MoJo2600/pihole-kubernetes/issues/469)) ([8436e29](https://github.com/MoJo2600/pihole-kubernetes/commit/8436e29c47d61217f11713d2306e920e10bab30f)), closes [#464](https://github.com/MoJo2600/pihole-kubernetes/issues/464)
+* set the pod hostname to the web Service name when the API has no password ([#467](https://github.com/MoJo2600/pihole-kubernetes/issues/467)) ([8362de0](https://github.com/MoJo2600/pihole-kubernetes/commit/8362de0df3baab00192fe1d11e58dc9799ec0e49)), closes [#462](https://github.com/MoJo2600/pihole-kubernetes/issues/462)
+
 ## [3.0.0-rc.3](https://github.com/MoJo2600/pihole-kubernetes/compare/pihole-3.0.0-rc.2...pihole-3.0.0-rc.3) (2026-11-13)
 
 
