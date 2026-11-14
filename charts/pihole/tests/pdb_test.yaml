@@ -33,6 +33,33 @@ tests:
       - failedTemplate:
           errorPattern: "minAvailable 100%"
 
+  - it: fails with minAvailable 50% and one replica, which Kubernetes rounds up to 1
+    set:
+      podDisruptionBudget.enabled: true
+      podDisruptionBudget.minAvailable: 50%
+    asserts:
+      - failedTemplate:
+          errorPattern: "minAvailable 50% and replicaCount 1"
+
+  - it: fails with minAvailable 60% and two replicas, which Kubernetes rounds up to 2
+    set:
+      podDisruptionBudget.enabled: true
+      podDisruptionBudget.minAvailable: 60%
+      replicaCount: 2
+    asserts:
+      - failedTemplate:
+          errorPattern: "minAvailable 60% and replicaCount 2"
+
+  - it: allows minAvailable 50% with two replicas
+    set:
+      podDisruptionBudget.enabled: true
+      podDisruptionBudget.minAvailable: 50%
+      replicaCount: 2
+    asserts:
+      - equal:
+          path: spec.minAvailable
+          value: 50%
+
   - it: renders only maxUnavailable when it is set
     set:
       podDisruptionBudget.enabled: true

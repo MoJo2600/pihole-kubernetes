@@ -7,7 +7,10 @@
 {{- if $useMax -}}
 {{- $blocked = has (toString $pdb.maxUnavailable) (list "0" "0%") -}}
 {{- else if hasSuffix "%" (toString $pdb.minAvailable) -}}
-{{- $blocked = eq (toString $pdb.minAvailable) "100%" -}}
+{{- /* Kubernetes rounds a minAvailable percentage up: ceil(p*r/100) >= r, i.e. p*r > 100*(r-1) */ -}}
+{{- $p := trimSuffix "%" (toString $pdb.minAvailable) | int -}}
+{{- $r := int .Values.replicaCount -}}
+{{- $blocked = gt (mul $p $r) (mul 100 (sub $r 1)) -}}
 {{- else -}}
 {{- $blocked = ge (int $pdb.minAvailable) (int .Values.replicaCount) -}}
 {{- end -}}
