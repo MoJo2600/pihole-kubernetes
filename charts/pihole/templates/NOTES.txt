@@ -101,6 +101,12 @@ Pi-hole Helm Chart Deployment
 6. Clean Up:
    - To uninstall/delete the Pi-hole deployment, run:
      helm uninstall {{ .Release.Name }} -n {{ .Release.Namespace }}
+{{- if not .Values.admin.enabled }}
+
+WARNING: admin.enabled is false, so the Pi-hole API has no password. Every pod that
+can reach the {{ template "pihole.fullname" . }}-web Service can change Pi-hole's settings.
+Restrict access with networkPolicy (see "NetworkPolicy" in the chart README).
+{{- end }}
 
 For more information, visit:
 https://github.com/MoJo2600/pihole-kubernetes

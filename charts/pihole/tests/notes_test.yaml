@@ -1,0 +1,19 @@
+suite: NOTES.txt
+templates:
+  - templates/NOTES.txt
+release:
+  name: pihole
+tests:
+  - it: shows no API warning with an admin password
+    asserts:
+      - notMatchRegexRaw:
+          pattern: "API has no password"
+
+  - it: warns that the API is open to every pod with admin.enabled false (#466)
+    set:
+      admin.enabled: false
+    asserts:
+      - matchRegexRaw:
+          pattern: "WARNING: admin.enabled is false, so the Pi-hole API has no password"
+      - matchRegexRaw:
+          pattern: "can reach the pihole-web Service"
