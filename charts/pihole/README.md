@@ -245,7 +245,7 @@ admin:
   passwordKey: password
 ```
 
-By default (`admin.password` empty, no `existingSecret`) a random password is generated into the `<release>-password` secret and kept across upgrades. Retrieve it as shown in [Access the web interface](#access-the-web-interface). Set `admin.enabled: false` to disable password authentication entirely.
+By default (`admin.password` empty, no `existingSecret`) a random password is generated into the `<release>-password` secret and kept across upgrades. Retrieve it as shown in [Access the web interface](#access-the-web-interface). Set `admin.enabled: false` to disable password authentication entirely. The API then accepts changes from every pod that can reach the web Service, even when an SSO proxy protects the ingress; restrict it with a [NetworkPolicy](#networkpolicy).
 
 > **GitOps (Argo CD, Flux with server-side rendering off):** tools that render the chart without access to the cluster can't see the existing secret and would generate a new password on every sync. Use `existingSecret` (e.g. from External Secrets or Sealed Secrets) instead.
 
@@ -328,6 +328,25 @@ Set `networkPolicy.enabled: true` to restrict pod traffic:
 
 - **DNS (and DHCP with `serviceDhcp.enabled`)** is allowed from every source, because DNS clients are usually outside the cluster. Restrict it with `networkPolicy.ingress.dnsFrom`, e.g. an `ipBlock` for your LAN.
 - **The web interface and the metrics ports** are allowed from pods in all namespaces (`networkPolicy.ingress.from`), which covers ingress controllers and Prometheus. If `serviceWeb` is a `LoadBalancer`, add an `ipBlock` for your network.
+- **Without an admin password** (`admin.enabled: false`), this default lets every pod in the cluster reconfigure Pi-hole through the API: DNS records, DHCP, lists, upstreams. An SSO proxy in front of the ingress (Authelia, oauth2-proxy, ...) doesn't change that, because the `<release>-web` Service is still reachable inside the cluster, and Pi-hole's passwordless check only stops browser requests from other websites, not a pod that calls it by IP. Restrict `networkPolicy.ingress.from` to your ingress controller and the API clients you run (e.g. nebula-sync):
+
+  ```yaml
+  networkPolicy:
+    enabled: true
+    ingress:
+      from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+        - podSelector:
+            matchLabels:
+              app: nebula-sync
+  ```
+
+  Add Prometheus too if you scrape the metrics ports.
 - **Egress** allows DNS, HTTP/HTTPS (ad lists, DoH), DNS over TLS and traffic inside the cluster (`networkPolicy.egress`). With `serviceDhcp.enabled`, the chart also allows UDP 67/68 out for the DHCP replies to the relay and the clients, and with `ntp.sync` UDP 123 for NTP, even if you override `networkPolicy.egress`.
 - **ICMP** can't be allowed with a NetworkPolicy. With DHCP, dnsmasq pings an address before offering it; with the policy enabled that check gets no answer, so dnsmasq assumes the address is free. Keep static addresses outside the DHCP range.
 
