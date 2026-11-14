@@ -177,12 +177,12 @@ tests:
       doh.metrics.enabled: true
     asserts:
       - contains:
-          path: spec.ingress[1].ports
+          path: spec.ingress[2].ports
           content:
             protocol: TCP
             port: 9617
       - contains:
-          path: spec.ingress[1].ports
+          path: spec.ingress[2].ports
           content:
             protocol: TCP
             port: 8080

@@ -347,7 +347,7 @@ With persistence, the chart updates Pi-hole with the `Recreate` strategy (the ol
 Set `networkPolicy.enabled: true` to restrict pod traffic:
 
 - **DNS (and DHCP with `serviceDhcp.enabled`)** is allowed from every source, because DNS clients are usually outside the cluster. Restrict it with `networkPolicy.ingress.dnsFrom`, e.g. an `ipBlock` for your LAN.
-- **The web interface and the metrics ports** are allowed from pods in all namespaces (`networkPolicy.ingress.from`), which covers ingress controllers and Prometheus. If `serviceWeb` is a `LoadBalancer`, add an `ipBlock` for your network.
+- **The web interface and the metrics ports** are allowed from pods in all namespaces (`networkPolicy.ingress.from`), which covers ingress controllers and Prometheus. If `serviceWeb` is a `LoadBalancer`, add an `ipBlock` for your network. The metrics ports (pihole-exporter sidecar, dnscrypt-proxy metrics) have their own rule: set `networkPolicy.ingress.metricsFrom` to give them other sources than `from`.
 - **Without an admin password** (`admin.enabled: false`), this default lets every pod in the cluster reconfigure Pi-hole through the API: DNS records, DHCP, lists, upstreams. An SSO proxy in front of the ingress (Authelia, oauth2-proxy, ...) doesn't change that, because the `<release>-web` Service is still reachable inside the cluster, and Pi-hole's passwordless check only stops browser requests from other websites, not a pod that calls it by IP. Restrict `networkPolicy.ingress.from` to your ingress controller and the API clients you run (e.g. nebula-sync):
 
   ```yaml
@@ -366,7 +366,19 @@ Set `networkPolicy.enabled: true` to restrict pod traffic:
               app: nebula-sync
   ```
 
-  Add Prometheus too if you scrape the metrics ports.
+  If you scrape the metrics ports, allow Prometheus in `networkPolicy.ingress.metricsFrom` instead of `from`, so it reaches only the metrics and not the API:
+
+  ```yaml
+  networkPolicy:
+    ingress:
+      metricsFrom:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+  ```
 - **Egress** allows DNS, HTTP/HTTPS (ad lists, DoH), DNS over TLS and traffic inside the cluster (`networkPolicy.egress`). With `serviceDhcp.enabled`, the chart also allows UDP 67/68 out for the DHCP replies to the relay and the clients, and with `ntp.sync` UDP 123 for NTP, even if you override `networkPolicy.egress`.
 - **ICMP** can't be allowed with a NetworkPolicy. With DHCP, dnsmasq pings an address before offering it; with the policy enabled that check gets no answer, so dnsmasq assumes the address is free. Keep static addresses outside the DHCP range.
 
@@ -701,12 +713,13 @@ The following table lists the configurable parameters of the pihole chart and th
 | monitoring.sidecar | object | `{"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"ekofr/pihole-exporter","tag":"v1.3.1"},"port":9617,"resources":{"limits":{"memory":"128Mi"}}}` | Sidecar configuration |
 | monitoring.sidecar.enabled | bool | `false` | set this to true to enable podMonitor as sidecar |
 | monitoring.sidecar.image.repository | string | `"ekofr/pihole-exporter"` | the repository to use |
-| networkPolicy | object | `{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}]},{"ports":[{"port":80,"protocol":"TCP"},{"port":443,"protocol":"TCP"}]},{"ports":[{"port":853,"protocol":"TCP"}]},{"to":[{"namespaceSelector":{}}]}],"enabled":false,"ingress":{"dnsFrom":[],"from":[{"namespaceSelector":{}}]}}` | NetworkPolicy configuration |
+| networkPolicy | object | `{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}]},{"ports":[{"port":80,"protocol":"TCP"},{"port":443,"protocol":"TCP"}]},{"ports":[{"port":853,"protocol":"TCP"}]},{"to":[{"namespaceSelector":{}}]}],"enabled":false,"ingress":{"dnsFrom":[],"from":[{"namespaceSelector":{}}],"metricsFrom":[]}}` | NetworkPolicy configuration |
 | networkPolicy.egress | list | `[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}]},{"ports":[{"port":80,"protocol":"TCP"},{"port":443,"protocol":"TCP"}]},{"ports":[{"port":853,"protocol":"TCP"}]},{"to":[{"namespaceSelector":{}}]}]` | Egress rules (allow DNS and HTTP/HTTPS for upstream resolution and ad list updates) |
 | networkPolicy.enabled | bool | `false` | Enable NetworkPolicy |
-| networkPolicy.ingress | object | `{"dnsFrom":[],"from":[{"namespaceSelector":{}}]}` | Ingress rules configuration |
+| networkPolicy.ingress | object | `{"dnsFrom":[],"from":[{"namespaceSelector":{}}],"metricsFrom":[]}` | Ingress rules configuration |
 | networkPolicy.ingress.dnsFrom | list | `[]` | Allowed sources for DNS (and DHCP with `serviceDhcp.enabled`). Empty (default) allows every source, because DNS clients are usually outside the cluster (through a LoadBalancer, the client IP is kept). Restrict it with ipBlocks for your networks if needed |
-| networkPolicy.ingress.from | list | `[{"namespaceSelector":{}}]` | Allowed sources for the web interface and the metrics ports. The default allows pods in all namespaces (ingress controllers, Prometheus); add an ipBlock for your network if `serviceWeb` is a LoadBalancer |
+| networkPolicy.ingress.from | list | `[{"namespaceSelector":{}}]` | Allowed sources for the web interface (and the metrics ports, unless `metricsFrom` is set). The default allows pods in all namespaces (ingress controllers, Prometheus); add an ipBlock for your network if `serviceWeb` is a LoadBalancer |
+| networkPolicy.ingress.metricsFrom | list | `[]` | Allowed sources for the metrics ports (pihole-exporter sidecar, dnscrypt-proxy metrics). Empty (default): the same sources as `from`. Set it to Prometheus to keep `from` short when the API has no password |
 | nodeSelector | object | `{}` | Node selector values |
 | ntp.sync | bool | `false` | Let Pi-hole set the system clock from an upstream NTP server (FTL `ntp.sync.active`). The clock is not namespaced: this changes the time of the whole node. Adds the `SYS_TIME` capability (not with privileged) and, with `networkPolicy.enabled`, allows NTP egress (UDP 123). `ftl.ntp_sync_active` or `extraEnvVars.FTLCONF_ntp_sync_active` take precedence. |
 | persistentVolumeClaim | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"keep":false,"size":"500Mi"}` | `PersistentVolumeClaim` for /etc/pihole |
