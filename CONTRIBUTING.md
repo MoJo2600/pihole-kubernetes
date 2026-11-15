@@ -136,6 +136,38 @@ A maintainer will review the Chart change submission, a validation job in the CI
 
 Once the Chart has been merged, the release job will automatically run in the CI to package and release the Chart.
 
+#### Versioning: pre-releases first, final releases on demand
+
+Releases are managed by [release-please](https://github.com/googleapis/release-please) (`release-please-config.json`). It is configured with `"prerelease": true`, `"versioning": "prerelease"` and `"prerelease-type": "rc"`, so every version is published as a release candidate first. Helm, Flux, Argo CD and Renovate skip SemVer pre-releases by default, so users only get a version once it is released as final.
+
+How release-please picks the next version from the commits since the last release:
+
+| Current version | Commits | Next version |
+|---|---|---|
+| `3.0.0` | `fix:` | `3.0.1-rc` |
+| `3.0.0` | `feat:` | `3.1.0-rc` |
+| `3.0.0` | breaking change (`feat!:` or `BREAKING CHANGE:` footer) | `4.0.0-rc` |
+| `3.1.0-rc` / `3.1.0-rc.N` | `fix:` or `feat:` | `3.1.0-rc.1` / `3.1.0-rc.N+1` |
+| `3.1.0-rc.N` | breaking change | `4.0.0-rc.N` (keeps the rc number) |
+| `3.0.1-rc.N` | `feat:` | `3.1.0-rc.N` (keeps the rc number) |
+
+When a bump leaves the current pre-release series (last two rows), release-please keeps the rc number. Use a `Release-As` footer (see below) to start the new series at the number you want, for example `Release-As: 4.0.0-rc.1`.
+
+Pre-release versions are marked as "Pre-release" on GitHub. Versions without a suffix are published as normal releases.
+
+To publish the final version, merge a commit into `main` that carries a `Release-As` footer with the exact version:
+
+```bash
+git commit -s --allow-empty -m "chore: release 3.1.0" -m "Release-As: 3.1.0"
+```
+
+* The footer must end up in the commit message on `main`. When squash-merging a pull request, check that `Release-As: 3.1.0` is still in the final commit message.
+* release-please then updates its release pull request to that version. Merging the release pull request creates the tag, the GitHub release and the chart package.
+* The footer only applies to this one release, nothing has to be reverted afterwards.
+* The same footer can set any version, for example `Release-As: 3.1.0-rc.1` to start a pre-release series at `.1` instead of a bare `-rc`.
+
+To go back to normal releases without release candidates, set `"prerelease": false` in `release-please-config.json`.
+
 You don't need to add yourself to the contributors list. After each merge, the `Update contributors` workflow adds new PR authors and `Co-authored-by` users and opens a `chore: update contributors` pull request (`scripts/update-contributors.sh`, run with `--dry-run` to preview).
 
 ## Support Channels
